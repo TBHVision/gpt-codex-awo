@@ -18,6 +18,8 @@ Vercel root directory:
 
 `apps/web`
 
+If a deployment shows `404: NOT_FOUND`, the most likely cause is that Vercel deployed the repository root instead of `apps/web`.
+
 Build command:
 
 `npm run build`
@@ -50,3 +52,15 @@ Preview deployments are for Tony gate review. Production is for approved milesto
 4. Deploy with the default Next.js settings.
 5. Use the Vercel preview URL for human tests and gate reviews.
 
+## Fixing A 404 Deployment
+
+1. Open the Vercel project dashboard.
+2. Go to Settings.
+3. Go to General.
+4. Find Root Directory.
+5. Set it to `apps/web`.
+6. Save.
+7. Go to Deployments.
+8. Open the latest deployment menu.
+9. Choose Redeploy.
+10. After redeploy, open `/admin/build`.

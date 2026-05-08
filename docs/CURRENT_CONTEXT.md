@@ -29,6 +29,7 @@ Gate state: Ready for self-test and human-test review. Not closed yet.
 - HTTP smoke test for `/admin/build`: passing with status 200
 - In-app browser automation: blocked by local Windows profile permission issue under `AppData`, not by app code
 - Localhost is not reliable enough for Tony review; Vercel preview deployment is now the recommended review surface.
+- If Vercel shows `404: NOT_FOUND`, verify the Vercel root directory is `apps/web`.
 
 ## Next Work
 
