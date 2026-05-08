@@ -31,11 +31,12 @@ Gate state: Ready for self-test and human-test review. Not closed yet.
 - Localhost is not reliable enough for Tony review; Vercel preview deployment is now the recommended review surface.
 - If Vercel shows `404: NOT_FOUND`, verify the Vercel root directory is `apps/web`.
 - If Vercel says `cd apps/web: No such file or directory`, remove `cd apps/web` from install/build commands because Root Directory is already `apps/web`.
+- Current Vercel recommendation is now repository root with root-level `package.json` and `vercel.json` commands that target `apps/web`.
 
 ## Next Work
 
 - Tony reviews the dashboard and checks the human-test boxes
 - Submit the V0.0 gate review in the dashboard
 - Push local Git repo to HatchVision-owned GitHub repo
-- Import GitHub repo into Vercel with root directory `apps/web`
+- Configure Vercel to deploy from repository root using committed `vercel.json`
 - Begin V0.1 planning for HatchVision-owned Supabase tenant

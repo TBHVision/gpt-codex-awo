@@ -1,0 +1,12 @@
+{
+  "name": "gpt-codex-awo",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "npm --prefix apps/web run build",
+    "dev": "npm --prefix apps/web run dev",
+    "lint": "npm --prefix apps/web run lint",
+    "start": "npm --prefix apps/web run start"
+  }
+}
+

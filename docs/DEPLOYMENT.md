@@ -4,7 +4,9 @@
 
 Use Vercel as the Tony review surface so dashboard and feature gates are not dependent on a local Windows dev server.
 
-## Recommended Setup
+## Current Recommendation
+
+Deploy from the repository root. The repo includes root-level scripts and `vercel.json` that point Vercel to the app in `apps/web`.
 
 GitHub repo:
 
@@ -16,55 +18,39 @@ Vercel project:
 
 Vercel root directory:
 
-`apps/web`
-
-If a deployment shows `404: NOT_FOUND`, the most likely cause is that Vercel deployed the repository root instead of `apps/web`.
-
-Build command:
-
-`npm run build`
+Repository root
 
 Install command:
 
-`npm install`
+`npm --prefix apps/web install`
 
-Output:
+Build command:
 
-Next.js default
+`npm --prefix apps/web run build`
 
-## Environments
+Output directory:
 
-Preview deployments are for Tony gate review. Production is for approved milestone snapshots.
+`apps/web/.next`
 
-## Tony Action: GitHub
+## Why This Setup
 
-1. Sign into GitHub using the HatchVision/business identity.
-2. Create a new private repo named `gpt-codex-awo`.
-3. Do not initialize with README, `.gitignore`, or license.
-4. Copy the repo URL.
-5. Give Codex the repo URL so it can add it as `origin` and push.
+The web app lives in `apps/web`, but the project also has root-level docs, agent files, and future backend packages. Deploying from the repository root with explicit commands makes the Vercel setup easier to reason about and avoids `apps/web/apps/web` mistakes.
 
-## Tony Action: Vercel
+## Vercel Settings
 
-1. Sign into Vercel using the HatchVision/business identity.
-2. Import the `gpt-codex-awo` GitHub repo.
-3. Set root directory to `apps/web`.
-4. Deploy with the default Next.js settings.
-5. Use the Vercel preview URL for human tests and gate reviews.
-
-## Fixing A 404 Deployment
-
-1. Open the Vercel project dashboard.
+1. Open the `gpt-codex-awo` Vercel project.
 2. Go to Settings.
-3. Go to General.
-4. Find Root Directory.
-5. Set it to `apps/web`.
-6. Save.
-7. Go to Deployments.
-8. Open the latest deployment menu.
-9. Choose Redeploy.
-10. After redeploy, open `/admin/build`.
+3. Go to Build and Deployment.
+4. Set Root Directory to the repository root. If Vercel shows a field value of `apps/web`, clear it.
+5. Ensure Install Command is `npm --prefix apps/web install`.
+6. Ensure Build Command is `npm --prefix apps/web run build`.
+7. Ensure Output Directory is `apps/web/.next`.
+8. Save.
+9. Redeploy the latest `main` commit.
 
-## Important
+## Troubleshooting
 
-Do not add `cd apps/web` to Vercel commands when Root Directory is already set to `apps/web`. Vercel runs install and build from the configured root directory.
+If Vercel says `cd apps/web: No such file or directory`, then commands are being run from inside `apps/web` already. Use either repo root with explicit `npm --prefix apps/web ...` commands, or `apps/web` root with plain `npm install` and `npm run build`. Do not mix both.
+
+If the production URL shows `404: NOT_FOUND`, verify that the production domain is assigned to the latest successful deployment and open `/admin/build`.
+
