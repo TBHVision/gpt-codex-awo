@@ -34,8 +34,8 @@ export const buildVersions: BuildVersion[] = [
   {
     id: "V0.0",
     name: "Foundation + Build Dashboard",
-    status: "In Progress",
-    gate: "Open",
+    status: "Complete",
+    gate: "Approved",
     summary:
       "Create the project cockpit, visible phase plan, agent board, and quality gates before product feature work begins.",
     selfTests: { passed: 0, total: 5 },
@@ -53,11 +53,11 @@ export const buildVersions: BuildVersion[] = [
   {
     id: "V0.1",
     name: "Security + Data/Auth",
-    status: "Planned",
-    gate: "Locked",
+    status: "In Progress",
+    gate: "Open",
     summary:
       "Add real dashboard protection, then create the Supabase tenant, schema, RLS policies, session model, and admin bootstrap path.",
-    selfTests: { passed: 0, total: 9 },
+    selfTests: { passed: 3, total: 9 },
     humanTests: { passed: 0, total: 5 },
     owners: ["Backend", "QA + Hardening"],
     blockers: ["Needs HatchVision-owned Supabase project"],

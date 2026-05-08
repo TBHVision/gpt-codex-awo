@@ -8,9 +8,9 @@ GPT-Codex AWO lives at `C:\HatchVision\AWO\GPT-Codex`.
 
 ## Current Phase
 
-V0.0 Foundation + Build Dashboard
+V0.1 Security + Data/Auth
 
-Gate state: Gate approval flow implemented and browser-verified. Tony can now submit V0.0 from the dashboard after all checks are selected.
+Gate state: Open. First deliverable is dashboard admin authentication.
 
 ## What Exists
 
@@ -28,6 +28,7 @@ Gate state: Gate approval flow implemented and browser-verified. Tony can now su
 - `npm.cmd run lint`: passing
 - `npm.cmd run build`: passing
 - HTTP smoke test for `/admin/build`: passing with status 200
+- V0.1 admin auth browser flow: `/admin/build` redirects to login, configured password unlocks dashboard, logout returns to login.
 - V0.0 Codex Tests are 5/5 based on lint, build, route generation, dashboard content, and docs present.
 - Tony completed V0.0 human tests in the web dashboard.
 - In-app browser automation is working against the local production server at `http://127.0.0.1:3000/admin/build`.
@@ -40,10 +41,11 @@ Gate state: Gate approval flow implemented and browser-verified. Tony can now su
 - `/` redirects to `/admin/build` so Vercel preview thumbnails and root visits land on the dashboard.
 - Dashboard review state is browser-local. Localhost and Vercel may differ until changes are pushed/deployed and local browser state is reset or versioned.
 - Decorative gas tank/current gate metric cards were removed because they were not tied to real usage data and duplicated the phase table.
+- V0.1 admin password gate protects `/admin/*` except `/admin/login` and `/admin/logout`.
+- Vercel must define `AWO_ADMIN_PASSWORD` and `AWO_ADMIN_SESSION_TOKEN` before production dashboard login works.
 
 ## Next Work
 
-- Tony submits the V0.0 gate review in the dashboard when ready
-- Push local Git repo to HatchVision-owned GitHub repo
-- Configure Vercel with repository root / blank Root Directory
-- Begin V0.1 planning for HatchVision-owned Supabase tenant
+- Configure Vercel environment variables for the admin gate
+- Verify production login/logout on Vercel
+- Create HatchVision-owned Supabase tenant

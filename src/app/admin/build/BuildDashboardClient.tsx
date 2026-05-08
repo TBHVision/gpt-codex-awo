@@ -432,6 +432,12 @@ export default function BuildDashboardClient() {
             <h1 className="mt-2 text-3xl font-semibold tracking-normal sm:text-4xl">
               Build-Version Dashboard
             </h1>
+            <a
+              className="mt-2 inline-flex text-sm font-semibold text-slate-500 hover:text-slate-950"
+              href="/admin/logout"
+            >
+              Log out
+            </a>
           </div>
           <div className="flex flex-col gap-2 rounded-lg border border-slate-200 bg-slate-50 p-3 lg:min-w-[420px]">
             <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">

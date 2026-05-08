@@ -63,3 +63,11 @@ Decision: V0.0 gate submission opens a confirmation dialog and requires typing `
 Why: Phase transitions should be intentional. The dashboard should not move to V0.1 from an accidental click.
 
 Status: Accepted
+
+## 2026-05-08: Start V0.1 With Admin Password Gate
+
+Decision: Protect `/admin/*` with a temporary app-level password gate before adding Supabase-backed accounts.
+
+Why: The dashboard needs immediate protection on Vercel, while Supabase tenant creation and RLS design are separate V0.1 work items.
+
+Status: Accepted
