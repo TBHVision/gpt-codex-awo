@@ -10,13 +10,26 @@ Use a clean GPT-Codex Supabase project. Do not point this app at the Claude Code
 
 1. `migrations/20260508232000_initial_schema.sql`
 
-## Applying Migrations
+## CLI
 
-Preferred path once the Supabase CLI is configured:
+The Supabase CLI is installed as a project dev dependency. Run it through npm/npx from the repo root:
 
 ```powershell
-supabase link --project-ref <project-ref>
-supabase db push
+npx supabase --version
+npm run supabase -- --help
+```
+
+## Applying Migrations
+
+Preferred path once Tony provides the project ref and authenticates locally:
+
+```powershell
+npm run db:link -- --project-ref <project-ref>
+npm run db:push
 ```
 
 Do not paste the database password, access token, or service role key into chat.
+
+## Security Note
+
+RLS policies are intentionally handled in AWO-6. The initial migration enables RLS on application tables, but policy tests must pass before product features rely on this database.

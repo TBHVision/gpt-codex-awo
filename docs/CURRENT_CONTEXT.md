@@ -46,9 +46,9 @@ Gate state: Open. First deliverable is dashboard admin authentication.
 - V0.1 admin password gate protects `/admin/*` except `/admin/login` and `/admin/logout`.
 - Vercel must define `AWO_ADMIN_PASSWORD` and `AWO_ADMIN_SESSION_TOKEN` before production dashboard login works.
 - The old editable build dashboard is retired to avoid two sources of truth. `/admin/build` is now a lightweight Linear launch page.
+- Supabase CLI is installed as a project dev dependency and runs with `npx supabase`.
 
 ## Next Work
 
-- Design initial Supabase schema and migrations
 - Add and test RLS policies
 - Document auth session model and admin bootstrap path
