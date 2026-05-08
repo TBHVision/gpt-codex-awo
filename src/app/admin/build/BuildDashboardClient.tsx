@@ -276,11 +276,7 @@ export default function BuildDashboardClient() {
     initialSavedState?.phaseApproved ?? false,
   );
   const [showGateConfirm, setShowGateConfirm] = useState(false);
-  const [savedAt, setSavedAt] = useState<string | null>(
-    initialSavedState?.savedAt ?? null,
-  );
 
-  const currentVersion = buildVersions[0];
   const normalizedSelfChecked = normalizeChecks(selfChecked, selfTests.length);
   const normalizedHumanChecked = normalizeChecks(humanChecked, humanTests.length);
   const normalizedGateChecked = normalizeChecks(
@@ -320,6 +316,10 @@ export default function BuildDashboardClient() {
       ),
     [gateSubmitted, humanPassed, phaseApproved, selfPassed],
   );
+  const activeVersion =
+    liveVersions.find((version) => version.status === "In Progress") ??
+    liveVersions.find((version) => version.gate === "Open") ??
+    liveVersions[0];
 
   const toggleSelf = (index: number) => {
     setSelfChecked((items) =>
@@ -345,24 +345,6 @@ export default function BuildDashboardClient() {
     );
   };
 
-  const saveProgress = (
-    submit = gateSubmitted,
-    approved = phaseApproved,
-  ) => {
-    const nextSavedAt = new Date().toLocaleString();
-    const state: SavedDashboardState = {
-      selfChecked: normalizedSelfChecked,
-      humanChecked: normalizedHumanChecked,
-      gateChecked: normalizedGateChecked,
-      gateSubmitted: submit,
-      phaseApproved: approved,
-      savedAt: nextSavedAt,
-    };
-
-    window.localStorage.setItem(storageKey, JSON.stringify(state));
-    setSavedAt(nextSavedAt);
-  };
-
   const submitGateReview = () => {
     setShowGateConfirm(true);
   };
@@ -382,37 +364,6 @@ export default function BuildDashboardClient() {
     };
 
     window.localStorage.setItem(storageKey, JSON.stringify(state));
-    setSavedAt(nextSavedAt);
-  };
-
-  const resetReview = () => {
-    window.localStorage.removeItem(storageKey);
-    setSelfChecked(
-      selfTests.map((item) =>
-        [
-          "Production build passes",
-          "Lint passes",
-          "/admin/build returns HTTP 200",
-          "Dashboard shows phases, agents, tests, blockers, and gate status",
-          "Docs exist for risks, environments, secrets, tests, and future scope",
-        ].includes(item),
-      ),
-    );
-    setHumanChecked(humanTests.map(() => false));
-    setGateChecked(
-      gateReview.required.map((item) =>
-        [
-          "Local web app runs",
-          "/admin/build dashboard renders",
-          "Dashboard shows versions, agents, tests, blockers, and gate status",
-          "Docs exist for risks, environments, secrets, tests, and future scope",
-        ].includes(item),
-      ),
-    );
-    setGateSubmitted(false);
-    setPhaseApproved(false);
-    setShowGateConfirm(false);
-    setSavedAt(null);
   };
 
   return (
@@ -440,26 +391,18 @@ export default function BuildDashboardClient() {
             </a>
           </div>
           <div className="flex flex-col gap-2 rounded-lg border border-slate-200 bg-slate-50 p-3 lg:min-w-[420px]">
-            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+            <div>
               <div>
                 <div className="text-sm font-semibold text-slate-950">
-                  V0.0 Review
+                  Current Phase
                 </div>
-                <div className="text-xs text-slate-600">
-                  {savedAt
-                    ? `Saved ${savedAt}`
-                    : phaseApproved
-                      ? `${currentPhaseId} approved`
-                      : "Not saved yet"}
+                <div className="mt-1 text-lg font-semibold text-slate-950">
+                  {activeVersion.id} {activeVersion.name}
                 </div>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <ActionButton kind="secondary" onClick={() => saveProgress()}>
-                  Save Progress
-                </ActionButton>
-                <ActionButton kind="danger" onClick={resetReview}>
-                  Clear Saved Review
-                </ActionButton>
+                <div className="mt-1 flex flex-wrap gap-2 text-xs text-slate-600">
+                  <span>State: {activeVersion.status}</span>
+                  <span>Gate: {activeVersion.gate}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -541,7 +484,7 @@ export default function BuildDashboardClient() {
                 <h2 className="text-xl font-semibold">Version Phases</h2>
               </div>
               <div className="flex flex-wrap gap-2">
-                <StatusLabel label={currentVersion.status} />
+                <StatusLabel label={activeVersion.status} />
                 <ActionButton
                   disabled={!canSubmitGate || gateSubmitted || phaseApproved}
                   onClick={submitGateReview}
@@ -634,7 +577,7 @@ export default function BuildDashboardClient() {
           <div className="rounded-lg border border-slate-200 bg-white p-5">
             <h2 className="text-lg font-semibold">Current Deliverables</h2>
             <div className="mt-4 space-y-3">
-              {currentVersion.deliverables.map((deliverable) => (
+              {activeVersion.deliverables.map((deliverable) => (
                 <div
                   className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700"
                   key={deliverable}
@@ -668,9 +611,7 @@ export default function BuildDashboardClient() {
           <div className="rounded-lg border border-slate-200 bg-slate-950 p-5 text-white">
             <h2 className="text-lg font-semibold">Next Action</h2>
             <p className="mt-2 text-sm leading-6 text-slate-300">
-              {phaseApproved
-                ? `${currentPhaseId} is approved. ${nextPhaseId} is now the active build phase.`
-                : `Complete every ${currentPhaseId} Codex Test and Human Test, then submit the gate review before moving to ${nextPhaseId}.`}
+              Current phase is {activeVersion.id}: {activeVersion.summary}
             </p>
           </div>
         </aside>
