@@ -1,52 +1,6 @@
 const linearProjectUrl =
   "https://linear.app/hatchvision/project/gpt-codex-awo-build-7e22f4e31cd8";
 
-const activeIssues = [
-  {
-    id: "AWO-5",
-    title: "Design initial Supabase schema and migrations",
-    url: "https://linear.app/hatchvision/issue/AWO-5/design-initial-supabase-schema-and-migrations",
-  },
-];
-
-const nextCodexIssues = [
-  {
-    id: "AWO-6",
-    title: "Implement and test RLS policies",
-    url: "https://linear.app/hatchvision/issue/AWO-6/implement-and-test-rls-policies",
-  },
-  {
-    id: "AWO-7",
-    title: "Document auth session model and admin bootstrap path",
-    url: "https://linear.app/hatchvision/issue/AWO-7/document-auth-session-model-and-admin-bootstrap-path",
-  },
-  {
-    id: "AWO-8",
-    title: "Create V0.1 seed data plan",
-    url: "https://linear.app/hatchvision/issue/AWO-8/create-v01-seed-data-plan",
-  },
-];
-
-function IssueLink({
-  issue,
-}: {
-  issue: {
-    id: string;
-    title: string;
-    url: string;
-  };
-}) {
-  return (
-    <a
-      className="block rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm hover:border-slate-300 hover:bg-white"
-      href={issue.url}
-    >
-      <span className="font-semibold text-slate-950">{issue.id}</span>
-      <span className="ml-2 text-slate-700">{issue.title}</span>
-    </a>
-  );
-}
-
 export default function BuildDashboardClient() {
   return (
     <main className="min-h-screen bg-[#f6f4ef] text-slate-950">
@@ -100,21 +54,17 @@ export default function BuildDashboardClient() {
           </div>
 
           <div className="rounded-lg border border-slate-200 bg-white p-5">
-            <h2 className="text-xl font-semibold">Current Linear Focus</h2>
-            <div className="mt-4 space-y-3">
-              {activeIssues.map((issue) => (
-                <IssueLink issue={issue} key={issue.id} />
-              ))}
-            </div>
-          </div>
-
-          <div className="rounded-lg border border-slate-200 bg-white p-5">
-            <h2 className="text-xl font-semibold">Next Codex Work</h2>
-            <div className="mt-4 space-y-3">
-              {nextCodexIssues.map((issue) => (
-                <IssueLink issue={issue} key={issue.id} />
-              ))}
-            </div>
+            <h2 className="text-xl font-semibold">Current Work</h2>
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              Open Linear for the live issue list. This page avoids hardcoded
+              ticket status so it cannot drift from the system of record.
+            </p>
+            <a
+              className="mt-4 inline-flex h-10 items-center justify-center rounded-md bg-slate-950 px-4 text-sm font-semibold text-white shadow-sm hover:bg-slate-800"
+              href={linearProjectUrl}
+            >
+              View Current Issues
+            </a>
           </div>
         </section>
 
