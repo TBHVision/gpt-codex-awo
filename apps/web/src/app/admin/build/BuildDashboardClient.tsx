@@ -78,19 +78,21 @@ export default function BuildDashboardClient() {
               Linear is now the source of truth for phases, issues, parking lot
               items, dependencies, and gate reviews.
             </p>
+          </div>
+          <div className="flex flex-wrap gap-3">
             <a
-              className="mt-3 inline-flex text-sm font-semibold text-slate-500 hover:text-slate-950"
+              className="inline-flex h-11 items-center justify-center rounded-md border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-800 shadow-sm hover:border-slate-400 hover:bg-slate-50"
               href="/admin/logout"
             >
               Log out
             </a>
+            <a
+              className="inline-flex h-11 items-center justify-center rounded-md bg-slate-950 px-5 text-sm font-semibold text-white shadow-sm hover:bg-slate-800"
+              href={linearProjectUrl}
+            >
+              Open Linear Project
+            </a>
           </div>
-          <a
-            className="inline-flex h-11 items-center justify-center rounded-md bg-slate-950 px-5 text-sm font-semibold text-white shadow-sm hover:bg-slate-800"
-            href={linearProjectUrl}
-          >
-            Open Linear Project
-          </a>
         </div>
       </section>
 
