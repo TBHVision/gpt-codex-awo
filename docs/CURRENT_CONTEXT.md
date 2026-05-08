@@ -38,6 +38,7 @@ Gate state: Pending final gate submit in web dashboard. Not closed yet.
 - Public Vercel dashboard has noindex protections: robots.txt disallows all, metadata robots noindex/nofollow, and X-Robots-Tag headers.
 - V0.1 must add an app-level password/auth gate for the dashboard.
 - `/` redirects to `/admin/build` so Vercel preview thumbnails and root visits land on the dashboard.
+- Dashboard review state is browser-local. Localhost and Vercel may differ until changes are pushed/deployed and local browser state is reset or versioned.
 
 ## Next Work
 

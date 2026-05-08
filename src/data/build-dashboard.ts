@@ -31,7 +31,9 @@ export type AgentLane = {
 };
 
 export const gasTank = {
-  label: "Green",
+  available: 100,
+  label: "Pro 5x Usage",
+  used: 18,
   detail:
     "Pro 5x is the right starting tier. Move toward Pro 20x only if long-running parallel agent work repeatedly hits usage limits or slows delivery.",
 };

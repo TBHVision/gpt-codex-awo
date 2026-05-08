@@ -36,7 +36,7 @@ const humanTests = [
   "Tony confirms the dashboard model is useful enough to guide V0.1",
 ];
 
-const storageKey = "awo-build-dashboard-v0";
+const storageKey = "awo-build-dashboard-v0.0.2";
 
 type SavedDashboardState = {
   selfChecked: boolean[];
@@ -153,6 +153,7 @@ function Checklist({
 }
 
 export default function BuildDashboardClient() {
+  const gasTankPercent = Math.round((gasTank.used / gasTank.available) * 100);
   const [selfChecked, setSelfChecked] = useState(() =>
     selfTests.map((item) =>
       [
@@ -327,11 +328,21 @@ export default function BuildDashboardClient() {
           </div>
           <div className="grid gap-3 sm:grid-cols-2 lg:w-[420px]">
             <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4">
-              <div className="text-sm font-medium text-emerald-900">
-                Gas Tank
+              <div className="flex items-center justify-between gap-3 text-sm font-medium text-emerald-900">
+                <span>Gas Tank</span>
+                <span>{gasTankPercent}% used</span>
               </div>
               <div className="mt-1 text-2xl font-semibold text-emerald-950">
                 {gasTank.label}
+              </div>
+              <div className="mt-3 h-2 rounded-full bg-emerald-100">
+                <div
+                  className="h-2 rounded-full bg-emerald-700"
+                  style={{ width: `${gasTankPercent}%` }}
+                />
+              </div>
+              <div className="mt-2 text-xs font-medium text-emerald-900">
+                {gasTank.used} used / {gasTank.available} available
               </div>
             </div>
             <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
@@ -398,7 +409,7 @@ export default function BuildDashboardClient() {
                     <th className="py-3 pr-4 font-semibold">Version</th>
                     <th className="py-3 pr-4 font-semibold">Name</th>
                     <th className="py-3 pr-4 font-semibold">Status</th>
-                    <th className="py-3 pr-4 font-semibold">Self Tests</th>
+                    <th className="py-3 pr-4 font-semibold">Codex Tests</th>
                     <th className="py-3 pr-4 font-semibold">Human Tests</th>
                     <th className="py-3 pr-4 font-semibold">Gate</th>
                   </tr>
