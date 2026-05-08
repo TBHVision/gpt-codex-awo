@@ -135,7 +135,7 @@ create table public.order_items (
   quantity integer not null default 1 check (quantity > 0),
   unit_price_cents integer not null check (unit_price_cents >= 0),
   line_total_cents integer not null check (line_total_cents >= 0),
-  reveal_public_id text not null unique default encode(gen_random_bytes(12), 'hex'),
+  reveal_public_id text not null unique default replace(gen_random_uuid()::text, '-', ''),
   reveal_pin_hash text,
   created_at timestamptz not null default now()
 );
