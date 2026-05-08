@@ -42,15 +42,17 @@ Future versions can split operational roles if needed.
 
 ## RLS Boundary
 
-The first migration enables RLS but keeps policies out of scope for AWO-5. AWO-6 must add and test policies before product routes read or write live data.
+The first migration enables RLS. AWO-6 adds the first policy layer before product routes read or write live data.
 
-Expected policy direction:
+Policy direction:
 
 - Buyers can read/write their own people, occasions, carts, and orders.
 - Artists can read/write their own artist profile and draft cards.
 - Public visitors can read only published, approved card catalog fields.
-- Recipients can access reveal records only with a valid public reveal ID and PIN flow.
+- Recipients will access reveal records through a server-side API/RPC that verifies public reveal ID and PIN.
 - Admins can manage approvals and operational records.
+
+Anonymous carts are deferred to a server-mediated flow. Direct anonymous writes are not exposed in the first RLS layer.
 
 ## Environment Variables
 

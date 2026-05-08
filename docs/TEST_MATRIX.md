@@ -3,7 +3,7 @@
 | Version | Codex Tests | Human Tests |
 | --- | --- | --- |
 | V0.0 | build, lint, dashboard route, responsive layout, docs present | dashboard clarity, phase model approval, next-action clarity |
-| V0.1 | admin gate redirect, login route, logout route, migrations, RLS checks, auth session, admin bootstrap, seed data | login flow, admin access model, environment setup |
+| V0.1 | admin gate redirect, login route, logout route, migrations, RLS policy catalog checks, auth session, admin bootstrap, seed data | login flow, admin access model, environment setup |
 | V0.2 | shop render, filters, card detail, cart persistence, checkout steps | browse feel, card trust, checkout clarity |
 | V0.3 | QR route, PIN success/error, reveal render, mobile viewport | emotional reveal, recipient clarity, artist trust |
 | V0.4 | people CRUD, occasion CRUD, calendar/feed, find-card link | warm non-CRM feel, reminder usefulness |
