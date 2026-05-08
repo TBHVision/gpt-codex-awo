@@ -6,7 +6,7 @@ Use Vercel as the Tony review surface so dashboard and feature gates are not dep
 
 ## Current Recommendation
 
-Deploy from the repository root. The repo includes root-level scripts and `vercel.json` that point Vercel to the app in `apps/web`.
+Use Vercel's native monorepo setup. The Next.js app lives in `apps/web`, so Vercel should use `apps/web` as the Root Directory and then run normal app-level npm commands from there.
 
 GitHub repo:
 
@@ -18,39 +18,38 @@ Vercel project:
 
 Vercel root directory:
 
-Repository root
+`apps/web`
 
 Install command:
 
-`npm --prefix apps/web install`
+`npm install`
 
 Build command:
 
-`npm --prefix apps/web run build`
+`npm run build`
 
 Output directory:
 
-`apps/web/.next`
+Leave blank / default
 
 ## Why This Setup
 
-The web app lives in `apps/web`, but the project also has root-level docs, agent files, and future backend packages. Deploying from the repository root with explicit commands makes the Vercel setup easier to reason about and avoids `apps/web/apps/web` mistakes.
+The web app lives in `apps/web`. Vercel can deploy monorepos cleanly when Root Directory is set to the app folder. Once that is set, install and build commands should be plain app-level commands.
 
 ## Vercel Settings
 
 1. Open the `gpt-codex-awo` Vercel project.
 2. Go to Settings.
 3. Go to Build and Deployment.
-4. Set Root Directory to the repository root. If Vercel shows a field value of `apps/web`, clear it.
-5. Ensure Install Command is `npm --prefix apps/web install`.
-6. Ensure Build Command is `npm --prefix apps/web run build`.
-7. Ensure Output Directory is `apps/web/.next`.
+4. Set Root Directory to `apps/web`.
+5. Ensure Install Command is `npm install`.
+6. Ensure Build Command is `npm run build`.
+7. Leave Output Directory blank/default.
 8. Save.
 9. Redeploy the latest `main` commit.
 
 ## Troubleshooting
 
-If Vercel says `cd apps/web: No such file or directory`, then commands are being run from inside `apps/web` already. Use either repo root with explicit `npm --prefix apps/web ...` commands, or `apps/web` root with plain `npm install` and `npm run build`. Do not mix both.
+If Vercel says `cd apps/web: No such file or directory`, then commands are being run from inside `apps/web` already. Use plain `npm install` and `npm run build`.
 
 If the production URL shows `404: NOT_FOUND`, verify that the production domain is assigned to the latest successful deployment and open `/admin/build`.
-
