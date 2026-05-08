@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   agentLanes,
   buildVersions,
-  gasTank,
   gateReview,
   parkingLot,
 } from "@/data/build-dashboard";
@@ -37,14 +36,40 @@ const humanTests = [
 ];
 
 const storageKey = "awo-build-dashboard-v0.0.2";
+const currentPhaseId = "V0.0";
+const nextPhaseId = "V0.1";
 
 type SavedDashboardState = {
   selfChecked: boolean[];
   humanChecked: boolean[];
   gateChecked: boolean[];
   gateSubmitted: boolean;
+  phaseApproved: boolean;
   savedAt: string | null;
 };
+
+function getSavedState(): SavedDashboardState | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const stored = window.localStorage.getItem(storageKey);
+
+  if (!stored) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(stored) as SavedDashboardState;
+  } catch {
+    window.localStorage.removeItem(storageKey);
+    return null;
+  }
+}
+
+function normalizeChecks(items: boolean[], length: number) {
+  return Array.from({ length }, (_, index) => items[index] ?? false);
+}
 
 function StatusLabel({ label }: { label: string }) {
   return (
@@ -130,32 +155,94 @@ function Checklist({
   onToggle: (index: number) => void;
 }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-5">
-      <h2 className="text-lg font-semibold">{title}</h2>
-      <div className="mt-4 space-y-3">
+    <div className="rounded-lg border border-slate-200 bg-white p-4">
+      <h2 className="text-base font-semibold">{title}</h2>
+      <div className="mt-3 space-y-2">
         {items.map((item, index) => (
-          <label
-            className="flex cursor-pointer gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700"
+          <button
+            aria-checked={checked[index]}
+            className="flex w-full cursor-pointer gap-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-left text-sm text-slate-700 hover:bg-white"
             key={item}
+            onClick={() => onToggle(index)}
+            role="checkbox"
+            type="button"
           >
-            <input
-              checked={checked[index]}
-              className="mt-0.5 h-4 w-4 accent-slate-950"
-              onChange={() => onToggle(index)}
-              type="checkbox"
-            />
+            <span
+              className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border ${
+                checked[index]
+                  ? "border-slate-950 bg-slate-950"
+                  : "border-slate-300 bg-white"
+              }`}
+            >
+              {checked[index] ? <span className="h-2 w-2 rounded-sm bg-white" /> : null}
+            </span>
             <span>{item}</span>
-          </label>
+          </button>
         ))}
       </div>
     </div>
   );
 }
 
+function GateState({ label }: { label: string }) {
+  return (
+    <span className="text-sm font-semibold text-slate-700">
+      Gate state: <span className="text-slate-950">{label}</span>
+    </span>
+  );
+}
+
+function ConfirmGateDialog({
+  onCancel,
+  onConfirm,
+}: {
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  const [typedPhase, setTypedPhase] = useState("");
+  const canConfirm = typedPhase.trim().toUpperCase() === currentPhaseId;
+
+  return (
+    <div
+      aria-labelledby="gate-confirm-title"
+      aria-modal="true"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 px-4"
+      role="dialog"
+    >
+      <div className="w-full max-w-lg rounded-lg border border-slate-200 bg-white p-5 shadow-xl">
+        <h2 className="text-lg font-semibold" id="gate-confirm-title">
+          Approve {currentPhaseId}
+        </h2>
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          Are you sure {currentPhaseId} is complete and ready to move on to{" "}
+          {nextPhaseId}? Type {currentPhaseId} to confirm.
+        </p>
+        <input
+          autoFocus
+          className="mt-4 h-11 w-full rounded-md border border-slate-300 px-3 text-sm outline-none focus:border-slate-950"
+          onChange={(event) => setTypedPhase(event.target.value)}
+          placeholder={currentPhaseId}
+          value={typedPhase}
+        />
+        <div className="mt-5 flex flex-wrap justify-end gap-2">
+          <ActionButton kind="secondary" onClick={onCancel}>
+            Cancel
+          </ActionButton>
+          <ActionButton disabled={!canConfirm} onClick={onConfirm}>
+            Approve Phase
+          </ActionButton>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function BuildDashboardClient() {
-  const gasTankPercent = Math.round((gasTank.used / gasTank.available) * 100);
+  const [initialSavedState] = useState(() => getSavedState());
   const [selfChecked, setSelfChecked] = useState(() =>
-    selfTests.map((item) =>
+    initialSavedState?.selfChecked?.length === selfTests.length
+      ? initialSavedState.selfChecked
+      : selfTests.map((item) =>
       [
         "Production build passes",
         "Lint passes",
@@ -163,64 +250,50 @@ export default function BuildDashboardClient() {
         "Dashboard shows phases, agents, tests, blockers, and gate status",
         "Docs exist for risks, environments, secrets, tests, and future scope",
       ].includes(item),
-    ),
+        ),
   );
   const [humanChecked, setHumanChecked] = useState(() =>
-    humanTests.map(() => false),
+    initialSavedState?.humanChecked?.length === humanTests.length
+      ? initialSavedState.humanChecked
+      : humanTests.map(() => false),
   );
   const [gateChecked, setGateChecked] = useState(() =>
-    gateReview.required.map((item) =>
+    initialSavedState?.gateChecked?.length === gateReview.required.length
+      ? initialSavedState.gateChecked
+      : gateReview.required.map((item) =>
       [
         "Local web app runs",
         "/admin/build dashboard renders",
         "Dashboard shows versions, agents, tests, blockers, and gate status",
         "Docs exist for risks, environments, secrets, tests, and future scope",
       ].includes(item),
-    ),
+        ),
   );
-  const [gateSubmitted, setGateSubmitted] = useState(false);
-  const [savedAt, setSavedAt] = useState<string | null>(null);
-  const [loaded, setLoaded] = useState(false);
+  const [gateSubmitted, setGateSubmitted] = useState(
+    initialSavedState?.gateSubmitted ?? false,
+  );
+  const [phaseApproved, setPhaseApproved] = useState(
+    initialSavedState?.phaseApproved ?? false,
+  );
+  const [showGateConfirm, setShowGateConfirm] = useState(false);
+  const [savedAt, setSavedAt] = useState<string | null>(
+    initialSavedState?.savedAt ?? null,
+  );
 
   const currentVersion = buildVersions[0];
-  const selfPassed = selfChecked.filter(Boolean).length;
-  const humanPassed = humanChecked.filter(Boolean).length;
-  const gatePassed = gateChecked.filter(Boolean).length;
+  const normalizedSelfChecked = normalizeChecks(selfChecked, selfTests.length);
+  const normalizedHumanChecked = normalizeChecks(humanChecked, humanTests.length);
+  const normalizedGateChecked = normalizeChecks(
+    gateChecked,
+    gateReview.required.length,
+  );
+  const selfPassed = normalizedSelfChecked.filter(Boolean).length;
+  const humanPassed = normalizedHumanChecked.filter(Boolean).length;
+  const gatePassed = normalizedGateChecked.filter(Boolean).length;
   const canSubmitGate =
     selfPassed === selfTests.length &&
     humanPassed === humanTests.length &&
     gatePassed === gateReview.required.length;
-
-  useEffect(() => {
-    window.setTimeout(() => {
-      const stored = window.localStorage.getItem(storageKey);
-
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored) as SavedDashboardState;
-
-          if (parsed.selfChecked?.length === selfTests.length) {
-            setSelfChecked(parsed.selfChecked);
-          }
-
-          if (parsed.humanChecked?.length === humanTests.length) {
-            setHumanChecked(parsed.humanChecked);
-          }
-
-          if (parsed.gateChecked?.length === gateReview.required.length) {
-            setGateChecked(parsed.gateChecked);
-          }
-
-          setGateSubmitted(Boolean(parsed.gateSubmitted));
-          setSavedAt(parsed.savedAt ?? null);
-        } catch {
-          window.localStorage.removeItem(storageKey);
-        }
-      }
-
-      setLoaded(true);
-    }, 0);
-  }, []);
 
   const liveVersions = useMemo(
     () =>
@@ -228,40 +301,61 @@ export default function BuildDashboardClient() {
         index === 0
           ? {
               ...version,
+              status: phaseApproved ? ("Complete" as const) : version.status,
               selfTests: { passed: selfPassed, total: selfTests.length },
               humanTests: { passed: humanPassed, total: humanTests.length },
-              gate: gateSubmitted ? ("Pending Review" as const) : version.gate,
+              gate: phaseApproved
+                ? ("Approved" as const)
+                : gateSubmitted
+                  ? ("Pending Review" as const)
+                  : version.gate,
             }
+          : index === 1 && phaseApproved
+            ? {
+                ...version,
+                status: "In Progress" as const,
+                gate: "Open" as const,
+              }
           : version,
       ),
-    [gateSubmitted, humanPassed, selfPassed],
+    [gateSubmitted, humanPassed, phaseApproved, selfPassed],
   );
 
   const toggleSelf = (index: number) => {
     setSelfChecked((items) =>
-      items.map((item, itemIndex) => (itemIndex === index ? !item : item)),
+      normalizeChecks(items, selfTests.length).map((item, itemIndex) =>
+        itemIndex === index ? !item : item,
+      ),
     );
   };
 
   const toggleHuman = (index: number) => {
     setHumanChecked((items) =>
-      items.map((item, itemIndex) => (itemIndex === index ? !item : item)),
+      normalizeChecks(items, humanTests.length).map((item, itemIndex) =>
+        itemIndex === index ? !item : item,
+      ),
     );
   };
 
   const toggleGate = (index: number) => {
     setGateChecked((items) =>
-      items.map((item, itemIndex) => (itemIndex === index ? !item : item)),
+      normalizeChecks(items, gateReview.required.length).map((item, itemIndex) =>
+        itemIndex === index ? !item : item,
+      ),
     );
   };
 
-  const saveProgress = (submit = gateSubmitted) => {
+  const saveProgress = (
+    submit = gateSubmitted,
+    approved = phaseApproved,
+  ) => {
     const nextSavedAt = new Date().toLocaleString();
     const state: SavedDashboardState = {
-      selfChecked,
-      humanChecked,
-      gateChecked,
+      selfChecked: normalizedSelfChecked,
+      humanChecked: normalizedHumanChecked,
+      gateChecked: normalizedGateChecked,
       gateSubmitted: submit,
+      phaseApproved: approved,
       savedAt: nextSavedAt,
     };
 
@@ -270,13 +364,20 @@ export default function BuildDashboardClient() {
   };
 
   const submitGateReview = () => {
+    setShowGateConfirm(true);
+  };
+
+  const approveGateReview = () => {
     setGateSubmitted(true);
+    setPhaseApproved(true);
+    setShowGateConfirm(false);
     const nextSavedAt = new Date().toLocaleString();
     const state: SavedDashboardState = {
-      selfChecked,
-      humanChecked,
-      gateChecked,
+      selfChecked: normalizedSelfChecked,
+      humanChecked: normalizedHumanChecked,
+      gateChecked: normalizedGateChecked,
       gateSubmitted: true,
+      phaseApproved: true,
       savedAt: nextSavedAt,
     };
 
@@ -292,6 +393,8 @@ export default function BuildDashboardClient() {
           "Production build passes",
           "Lint passes",
           "/admin/build returns HTTP 200",
+          "Dashboard shows phases, agents, tests, blockers, and gate status",
+          "Docs exist for risks, environments, secrets, tests, and future scope",
         ].includes(item),
       ),
     );
@@ -307,13 +410,21 @@ export default function BuildDashboardClient() {
       ),
     );
     setGateSubmitted(false);
+    setPhaseApproved(false);
+    setShowGateConfirm(false);
     setSavedAt(null);
   };
 
   return (
     <main className="min-h-screen bg-[#f6f4ef] text-slate-950">
+      {showGateConfirm ? (
+        <ConfirmGateDialog
+          onCancel={() => setShowGateConfirm(false)}
+          onConfirm={approveGateReview}
+        />
+      ) : null}
       <section className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-7xl flex-col gap-6 px-5 py-8 sm:px-8 lg:flex-row lg:items-end lg:justify-between">
+        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-5 py-6 sm:px-8 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.12em] text-slate-500">
               GPT-Codex AWO
@@ -321,36 +432,28 @@ export default function BuildDashboardClient() {
             <h1 className="mt-2 text-3xl font-semibold tracking-normal sm:text-4xl">
               Build-Version Dashboard
             </h1>
-            <p className="mt-3 max-w-3xl text-base leading-7 text-slate-600">
-              The control tower for phases, agent lanes, test coverage, gate
-              reviews, blockers, and Tony review points.
-            </p>
           </div>
-          <div className="grid gap-3 sm:grid-cols-2 lg:w-[420px]">
-            <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4">
-              <div className="flex items-center justify-between gap-3 text-sm font-medium text-emerald-900">
-                <span>Gas Tank</span>
-                <span>{gasTankPercent}% used</span>
+          <div className="flex flex-col gap-2 rounded-lg border border-slate-200 bg-slate-50 p-3 lg:min-w-[420px]">
+            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <div className="text-sm font-semibold text-slate-950">
+                  V0.0 Review
+                </div>
+                <div className="text-xs text-slate-600">
+                  {savedAt
+                    ? `Saved ${savedAt}`
+                    : phaseApproved
+                      ? `${currentPhaseId} approved`
+                      : "Not saved yet"}
+                </div>
               </div>
-              <div className="mt-1 text-2xl font-semibold text-emerald-950">
-                {gasTank.label}
-              </div>
-              <div className="mt-3 h-2 rounded-full bg-emerald-100">
-                <div
-                  className="h-2 rounded-full bg-emerald-700"
-                  style={{ width: `${gasTankPercent}%` }}
-                />
-              </div>
-              <div className="mt-2 text-xs font-medium text-emerald-900">
-                {gasTank.used} used / {gasTank.available} available
-              </div>
-            </div>
-            <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-              <div className="text-sm font-medium text-blue-900">
-                Current Gate
-              </div>
-              <div className="mt-1 text-2xl font-semibold text-blue-950">
-                {gateReview.currentVersion}
+              <div className="flex flex-wrap gap-2">
+                <ActionButton kind="secondary" onClick={() => saveProgress()}>
+                  Save Progress
+                </ActionButton>
+                <ActionButton kind="danger" onClick={resetReview}>
+                  Clear Saved Review
+                </ActionButton>
               </div>
             </div>
           </div>
@@ -359,45 +462,85 @@ export default function BuildDashboardClient() {
 
       <div className="mx-auto grid max-w-7xl gap-6 px-5 py-6 sm:px-8 lg:grid-cols-[1fr_360px]">
         <section className="space-y-6">
-          <div className="rounded-lg border border-slate-200 bg-white p-5">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h2 className="text-xl font-semibold">Version Phases</h2>
-                <p className="mt-1 text-sm text-slate-600">
-                  Codex Tests are machine-owned evidence. Human Tests are Tony
-                  review checks. Filled rectangular buttons are actions.
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <StatusLabel label={currentVersion.status} />
+          <div className="space-y-4">
+            <div className="grid gap-4 xl:grid-cols-2">
+              <Checklist
+                checked={normalizedSelfChecked}
+                items={selfTests}
+                onToggle={toggleSelf}
+                title="Codex Tests"
+              />
+              <Checklist
+                checked={normalizedHumanChecked}
+                items={humanTests}
+                onToggle={toggleHuman}
+                title="Human Tests"
+              />
+            </div>
+
+            <div className="rounded-lg border border-slate-200 bg-white p-4">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                <div>
+                  <h2 className="text-base font-semibold">Gate Review</h2>
+                  <div className="mt-1">
+                    <GateState
+                      label={
+                        phaseApproved
+                          ? "Approved"
+                          : gateSubmitted
+                            ? "Pending Review"
+                            : "Open"
+                      }
+                    />
+                  </div>
+                </div>
                 <ActionButton
-                  disabled={!canSubmitGate || gateSubmitted}
+                  disabled={!canSubmitGate || gateSubmitted || phaseApproved}
                   onClick={submitGateReview}
                 >
                   Submit Gate Review
                 </ActionButton>
               </div>
+              <div className="mt-3 grid gap-2 lg:grid-cols-2">
+                {gateReview.required.map((item, index) => (
+                  <button
+                    aria-checked={normalizedGateChecked[index]}
+                    className="flex cursor-pointer gap-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-left text-sm text-slate-700 hover:bg-white"
+                    key={item}
+                    onClick={() => toggleGate(index)}
+                    role="checkbox"
+                    type="button"
+                  >
+                    <span
+                      className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border ${
+                        normalizedGateChecked[index]
+                          ? "border-slate-950 bg-slate-950"
+                          : "border-slate-300 bg-white"
+                      }`}
+                    >
+                      {normalizedGateChecked[index] ? (
+                        <span className="h-2 w-2 rounded-sm bg-white" />
+                      ) : null}
+                    </span>
+                    <span>{item}</span>
+                  </button>
+                ))}
+              </div>
             </div>
+          </div>
 
-            <div className="mt-4 flex flex-col gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="rounded-lg border border-slate-200 bg-white p-5">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <div className="text-sm font-semibold text-slate-900">
-                  Review Progress
-                </div>
-                <div className="mt-1 text-sm text-slate-600">
-                  {savedAt
-                    ? `Saved in this browser at ${savedAt}.`
-                    : loaded
-                      ? "Not saved yet. Save progress before leaving this browser."
-                      : "Loading saved review state..."}
-                </div>
+                <h2 className="text-xl font-semibold">Version Phases</h2>
               </div>
               <div className="flex flex-wrap gap-2">
-                <ActionButton kind="secondary" onClick={() => saveProgress()}>
-                  Save Progress
-                </ActionButton>
-                <ActionButton kind="danger" onClick={resetReview}>
-                  Reset Review
+                <StatusLabel label={currentVersion.status} />
+                <ActionButton
+                  disabled={!canSubmitGate || gateSubmitted || phaseApproved}
+                  onClick={submitGateReview}
+                >
+                  Submit Gate Review
                 </ActionButton>
               </div>
             </div>
@@ -411,7 +554,7 @@ export default function BuildDashboardClient() {
                     <th className="py-3 pr-4 font-semibold">Status</th>
                     <th className="py-3 pr-4 font-semibold">Codex Tests</th>
                     <th className="py-3 pr-4 font-semibold">Human Tests</th>
-                    <th className="py-3 pr-4 font-semibold">Gate</th>
+                    <th className="py-3 pr-4 font-semibold">Gate State</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -437,35 +580,13 @@ export default function BuildDashboardClient() {
                         <ProgressBar {...version.humanTests} />
                       </td>
                       <td className="py-4 pr-4">
-                        <div className="space-y-2">
-                          <StatusLabel label={version.gate} />
-                          {version.id === "V0.0" ? (
-                            <div className="text-xs text-slate-500">
-                              Use the review panel below.
-                            </div>
-                          ) : null}
-                        </div>
+                        <GateState label={version.gate} />
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-          </div>
-
-          <div className="grid gap-6 xl:grid-cols-2">
-            <Checklist
-              checked={selfChecked}
-              items={selfTests}
-              onToggle={toggleSelf}
-              title="V0.0 Codex Tests"
-            />
-            <Checklist
-              checked={humanChecked}
-              items={humanTests}
-              onToggle={toggleHuman}
-              title="V0.0 Human Tests"
-            />
           </div>
 
           <div className="grid gap-6 xl:grid-cols-2">
@@ -498,56 +619,6 @@ export default function BuildDashboardClient() {
                     </div>
                   </div>
                 ))}
-              </div>
-            </div>
-
-            <div className="rounded-lg border border-slate-200 bg-white p-5">
-              <h2 className="text-xl font-semibold">Current Gate Review</h2>
-              <p className="mt-1 text-sm text-slate-600">
-                V0.0 closes only when evidence and human review line up.
-              </p>
-              <div className="mt-4 flex items-center gap-2">
-                <StatusLabel label={gateSubmitted ? "Pending Review" : "Open"} />
-                <span className="text-sm text-slate-500">
-                  {gateReview.currentVersion}
-                </span>
-              </div>
-              <div className="mt-5 space-y-3">
-                {gateReview.required.map((item, index) => (
-                  <label
-                    className="flex cursor-pointer gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700"
-                    key={item}
-                  >
-                    <input
-                      checked={gateChecked[index]}
-                      className="mt-0.5 h-4 w-4 accent-slate-950"
-                      onChange={() => toggleGate(index)}
-                      type="checkbox"
-                    />
-                    <span>{item}</span>
-                  </label>
-                ))}
-              </div>
-              <div className="mt-5 rounded-lg border border-slate-200 bg-slate-50 p-4">
-                <div className="text-sm font-semibold text-slate-900">
-                  Gate Rule
-                </div>
-                <p className="mt-1 text-sm leading-6 text-slate-600">
-                  The gate review can be submitted only after every Codex test,
-                  human test, and gate requirement is checked. Codex owns the
-                  Codex Tests. Tony owns the Human Tests.
-                </p>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <ActionButton
-                    disabled={!canSubmitGate || gateSubmitted}
-                    onClick={submitGateReview}
-                  >
-                    Submit Gate Review
-                  </ActionButton>
-                  <ActionButton kind="secondary" onClick={() => saveProgress()}>
-                    Save Progress
-                  </ActionButton>
-                </div>
               </div>
             </div>
           </div>
@@ -591,8 +662,9 @@ export default function BuildDashboardClient() {
           <div className="rounded-lg border border-slate-200 bg-slate-950 p-5 text-white">
             <h2 className="text-lg font-semibold">Next Action</h2>
             <p className="mt-2 text-sm leading-6 text-slate-300">
-              Complete every V0.0 self test and human test, then submit the
-              gate review before moving to V0.1.
+              {phaseApproved
+                ? `${currentPhaseId} is approved. ${nextPhaseId} is now the active build phase.`
+                : `Complete every ${currentPhaseId} Codex Test and Human Test, then submit the gate review before moving to ${nextPhaseId}.`}
             </p>
           </div>
         </aside>

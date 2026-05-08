@@ -47,3 +47,19 @@ Decision: Add noindex protections to the Vercel-hosted dashboard before using it
 Why: The V0.0 dashboard is public by URL until authentication is added. Search engines should be explicitly instructed not to crawl or index it.
 
 Status: Accepted
+
+## 2026-05-08: Remove Fake Usage Meter
+
+Decision: Remove the top gas-tank usage card and redundant current-gate card from the dashboard.
+
+Why: The gas tank was not connected to real OpenAI usage or billing data, and current gate duplicated the version phase table.
+
+Status: Accepted
+
+## 2026-05-08: Require Typed Gate Approval
+
+Decision: V0.0 gate submission opens a confirmation dialog and requires typing `V0.0` before approving the phase.
+
+Why: Phase transitions should be intentional. The dashboard should not move to V0.1 from an accidental click.
+
+Status: Accepted
