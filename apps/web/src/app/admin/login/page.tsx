@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import LoginForm from "./LoginForm";
 
 const adminCookieName = "awo_admin_session";
 
@@ -78,25 +79,7 @@ export default async function AdminLoginPage({
           </div>
         ) : null}
 
-        <form action={login} className="mt-5 space-y-4">
-          <input name="next" type="hidden" value={next} />
-          <label className="block text-sm font-semibold text-slate-700">
-            Password
-            <input
-              autoComplete="current-password"
-              className="mt-2 h-11 w-full rounded-md border border-slate-300 px-3 text-base outline-none focus:border-slate-950"
-              name="password"
-              required
-              type="password"
-            />
-          </label>
-          <button
-            className="h-11 w-full rounded-md bg-slate-950 px-4 text-sm font-semibold text-white shadow-sm hover:bg-slate-800"
-            type="submit"
-          >
-            Unlock Dashboard
-          </button>
-        </form>
+        <LoginForm action={login} next={next} />
       </section>
     </main>
   );
