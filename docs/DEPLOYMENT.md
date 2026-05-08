@@ -64,3 +64,7 @@ Preview deployments are for Tony gate review. Production is for approved milesto
 8. Open the latest deployment menu.
 9. Choose Redeploy.
 10. After redeploy, open `/admin/build`.
+
+## Important
+
+Do not add `cd apps/web` to Vercel commands when Root Directory is already set to `apps/web`. Vercel runs install and build from the configured root directory.

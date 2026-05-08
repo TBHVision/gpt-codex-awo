@@ -30,6 +30,7 @@ Gate state: Ready for self-test and human-test review. Not closed yet.
 - In-app browser automation: blocked by local Windows profile permission issue under `AppData`, not by app code
 - Localhost is not reliable enough for Tony review; Vercel preview deployment is now the recommended review surface.
 - If Vercel shows `404: NOT_FOUND`, verify the Vercel root directory is `apps/web`.
+- If Vercel says `cd apps/web: No such file or directory`, remove `cd apps/web` from install/build commands because Root Directory is already `apps/web`.
 
 ## Next Work
 
