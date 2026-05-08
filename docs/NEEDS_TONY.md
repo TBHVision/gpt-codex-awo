@@ -5,6 +5,8 @@ Current action:
 - Add `AWO_ADMIN_PASSWORD` in Vercel Project Settings -> Environment Variables.
 - Add `AWO_ADMIN_SESSION_TOKEN` in Vercel Project Settings -> Environment Variables.
 - Redeploy the Vercel project after saving those variables.
+- Review Linear issue AWO-2 for the Vercel environment-variable task.
+- Review Linear issue AWO-4 for the HatchVision-owned Supabase project task.
 
 Upcoming Tony actions:
 

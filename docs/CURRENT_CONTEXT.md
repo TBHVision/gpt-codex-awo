@@ -16,12 +16,14 @@ Gate state: Open. First deliverable is dashboard admin authentication.
 
 - Next.js app in `apps/web`
 - Next.js app mirrored at repository root for Vercel default deployment
-- Build dashboard route at `/admin/build`
-- Interactive V0.0 Codex-test, human-test, and gate-review checklists
+- Protected project home route at `/admin/build`
 - Distinct visual treatment for state labels vs action buttons
 - Dashboard data in `apps/web/src/data/build-dashboard.ts`
 - Project docs in `docs/`
 - Agent lane folders in `agents/`
+- Linear project: `GPT-Codex AWO Build`
+- Linear URL: https://linear.app/hatchvision/project/gpt-codex-awo-build-7e22f4e31cd8
+- Linear is the source of truth for phases, issues, parking lot items, dependencies, and gate reviews.
 
 ## Verification
 
@@ -43,6 +45,7 @@ Gate state: Open. First deliverable is dashboard admin authentication.
 - Decorative gas tank/current gate metric cards were removed because they were not tied to real usage data and duplicated the phase table.
 - V0.1 admin password gate protects `/admin/*` except `/admin/login` and `/admin/logout`.
 - Vercel must define `AWO_ADMIN_PASSWORD` and `AWO_ADMIN_SESSION_TOKEN` before production dashboard login works.
+- The old editable build dashboard is retired to avoid two sources of truth. `/admin/build` is now a lightweight Linear launch page.
 
 ## Next Work
 

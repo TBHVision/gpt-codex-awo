@@ -1,6 +1,16 @@
-# GPT-Codex AWO Build-Version Dashboard
+# GPT-Codex AWO Project Tracking
 
-This dashboard is the operating control tower for the GPT-Codex AWO build. It tracks version phases, agent lanes, dependencies, Codex Tests, Human Tests, gate reviews, blockers, and Tony review points.
+Linear is now the source of truth for the GPT-Codex AWO build. The custom dashboard has been retired into a lightweight protected project homepage at `/admin/build`.
+
+Linear project:
+
+https://linear.app/hatchvision/project/gpt-codex-awo-build-7e22f4e31cd8
+
+## Source Of Truth Rule
+
+- Linear owns phase status, execution issues, parking lot items, dependencies, and gate decisions.
+- Repo markdown files support implementation memory and should point back to Linear when status matters.
+- The web page should not duplicate editable issue or phase tracking.
 
 ## Version Rollup
 

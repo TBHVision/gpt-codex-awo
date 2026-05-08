@@ -71,3 +71,11 @@ Decision: Protect `/admin/*` with a temporary app-level password gate before add
 Why: The dashboard needs immediate protection on Vercel, while Supabase tenant creation and RLS design are separate V0.1 work items.
 
 Status: Accepted
+
+## 2026-05-08: Move Project Tracking To Linear
+
+Decision: Linear is the source of truth for project phases, issues, parking lot items, dependencies, and gate reviews. The custom dashboard becomes a lightweight protected project homepage.
+
+Why: Linear is a mature professional tool that future engineers will understand. Keeping both Linear and a custom editable dashboard would create drift and false confidence.
+
+Status: Accepted
