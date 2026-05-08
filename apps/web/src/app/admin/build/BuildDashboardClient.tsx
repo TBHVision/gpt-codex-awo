@@ -3,28 +3,13 @@ const linearProjectUrl =
 
 const activeIssues = [
   {
-    id: "AWO-2",
-    title: "Configure Vercel admin dashboard environment variables",
-    url: "https://linear.app/hatchvision/issue/AWO-2/configure-vercel-admin-dashboard-environment-variables",
-  },
-  {
-    id: "AWO-3",
-    title: "Verify production admin login and logout on Vercel",
-    url: "https://linear.app/hatchvision/issue/AWO-3/verify-production-admin-login-and-logout-on-vercel",
-  },
-  {
-    id: "AWO-4",
-    title: "Create HatchVision-owned Supabase project for GPT-Codex AWO",
-    url: "https://linear.app/hatchvision/issue/AWO-4/create-hatchvision-owned-supabase-project-for-gpt-codex-awo",
-  },
-];
-
-const nextCodexIssues = [
-  {
     id: "AWO-5",
     title: "Design initial Supabase schema and migrations",
     url: "https://linear.app/hatchvision/issue/AWO-5/design-initial-supabase-schema-and-migrations",
   },
+];
+
+const nextCodexIssues = [
   {
     id: "AWO-6",
     title: "Implement and test RLS policies",
@@ -115,7 +100,7 @@ export default function BuildDashboardClient() {
           </div>
 
           <div className="rounded-lg border border-slate-200 bg-white p-5">
-            <h2 className="text-xl font-semibold">Needs Tony</h2>
+            <h2 className="text-xl font-semibold">Current Linear Focus</h2>
             <div className="mt-4 space-y-3">
               {activeIssues.map((issue) => (
                 <IssueLink issue={issue} key={issue.id} />

@@ -79,3 +79,11 @@ Decision: Linear is the source of truth for project phases, issues, parking lot 
 Why: Linear is a mature professional tool that future engineers will understand. Keeping both Linear and a custom editable dashboard would create drift and false confidence.
 
 Status: Accepted
+
+## 2026-05-08: Start Clean Supabase Tenant
+
+Decision: Use the new HatchVision-owned Supabase project as the GPT-Codex AWO backend foundation. Treat Claude Code Supabase work as reference only.
+
+Why: A clean tenant avoids inherited half-finished schema, hidden policies, stale test data, and cross-project drift.
+
+Status: Accepted

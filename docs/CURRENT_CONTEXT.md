@@ -49,6 +49,6 @@ Gate state: Open. First deliverable is dashboard admin authentication.
 
 ## Next Work
 
-- Configure Vercel environment variables for the admin gate
-- Verify production login/logout on Vercel
-- Create HatchVision-owned Supabase tenant
+- Design initial Supabase schema and migrations
+- Add and test RLS policies
+- Document auth session model and admin bootstrap path
