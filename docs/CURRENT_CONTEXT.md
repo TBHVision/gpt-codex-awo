@@ -15,6 +15,7 @@ Gate state: Ready for self-test and human-test review. Not closed yet.
 ## What Exists
 
 - Next.js app in `apps/web`
+- Next.js app mirrored at repository root for Vercel default deployment
 - Build dashboard route at `/admin/build`
 - Interactive V0.0 self-test and human-test checklists
 - Distinct visual treatment for state labels vs action buttons
@@ -31,12 +32,12 @@ Gate state: Ready for self-test and human-test review. Not closed yet.
 - Localhost is not reliable enough for Tony review; Vercel preview deployment is now the recommended review surface.
 - If Vercel shows `404: NOT_FOUND`, verify the Vercel root directory is `apps/web`.
 - If Vercel says `cd apps/web: No such file or directory`, remove `cd apps/web` from install/build commands because Root Directory is already `apps/web`.
-- Current Vercel recommendation is native monorepo setup: Root Directory `apps/web`, Install Command `npm install`, Build Command `npm run build`, Output Directory blank/default.
+- Current Vercel recommendation is default repo-root deployment. The Next app is mirrored at the root to eliminate Vercel Root Directory confusion.
 
 ## Next Work
 
 - Tony reviews the dashboard and checks the human-test boxes
 - Submit the V0.0 gate review in the dashboard
 - Push local Git repo to HatchVision-owned GitHub repo
-- Configure Vercel with Root Directory `apps/web`
+- Configure Vercel with repository root / blank Root Directory
 - Begin V0.1 planning for HatchVision-owned Supabase tenant
