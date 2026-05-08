@@ -50,5 +50,5 @@ Gate state: Open. First deliverable is dashboard admin authentication.
 
 ## Next Work
 
-- Add and test RLS policies
 - Document auth session model and admin bootstrap path
+- Create V0.1 seed data plan

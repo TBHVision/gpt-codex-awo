@@ -87,3 +87,11 @@ Decision: Use the new HatchVision-owned Supabase project as the GPT-Codex AWO ba
 Why: A clean tenant avoids inherited half-finished schema, hidden policies, stale test data, and cross-project drift.
 
 Status: Accepted
+
+## 2026-05-08: Temporary Admin Gate Before Supabase Auth
+
+Decision: Keep the current app-level admin password gate only as a temporary V0.1 protection layer. Replace it with Supabase Auth-backed admin sessions after the admin bootstrap path is ready.
+
+Why: The internal project home needed immediate protection, but long-term user/admin identity should be managed through Supabase Auth and RLS.
+
+Status: Accepted

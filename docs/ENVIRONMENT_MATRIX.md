@@ -18,3 +18,11 @@ Browser-safe:
 Server-only:
 
 - `SUPABASE_SERVICE_ROLE_KEY`
+- `AWO_ADMIN_PASSWORD`
+- `AWO_ADMIN_SESSION_TOKEN`
+
+## Ownership
+
+Tony owns production secret creation and rotation in Supabase and Vercel.
+
+Codex owns documenting variable names, keeping secrets out of git, and wiring code to read them safely.
