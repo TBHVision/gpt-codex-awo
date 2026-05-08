@@ -353,7 +353,8 @@ export default function BuildDashboardClient() {
               <div>
                 <h2 className="text-xl font-semibold">Version Phases</h2>
                 <p className="mt-1 text-sm text-slate-600">
-                  Labels show state. Filled rectangular buttons are actions.
+                  Codex Tests are machine-owned evidence. Human Tests are Tony
+                  review checks. Filled rectangular buttons are actions.
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -446,7 +447,7 @@ export default function BuildDashboardClient() {
               checked={selfChecked}
               items={selfTests}
               onToggle={toggleSelf}
-              title="V0.0 Self Tests"
+              title="V0.0 Codex Tests"
             />
             <Checklist
               checked={humanChecked}
@@ -521,9 +522,9 @@ export default function BuildDashboardClient() {
                   Gate Rule
                 </div>
                 <p className="mt-1 text-sm leading-6 text-slate-600">
-                  The gate review can be submitted only after every self test,
-                  human test, and gate requirement is checked. The result saves
-                  locally in this browser for V0.0.
+                  The gate review can be submitted only after every Codex test,
+                  human test, and gate requirement is checked. Codex owns the
+                  Codex Tests. Tony owns the Human Tests.
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <ActionButton

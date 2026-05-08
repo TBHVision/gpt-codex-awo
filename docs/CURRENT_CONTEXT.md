@@ -28,7 +28,7 @@ Gate state: Pending final gate submit in web dashboard. Not closed yet.
 - `npm.cmd run lint`: passing
 - `npm.cmd run build`: passing
 - HTTP smoke test for `/admin/build`: passing with status 200
-- V0.0 self-tests are 5/5 based on lint, build, route generation, dashboard content, and docs present.
+- V0.0 Codex Tests are 5/5 based on lint, build, route generation, dashboard content, and docs present.
 - Tony completed V0.0 human tests in the web dashboard.
 - In-app browser automation: blocked by local Windows profile permission issue under `AppData`, not by app code
 - Localhost is not reliable enough for Tony review; Vercel preview deployment is now the recommended review surface.

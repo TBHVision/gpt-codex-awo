@@ -1,6 +1,6 @@
 # Test Matrix
 
-| Version | Self Tests | Human Tests |
+| Version | Codex Tests | Human Tests |
 | --- | --- | --- |
 | V0.0 | build, lint, dashboard route, responsive layout, docs present | dashboard clarity, phase model approval, next-action clarity |
 | V0.1 | migrations, RLS checks, auth session, admin bootstrap, seed data | login flow, admin access model, environment setup |
@@ -11,4 +11,3 @@
 | V0.6 | user approvals, card approvals, orders, fraud logs, analytics | ops usability, admin trust |
 | V0.7 | Playwright suite, Sentry wiring, analytics events, CI | release confidence |
 | V1.0 | full smoke suite, production build, env audit, security checks | launch review |
-

@@ -2,7 +2,7 @@
 
 ## V0.0 Foundation + Build Dashboard
 
-Status: Pending review
+Status: Pending final web dashboard submit
 
 Required before close:
 
@@ -13,3 +13,8 @@ Required before close:
 - [x] Tony confirms this is understandable and useful.
 
 Decision: Pending final gate submit in web dashboard
+
+Ownership:
+
+- Codex Tests are verified by Codex/tooling.
+- Human Tests are verified by Tony.

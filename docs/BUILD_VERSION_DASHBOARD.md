@@ -1,6 +1,6 @@
 # GPT-Codex AWO Build-Version Dashboard
 
-This dashboard is the operating control tower for the GPT-Codex AWO build. It tracks version phases, agent lanes, dependencies, tests, gate reviews, blockers, and Tony review points.
+This dashboard is the operating control tower for the GPT-Codex AWO build. It tracks version phases, agent lanes, dependencies, Codex Tests, Human Tests, gate reviews, blockers, and Tony review points.
 
 ## Gas Tank
 
