@@ -58,16 +58,23 @@ export const buildVersions: BuildVersion[] = [
   },
   {
     id: "V0.1",
-    name: "Data Model + Auth",
+    name: "Security + Data/Auth",
     status: "Planned",
     gate: "Locked",
     summary:
-      "Create the Supabase tenant, schema, RLS policies, session model, and admin bootstrap path.",
-    selfTests: { passed: 0, total: 8 },
-    humanTests: { passed: 0, total: 4 },
+      "Add real dashboard protection, then create the Supabase tenant, schema, RLS policies, session model, and admin bootstrap path.",
+    selfTests: { passed: 0, total: 9 },
+    humanTests: { passed: 0, total: 5 },
     owners: ["Backend", "QA + Hardening"],
     blockers: ["Needs HatchVision-owned Supabase project"],
-    deliverables: ["Migrations", "RLS", "Seed data", "Auth sessions", "Admin bootstrap"],
+    deliverables: [
+      "Dashboard password/auth gate",
+      "Migrations",
+      "RLS",
+      "Seed data",
+      "Auth sessions",
+      "Admin bootstrap",
+    ],
   },
   {
     id: "V0.2",
@@ -266,5 +273,10 @@ export const parkingLot = [
     reason: "Needs auth and admin permissions first",
     version: "V0.6+",
   },
+  {
+    idea: "Replace temporary public dashboard with authenticated access",
+    reason:
+      "V0.0 uses noindex plus Vercel public access; V0.1 should add an app-level password or login gate.",
+    version: "V0.1",
+  },
 ];
-

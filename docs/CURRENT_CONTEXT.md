@@ -36,6 +36,8 @@ Gate state: Pending final gate submit in web dashboard. Not closed yet.
 - If Vercel says `cd apps/web: No such file or directory`, remove `cd apps/web` from install/build commands because Root Directory is already `apps/web`.
 - Current Vercel recommendation is default repo-root deployment. The Next app is mirrored at the root to eliminate Vercel Root Directory confusion.
 - Public Vercel dashboard has noindex protections: robots.txt disallows all, metadata robots noindex/nofollow, and X-Robots-Tag headers.
+- V0.1 must add an app-level password/auth gate for the dashboard.
+- `/` redirects to `/admin/build` so Vercel preview thumbnails and root visits land on the dashboard.
 
 ## Next Work
 

@@ -13,7 +13,7 @@ Guidance: Pro 5x is the right starting tier. Move toward Pro 20x only if long-ru
 | Version | Name | Status | Self Tests | Human Tests | Gate |
 | --- | --- | --- | --- | --- | --- |
 | V0.0 | Foundation + Build Dashboard | In Review | 5/5 | 3/3 | Pending Review |
-| V0.1 | Data Model + Auth | Planned | 0/8 | 0/4 | Locked |
+| V0.1 | Security + Data/Auth | Planned | 0/9 | 0/5 | Locked |
 | V0.2 | Public Shop | Planned | 0/10 | 0/5 | Locked |
 | V0.3 | Honoree Reveal | Planned | 0/8 | 0/5 | Locked |
 | V0.4 | My People + Buyer Tools | Planned | 0/12 | 0/6 | Locked |
