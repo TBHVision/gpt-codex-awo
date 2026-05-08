@@ -39,3 +39,11 @@ Decision: Use localhost only for active Codex development and use Vercel preview
 Why: Local Windows dev servers are fragile because they depend on a terminal process staying alive. Tony gate reviews need a stable URL.
 
 Status: Accepted
+
+## 2026-05-08: Prevent Search Indexing
+
+Decision: Add noindex protections to the Vercel-hosted dashboard before using it as an internal review surface.
+
+Why: The V0.0 dashboard is public by URL until authentication is added. Search engines should be explicitly instructed not to crawl or index it.
+
+Status: Accepted

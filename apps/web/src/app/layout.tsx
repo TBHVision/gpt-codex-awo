@@ -4,6 +4,16 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "GPT-Codex AWO",
   description: "Build-version dashboard and separate AWO instance.",
+  robots: {
+    index: false,
+    follow: false,
+    nocache: true,
+    googleBot: {
+      index: false,
+      follow: false,
+      noimageindex: true,
+    },
+  },
 };
 
 export default function RootLayout({

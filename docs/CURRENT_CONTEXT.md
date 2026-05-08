@@ -33,6 +33,7 @@ Gate state: Ready for self-test and human-test review. Not closed yet.
 - If Vercel shows `404: NOT_FOUND`, verify the Vercel root directory is `apps/web`.
 - If Vercel says `cd apps/web: No such file or directory`, remove `cd apps/web` from install/build commands because Root Directory is already `apps/web`.
 - Current Vercel recommendation is default repo-root deployment. The Next app is mirrored at the root to eliminate Vercel Root Directory confusion.
+- Public Vercel dashboard has noindex protections: robots.txt disallows all, metadata robots noindex/nofollow, and X-Robots-Tag headers.
 
 ## Next Work
 
