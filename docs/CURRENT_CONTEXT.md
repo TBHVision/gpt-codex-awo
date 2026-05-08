@@ -10,7 +10,7 @@ GPT-Codex AWO lives at `C:\HatchVision\AWO\GPT-Codex`.
 
 V0.0 Foundation + Build Dashboard
 
-Gate state: Ready for self-test and human-test review. Not closed yet.
+Gate state: Pending final gate submit in web dashboard. Not closed yet.
 
 ## What Exists
 
@@ -28,6 +28,8 @@ Gate state: Ready for self-test and human-test review. Not closed yet.
 - `npm.cmd run lint`: passing
 - `npm.cmd run build`: passing
 - HTTP smoke test for `/admin/build`: passing with status 200
+- V0.0 self-tests are 5/5 based on lint, build, route generation, dashboard content, and docs present.
+- Tony completed V0.0 human tests in the web dashboard.
 - In-app browser automation: blocked by local Windows profile permission issue under `AppData`, not by app code
 - Localhost is not reliable enough for Tony review; Vercel preview deployment is now the recommended review surface.
 - If Vercel shows `404: NOT_FOUND`, verify the Vercel root directory is `apps/web`.
@@ -37,7 +39,6 @@ Gate state: Ready for self-test and human-test review. Not closed yet.
 
 ## Next Work
 
-- Tony reviews the dashboard and checks the human-test boxes
 - Submit the V0.0 gate review in the dashboard
 - Push local Git repo to HatchVision-owned GitHub repo
 - Configure Vercel with repository root / blank Root Directory

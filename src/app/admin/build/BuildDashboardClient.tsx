@@ -159,6 +159,8 @@ export default function BuildDashboardClient() {
         "Production build passes",
         "Lint passes",
         "/admin/build returns HTTP 200",
+        "Dashboard shows phases, agents, tests, blockers, and gate status",
+        "Docs exist for risks, environments, secrets, tests, and future scope",
       ].includes(item),
     ),
   );

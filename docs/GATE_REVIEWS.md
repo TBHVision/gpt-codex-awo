@@ -2,14 +2,14 @@
 
 ## V0.0 Foundation + Build Dashboard
 
-Status: Ready for self-test and human-test review
+Status: Pending review
 
 Required before close:
 
-- [ ] Local web app runs.
-- [ ] `/admin/build` dashboard renders.
-- [ ] Dashboard shows versions, agents, tests, blockers, and gate status.
-- [ ] Docs exist for risks, environments, secrets, tests, and future scope.
-- [ ] Tony confirms this is understandable and useful.
+- [x] Local web app runs.
+- [x] `/admin/build` dashboard renders.
+- [x] Dashboard shows versions, agents, tests, blockers, and gate status.
+- [x] Docs exist for risks, environments, secrets, tests, and future scope.
+- [x] Tony confirms this is understandable and useful.
 
-Decision: Pending
+Decision: Pending final gate submit in web dashboard
