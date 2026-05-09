@@ -1,4 +1,13 @@
+import Link from "next/link";
 import { getPublishedCards, type PublishedCard } from "@/lib/public-catalog";
+
+type ShopPageProps = {
+  searchParams?: Promise<{
+    occasion?: string;
+    recipient?: string;
+    q?: string;
+  }>;
+};
 
 function formatPrice(card: PublishedCard) {
   return new Intl.NumberFormat("en-US", {
@@ -67,8 +76,75 @@ function CardTile({ card }: { card: PublishedCard }) {
   );
 }
 
-export default async function ShopPage() {
+function uniqueTags(cards: PublishedCard[], key: "occasion_tags" | "recipient_tags") {
+  return Array.from(new Set(cards.flatMap((card) => card[key]))).sort();
+}
+
+function filterCards(
+  cards: PublishedCard[],
+  filters: { occasion: string; q: string; recipient: string },
+) {
+  const query = filters.q.trim().toLowerCase();
+
+  return cards.filter((card) => {
+    const matchesOccasion =
+      !filters.occasion || card.occasion_tags.includes(filters.occasion);
+    const matchesRecipient =
+      !filters.recipient || card.recipient_tags.includes(filters.recipient);
+    const matchesQuery =
+      !query ||
+      card.title.toLowerCase().includes(query) ||
+      card.description?.toLowerCase().includes(query) ||
+      card.artist_name.toLowerCase().includes(query);
+
+    return matchesOccasion && matchesRecipient && matchesQuery;
+  });
+}
+
+function FilterSelect({
+  label,
+  name,
+  options,
+  value,
+}: {
+  label: string;
+  name: string;
+  options: string[];
+  value: string;
+}) {
+  return (
+    <label className="block text-sm font-semibold text-slate-700">
+      {label}
+      <select
+        className="mt-2 h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950"
+        defaultValue={value}
+        name={name}
+      >
+        <option value="">All</option>
+        {options.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+export default async function ShopPage({ searchParams }: ShopPageProps) {
   const catalog = await getPublishedCards();
+  const params = searchParams ? await searchParams : {};
+  const filters = {
+    occasion: params.occasion ?? "",
+    q: params.q ?? "",
+    recipient: params.recipient ?? "",
+  };
+  const cards =
+    catalog.status === "ready" ? filterCards(catalog.cards, filters) : [];
+  const occasionTags =
+    catalog.status === "ready" ? uniqueTags(catalog.cards, "occasion_tags") : [];
+  const recipientTags =
+    catalog.status === "ready" ? uniqueTags(catalog.cards, "recipient_tags") : [];
 
   return (
     <main className="min-h-screen bg-[#f6f4ef] text-slate-950">
@@ -84,20 +160,65 @@ export default async function ShopPage() {
       </section>
 
       <section className="mx-auto max-w-6xl px-5 py-6 sm:px-8">
-        {catalog.status === "ready" && catalog.cards.length > 0 ? (
+        {catalog.status === "ready" ? (
+          <form
+            className="mb-5 rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
+            method="get"
+          >
+            <div className="grid gap-3 md:grid-cols-[1fr_180px_180px_auto] md:items-end">
+              <label className="block text-sm font-semibold text-slate-700">
+                Search
+                <input
+                  className="mt-2 h-10 w-full rounded-md border border-slate-300 px-3 text-sm text-slate-950"
+                  defaultValue={filters.q}
+                  name="q"
+                  placeholder="Birthday, support, artist..."
+                  type="search"
+                />
+              </label>
+              <FilterSelect
+                label="Occasion"
+                name="occasion"
+                options={occasionTags}
+                value={filters.occasion}
+              />
+              <FilterSelect
+                label="Recipient"
+                name="recipient"
+                options={recipientTags}
+                value={filters.recipient}
+              />
+              <div className="flex gap-2">
+                <button
+                  className="h-10 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white hover:bg-slate-800"
+                  type="submit"
+                >
+                  Filter
+                </button>
+                <Link
+                  className="inline-flex h-10 items-center justify-center rounded-md border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 hover:border-slate-400"
+                  href="/shop"
+                >
+                  Reset
+                </Link>
+              </div>
+            </div>
+          </form>
+        ) : null}
+
+        {catalog.status === "ready" && cards.length > 0 ? (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {catalog.cards.map((card) => (
+            {cards.map((card) => (
               <CardTile card={card} key={card.id} />
             ))}
           </div>
         ) : null}
 
-        {catalog.status === "ready" && catalog.cards.length === 0 ? (
+        {catalog.status === "ready" && cards.length === 0 ? (
           <div className="rounded-lg border border-slate-200 bg-white p-6">
-            <h2 className="text-xl font-semibold">No Cards Yet</h2>
+            <h2 className="text-xl font-semibold">No Matching Cards</h2>
             <p className="mt-2 text-sm leading-6 text-slate-600">
-              Published cards will appear here after catalog seed data or artist
-              approvals are available.
+              Try another search or reset the filters.
             </p>
           </div>
         ) : null}
