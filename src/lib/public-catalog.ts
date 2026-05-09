@@ -18,11 +18,37 @@ export type CatalogResult =
   | { cards: PublishedCard[]; status: "ready" }
   | { cards: []; message: string; status: "not_configured" | "error" };
 
-export async function getPublishedCards(): Promise<CatalogResult> {
+const publishedCardSelect = [
+  "id",
+  "artist_id",
+  "artist_name",
+  "artist_slug",
+  "title",
+  "slug",
+  "description",
+  "occasion_tags",
+  "recipient_tags",
+  "price_cents",
+  "currency",
+  "cover_media_url",
+  "published_at",
+].join(",");
+
+function getSupabasePublicConfig() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !anonKey) {
+    return null;
+  }
+
+  return { anonKey, supabaseUrl };
+}
+
+export async function getPublishedCards(): Promise<CatalogResult> {
+  const config = getSupabasePublicConfig();
+
+  if (!config) {
     return {
       cards: [],
       message:
@@ -31,33 +57,16 @@ export async function getPublishedCards(): Promise<CatalogResult> {
     };
   }
 
-  const endpoint = new URL("/rest/v1/published_cards", supabaseUrl);
+  const endpoint = new URL("/rest/v1/published_cards", config.supabaseUrl);
 
-  endpoint.searchParams.set(
-    "select",
-    [
-      "id",
-      "artist_id",
-      "artist_name",
-      "artist_slug",
-      "title",
-      "slug",
-      "description",
-      "occasion_tags",
-      "recipient_tags",
-      "price_cents",
-      "currency",
-      "cover_media_url",
-      "published_at",
-    ].join(","),
-  );
+  endpoint.searchParams.set("select", publishedCardSelect);
   endpoint.searchParams.set("order", "published_at.desc.nullslast");
 
   try {
     const response = await fetch(endpoint, {
       headers: {
-        apikey: anonKey,
-        Authorization: `Bearer ${anonKey}`,
+        apikey: config.anonKey,
+        Authorization: `Bearer ${config.anonKey}`,
       },
       next: { revalidate: 60 },
     });
@@ -77,6 +86,72 @@ export async function getPublishedCards(): Promise<CatalogResult> {
     return {
       cards: [],
       message: "Supabase catalog request failed before a response was returned.",
+      status: "error",
+    };
+  }
+}
+
+export type CardResult =
+  | { card: PublishedCard; status: "ready" }
+  | {
+      card: null;
+      message: string;
+      status: "not_configured" | "not_found" | "error";
+    };
+
+export async function getPublishedCardBySlug(
+  slug: string,
+): Promise<CardResult> {
+  const config = getSupabasePublicConfig();
+
+  if (!config) {
+    return {
+      card: null,
+      message:
+        "Supabase public environment variables are not configured for this deployment.",
+      status: "not_configured",
+    };
+  }
+
+  const endpoint = new URL("/rest/v1/published_cards", config.supabaseUrl);
+
+  endpoint.searchParams.set("select", publishedCardSelect);
+  endpoint.searchParams.set("slug", `eq.${slug}`);
+  endpoint.searchParams.set("limit", "1");
+
+  try {
+    const response = await fetch(endpoint, {
+      headers: {
+        apikey: config.anonKey,
+        Authorization: `Bearer ${config.anonKey}`,
+      },
+      next: { revalidate: 60 },
+    });
+
+    if (!response.ok) {
+      return {
+        card: null,
+        message: `Supabase card request failed with HTTP ${response.status}.`,
+        status: "error",
+      };
+    }
+
+    const cards = (await response.json()) as PublishedCard[];
+    const card = cards[0];
+
+    if (!card) {
+      return {
+        card: null,
+        message: "This card is not published or does not exist.",
+        status: "not_found",
+      };
+    }
+
+    return { card, status: "ready" };
+  } catch {
+    return {
+      card: null,
+      message: "Supabase card request failed before a response was returned.",
       status: "error",
     };
   }
