@@ -4,6 +4,7 @@ import {
   getPublishedCardBySlug,
   type PublishedCard,
 } from "@/lib/public-catalog";
+import AddToCartButton from "./AddToCartButton";
 
 type CardDetailPageProps = {
   params: Promise<{ slug: string }>;
@@ -108,12 +109,16 @@ export default async function CardDetailPage({ params }: CardDetailPageProps) {
             <TagList label="Recipients" tags={card.recipient_tags} />
           </div>
 
-          <button
-            className="mt-8 h-11 w-full rounded-md bg-slate-950 px-4 text-sm font-semibold text-white hover:bg-slate-800"
-            type="button"
-          >
-            Add to Cart
-          </button>
+          <AddToCartButton
+            item={{
+              artistName: card.artist_name,
+              currency: card.currency,
+              priceCents: card.price_cents,
+              quantity: 1,
+              slug: card.slug,
+              title: card.title,
+            }}
+          />
         </div>
       </section>
     </main>
