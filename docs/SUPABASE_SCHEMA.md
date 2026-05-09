@@ -19,8 +19,9 @@ This is the initial GPT-Codex AWO data model. It starts clean in the HatchVision
 | --- | --- |
 | `profiles` | One row per Supabase auth user with role and display fields. |
 | `artists` | Artist storefront and approval record linked to a profile. |
-| `cards` | Greeting card catalog entries created by artists and approved by admins. |
+| `cards` | Greeting card catalog entries created by artists and approved by admins. Raw table is artist/admin oriented. |
 | `card_media` | Images, videos, and other media attached to cards. |
+| `published_cards` | Public read view for the shop catalog. |
 | `people` | Buyer-owned recipient records for My People. |
 | `occasions` | Buyer-owned dates and gift/card moments tied to people. |
 | `carts` | Buyer or anonymous cart shell. |
@@ -48,7 +49,7 @@ Policy direction:
 
 - Buyers can read/write their own people, occasions, carts, and orders.
 - Artists can read/write their own artist profile and draft cards.
-- Public visitors can read only published, approved card catalog fields.
+- Public visitors read published, approved card catalog fields through `published_cards`.
 - Recipients will access reveal records through a server-side API/RPC that verifies public reveal ID and PIN.
 - Admins can manage approvals and operational records.
 

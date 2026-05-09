@@ -51,4 +51,4 @@ Gate state: Open. First deliverable is dashboard admin authentication.
 ## Next Work
 
 - Document auth session model and admin bootstrap path
-- Create V0.1 seed data plan
+- Apply/review V0.1 demo seed data when needed for V0.2 shop work

@@ -33,3 +33,15 @@ Do not paste the database password, access token, or service role key into chat.
 ## Security Note
 
 RLS policies are intentionally handled in AWO-6. The initial migration enables RLS on application tables, but policy tests must pass before product features rely on this database.
+
+## Seed Data
+
+Demo seed files live in `supabase/seed/`.
+
+Current seed file:
+
+```powershell
+npm run supabase -- db query --linked --file supabase/seed/001_demo_catalog.sql
+```
+
+Seed files are fake demo data only. Do not put real customer, artist, payment, or recipient data in them.
