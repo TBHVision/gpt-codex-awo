@@ -34,25 +34,37 @@ const publishedCardSelect = [
   "published_at",
 ].join(",");
 
+type SupabasePublicConfig =
+  | { anonKey: string; status: "ready"; supabaseUrl: string }
+  | { missing: string[]; status: "missing" };
+
 function getSupabasePublicConfig() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  if (!supabaseUrl || !anonKey) {
-    return null;
+  const missing = [
+    !supabaseUrl ? "NEXT_PUBLIC_SUPABASE_URL" : null,
+    !anonKey ? "NEXT_PUBLIC_SUPABASE_ANON_KEY" : null,
+  ].filter((name): name is string => Boolean(name));
+
+  if (missing.length > 0) {
+    return { missing, status: "missing" } satisfies SupabasePublicConfig;
   }
 
-  return { anonKey, supabaseUrl };
+  return {
+    anonKey: anonKey as string,
+    status: "ready",
+    supabaseUrl: supabaseUrl as string,
+  } satisfies SupabasePublicConfig;
 }
 
 export async function getPublishedCards(): Promise<CatalogResult> {
   const config = getSupabasePublicConfig();
 
-  if (!config) {
+  if (config.status === "missing") {
     return {
       cards: [],
-      message:
-        "Supabase public environment variables are not configured for this deployment.",
+      message: `Missing Vercel environment variable: ${config.missing.join(", ")}.`,
       status: "not_configured",
     };
   }
@@ -104,11 +116,10 @@ export async function getPublishedCardBySlug(
 ): Promise<CardResult> {
   const config = getSupabasePublicConfig();
 
-  if (!config) {
+  if (config.status === "missing") {
     return {
       card: null,
-      message:
-        "Supabase public environment variables are not configured for this deployment.",
+      message: `Missing Vercel environment variable: ${config.missing.join(", ")}.`,
       status: "not_configured",
     };
   }
