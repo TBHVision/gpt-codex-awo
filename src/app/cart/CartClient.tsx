@@ -26,9 +26,97 @@ function readCart() {
   }
 }
 
+function LineIcon({ kind }: { kind: "cart" | "search" | "user" }) {
+  const paths = {
+    cart: "M6 6h15l-2 8H8L6 3H3 M9 20h.1 M18 20h.1",
+    search: "m21 21-4.4-4.4M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z",
+    user: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8z M4 21a8 8 0 0 1 16 0",
+  } as const;
+
+  return (
+    <svg aria-hidden="true" className="size-7" viewBox="0 0 24 24">
+      <path
+        d={paths[kind]}
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.8"
+      />
+    </svg>
+  );
+}
+
+function Logo() {
+  return (
+    <Link
+      className="inline-flex items-center gap-1.5 font-black tracking-tight text-[#8b4f2c]"
+      href="/shop"
+    >
+      <span className="text-2xl">AW</span>
+      <span className="inline-flex size-8 items-center justify-center rounded-full bg-[radial-gradient(circle_at_center,#c98a55_0,#8b4f2c_45%,#5a311b_100%)] text-xs text-[#f8efe4] shadow-[inset_0_0_0_3px_rgba(255,255,255,.2)]">
+        O
+      </span>
+    </Link>
+  );
+}
+
+function TopNav({ itemCount }: { itemCount: number }) {
+  return (
+    <header className="sticky top-0 z-20 border-b border-[#e6e0d9] bg-white/95 backdrop-blur">
+      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-10">
+        <Logo />
+        <nav className="hidden items-center gap-14 text-sm font-bold uppercase tracking-wide text-[#2b2927] md:flex">
+          {["Shop", "Artists", "How It Works", "About"].map((item) => (
+            <Link
+              className={item === "Shop" ? "py-7 text-[#a85f38]" : "py-7 hover:text-[#a85f38]"}
+              href="/shop"
+              key={item}
+            >
+              {item}
+            </Link>
+          ))}
+        </nav>
+        <div className="flex items-center gap-4 text-[#252525]">
+          <LineIcon kind="search" />
+          <LineIcon kind="user" />
+          <Link
+            aria-label="Cart"
+            className="relative inline-flex size-9 items-center justify-center"
+            href="/cart"
+          >
+            <LineIcon kind="cart" />
+            <span className="absolute right-0 top-0 inline-flex size-5 items-center justify-center rounded-full bg-[#a85f38] text-xs font-bold text-white">
+              {itemCount}
+            </span>
+          </Link>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+function MiniArtwork({ title }: { title: string }) {
+  return (
+    <div className="relative size-24 shrink-0 overflow-hidden bg-gradient-to-br from-[#fbf5e9] via-[#f0e0c9] to-[#c98a55] shadow-[0_10px_24px_rgba(45,38,32,.14)]">
+      <div className="absolute inset-3 border border-white/50" />
+      <div className="absolute inset-0 opacity-45 [background-image:radial-gradient(circle_at_30%_25%,rgba(255,255,255,.9)_0_2px,transparent_3px),linear-gradient(135deg,transparent_0_47%,rgba(123,77,45,.22)_48%_52%,transparent_53%)] [background-size:24px_24px,100%_100%]" />
+      <div className="relative flex h-full items-center justify-center p-3 text-center">
+        <span className="text-xs font-black leading-tight text-[#2d2a27]">
+          {title}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export default function CartClient() {
   const [items, setItems] = useState<CartItem[]>(readCart);
 
+  const itemCount = useMemo(
+    () => items.reduce((total, item) => total + item.quantity, 0),
+    [items],
+  );
   const totalCents = useMemo(
     () =>
       items.reduce(
@@ -44,45 +132,60 @@ export default function CartClient() {
   }
 
   return (
-    <main className="min-h-screen bg-[#f6f4ef] text-slate-950">
-      <section className="border-b border-slate-200 bg-white">
-        <div className="mx-auto max-w-5xl px-5 py-8 sm:px-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.12em] text-slate-500">
-            AWO
+    <main className="min-h-screen bg-[#fbfaf8] text-[#252525]">
+      <TopNav itemCount={itemCount} />
+
+      <section className="border-b border-[#e5ded6] bg-[radial-gradient(circle_at_center,#ffffff_0,#ffffff_48%,#f4f0ea_100%)]">
+        <div className="mx-auto max-w-7xl px-6 py-10 lg:px-10">
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-[#b7653a]">
+            AWO checkout
           </p>
-          <h1 className="mt-2 text-3xl font-semibold sm:text-4xl">Cart</h1>
+          <h1 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">
+            Your Cart
+          </h1>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-[#4b4743]">
+            Review selected cards before moving into the V0.2 checkout shell.
+            Payments stay disabled until the checkout model is approved.
+          </p>
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-5xl gap-6 px-5 py-6 sm:px-8 lg:grid-cols-[1fr_320px]">
-        <div className="rounded-lg border border-slate-200 bg-white p-5">
+      <section className="mx-auto grid max-w-7xl gap-8 px-6 py-8 lg:grid-cols-[1fr_360px] lg:px-10">
+        <div className="border border-[#e5ded6] bg-white p-5 shadow-[0_18px_45px_rgba(45,38,32,.08)]">
           {items.length > 0 ? (
             <div className="space-y-4">
               {items.map((item) => (
                 <div
-                  className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between"
+                  className="flex flex-col gap-5 border border-[#e5ded6] bg-[#fbfaf8] p-4 sm:flex-row sm:items-center sm:justify-between"
                   key={item.slug}
                 >
-                  <div>
-                    <p className="font-semibold">{item.title}</p>
-                    <p className="mt-1 text-sm text-slate-600">
-                      {item.artistName} &middot; Qty {item.quantity}
-                    </p>
+                  <div className="flex items-center gap-5">
+                    <MiniArtwork title={item.title} />
+                    <div>
+                      <p className="text-lg font-black">{item.title}</p>
+                      <p className="mt-1 text-sm font-semibold text-[#4b4743]">
+                        by {item.artistName}
+                      </p>
+                      <p className="mt-3 text-xs font-black uppercase tracking-wide text-[#8a8178]">
+                        Quantity {item.quantity}
+                      </p>
+                    </div>
                   </div>
-                  <p className="font-semibold">
+                  <p className="text-xl font-black">
                     {formatPrice(item.priceCents * item.quantity, item.currency)}
                   </p>
                 </div>
               ))}
             </div>
           ) : (
-            <div>
-              <h2 className="text-xl font-semibold">Your Cart Is Empty</h2>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                Add a demo card from the shop to start the checkout shell.
+            <div className="py-10 text-center">
+              <h2 className="text-2xl font-black">Your Cart Is Empty</h2>
+              <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-[#4b4743]">
+                Add a card from the AWO shop to test the full storefront to
+                checkout flow.
               </p>
               <Link
-                className="mt-5 inline-flex h-10 items-center justify-center rounded-md bg-slate-950 px-4 text-sm font-semibold text-white hover:bg-slate-800"
+                className="mt-6 inline-flex h-11 items-center justify-center bg-[#252525] px-5 text-sm font-black uppercase tracking-wide text-white hover:bg-[#3a3632]"
                 href="/shop"
               >
                 Browse Cards
@@ -91,27 +194,37 @@ export default function CartClient() {
           )}
         </div>
 
-        <aside className="rounded-lg border border-slate-200 bg-white p-5">
-          <h2 className="text-lg font-semibold">Summary</h2>
-          <div className="mt-4 flex items-center justify-between border-t border-slate-200 pt-4">
-            <span className="text-sm font-semibold text-slate-600">Total</span>
-            <span className="text-lg font-semibold">
-              {formatPrice(totalCents)}
+        <aside className="h-fit border border-[#e5ded6] bg-white p-6 shadow-[0_18px_45px_rgba(45,38,32,.08)]">
+          <h2 className="text-xl font-black">Order Summary</h2>
+          <div className="mt-5 space-y-3 border-y border-[#e5ded6] py-5">
+            <div className="flex items-center justify-between text-sm font-bold text-[#4b4743]">
+              <span>Items</span>
+              <span>{itemCount}</span>
+            </div>
+            <div className="flex items-center justify-between text-sm font-bold text-[#4b4743]">
+              <span>Payment Status</span>
+              <span>Disabled</span>
+            </div>
+          </div>
+          <div className="mt-5 flex items-center justify-between">
+            <span className="text-sm font-black uppercase tracking-wide text-[#4b4743]">
+              Total
             </span>
+            <span className="text-2xl font-black">{formatPrice(totalCents)}</span>
           </div>
           <Link
-            className={`mt-5 inline-flex h-11 w-full items-center justify-center rounded-md px-4 text-sm font-semibold ${
+            className={`mt-6 inline-flex h-12 w-full items-center justify-center px-4 text-sm font-black uppercase tracking-wide ${
               items.length > 0
-                ? "bg-slate-950 text-white hover:bg-slate-800"
-                : "pointer-events-none bg-slate-200 text-slate-500"
+                ? "bg-[#252525] text-white hover:bg-[#3a3632]"
+                : "pointer-events-none bg-[#e5ded6] text-[#8a8178]"
             }`}
             href="/checkout"
           >
-            Checkout Shell
+            Continue to Checkout
           </Link>
           {items.length > 0 ? (
             <button
-              className="mt-3 h-10 w-full rounded-md border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 hover:border-slate-400"
+              className="mt-3 h-11 w-full border border-[#dfd5ca] bg-white px-4 text-sm font-black uppercase tracking-wide text-[#b7653a] hover:border-[#b7653a]"
               onClick={clearCart}
               type="button"
             >
