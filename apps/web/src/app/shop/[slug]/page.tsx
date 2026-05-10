@@ -246,6 +246,12 @@ export default async function CardDetailPage({ params }: CardDetailPageProps) {
               Full provenance evidence unlocks after purchase through the AWO
               QR + PIN reveal flow.
             </p>
+            <Link
+              className="mt-4 inline-flex h-10 items-center justify-center border border-[#dfd5ca] bg-white px-4 text-xs font-black uppercase tracking-wide text-[#b7653a] hover:border-[#b7653a]"
+              href="/reveal"
+            >
+              Preview QR + PIN Reveal
+            </Link>
           </div>
         </aside>
       </section>

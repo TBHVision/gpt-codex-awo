@@ -79,7 +79,7 @@ export default function RevealClient() {
 
   return (
     <main className="min-h-screen bg-[#fbfaf8] text-[#252525]">
-      <StorefrontNav active="shop" />
+      <StorefrontNav active="reveal" />
 
       <section className="border-b border-[#e5ded6] bg-[radial-gradient(circle_at_center,#ffffff_0,#ffffff_45%,#f4f0ea_100%)]">
         <div className="mx-auto grid max-w-7xl gap-10 px-6 py-12 lg:grid-cols-[1fr_420px] lg:px-10">

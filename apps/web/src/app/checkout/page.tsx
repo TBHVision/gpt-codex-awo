@@ -71,6 +71,12 @@ export default function CheckoutPage() {
           >
             Back to Cart
           </Link>
+          <Link
+            className="mt-3 inline-flex h-11 w-full items-center justify-center bg-[#252525] px-4 text-sm font-black uppercase tracking-wide text-white hover:bg-[#3a3632]"
+            href="/reveal"
+          >
+            Preview Reveal Flow
+          </Link>
         </aside>
       </section>
     </main>

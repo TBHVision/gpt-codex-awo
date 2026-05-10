@@ -9,7 +9,7 @@ import {
 } from "@/lib/cart-types";
 
 type StorefrontNavProps = {
-  active?: "cart" | "shop";
+  active?: "cart" | "reveal" | "shop";
 };
 
 function LineIcon({ kind }: { kind: "cart" | "search" | "user" }) {
@@ -70,17 +70,22 @@ export default function StorefrontNav({ active = "shop" }: StorefrontNavProps) {
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-10">
         <Logo />
         <nav className="hidden items-center gap-14 text-sm font-bold uppercase tracking-wide text-[#2b2927] md:flex">
-          {["Shop", "Artists", "How It Works", "About"].map((item) => (
+          {[
+            { href: "/shop", label: "Shop", value: "shop" },
+            { href: "/shop", label: "Artists", value: "" },
+            { href: "/reveal", label: "Reveal", value: "reveal" },
+            { href: "/shop", label: "About", value: "" },
+          ].map((item) => (
             <Link
               className={`py-7 ${
-                item === "Shop" && active === "shop"
+                item.value === active
                   ? "border-b-2 border-[#b7653a] text-[#a85f38]"
                   : "hover:text-[#a85f38]"
               }`}
-              href="/shop"
-              key={item}
+              href={item.href}
+              key={item.label}
             >
-              {item}
+              {item.label}
             </Link>
           ))}
         </nav>
