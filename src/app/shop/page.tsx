@@ -1,4 +1,5 @@
 import Link from "next/link";
+import StorefrontNav from "@/app/components/StorefrontNav";
 import { getPublishedCards, type PublishedCard } from "@/lib/public-catalog";
 
 type ShopPageProps = {
@@ -30,24 +31,6 @@ function formatPrice(card: PublishedCard) {
     currency: card.currency,
     style: "currency",
   }).format(card.price_cents / 100);
-}
-
-function Icon({
-  children,
-  label,
-}: {
-  children: React.ReactNode;
-  label: string;
-}) {
-  return (
-    <span
-      aria-label={label}
-      className="inline-flex size-9 items-center justify-center text-[#252525]"
-      role="img"
-    >
-      {children}
-    </span>
-  );
 }
 
 function ShieldIcon() {
@@ -123,57 +106,6 @@ function Logo({ compact = false }: { compact?: boolean }) {
         O
       </span>
     </Link>
-  );
-}
-
-function TopNav() {
-  return (
-    <header className="sticky top-0 z-20 border-b border-[#e6e0d9] bg-white/95 backdrop-blur">
-      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-10">
-        <Logo compact />
-        <nav className="hidden items-center gap-14 text-sm font-bold uppercase tracking-wide text-[#2b2927] md:flex">
-          {["Shop", "Artists", "How It Works", "About"].map((item) => (
-            <Link
-              className={`py-7 ${
-                item === "Shop"
-                  ? "border-b-2 border-[#b7653a] text-[#a85f38]"
-                  : "hover:text-[#a85f38]"
-              }`}
-              href="/shop"
-              key={item}
-            >
-              {item}
-            </Link>
-          ))}
-        </nav>
-        <div className="flex items-center gap-4">
-          <Icon label="Search">
-            <svg aria-hidden="true" className="size-6" viewBox="0 0 24 24">
-              <path
-                d="m21 21-4.4-4.4M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z"
-                fill="none"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeWidth="2"
-              />
-            </svg>
-          </Icon>
-          <Icon label="Account">
-            <LineIcon kind="user" />
-          </Icon>
-          <Link
-            aria-label="Cart"
-            className="relative inline-flex size-9 items-center justify-center text-[#252525]"
-            href="/cart"
-          >
-            <LineIcon kind="lock" />
-            <span className="absolute right-0 top-0 inline-flex size-5 items-center justify-center rounded-full bg-[#a85f38] text-xs font-bold text-white">
-              0
-            </span>
-          </Link>
-        </div>
-      </div>
-    </header>
   );
 }
 
@@ -379,7 +311,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
 
   return (
     <main className="min-h-screen bg-[#fbfaf8] text-[#252525]">
-      <TopNav />
+      <StorefrontNav active="shop" />
 
       <section className="bg-[radial-gradient(circle_at_center,#ffffff_0,#ffffff_45%,#f4f0ea_100%)] px-6 pb-12 pt-12 lg:px-10">
         <div className="mx-auto max-w-7xl text-center">

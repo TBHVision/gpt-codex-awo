@@ -2,24 +2,14 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { readCartFromStorage, writeCartToStorage } from "@/lib/cart-types";
 import type { CartItem } from "@/lib/cart-types";
-
-const cartStorageKey = "awo_demo_cart";
-
-function readCart() {
-  try {
-    const raw = window.localStorage.getItem(cartStorageKey);
-    return raw ? (JSON.parse(raw) as CartItem[]) : [];
-  } catch {
-    return [];
-  }
-}
 
 export default function AddToCartButton({ item }: { item: CartItem }) {
   const [added, setAdded] = useState(false);
 
   function addToCart() {
-    const cart = readCart();
+    const cart = readCartFromStorage();
     const existing = cart.find((cartItem) => cartItem.slug === item.slug);
     const nextCart = existing
       ? cart.map((cartItem) =>
@@ -29,7 +19,7 @@ export default function AddToCartButton({ item }: { item: CartItem }) {
         )
       : [...cart, item];
 
-    window.localStorage.setItem(cartStorageKey, JSON.stringify(nextCart));
+    writeCartToStorage(nextCart);
     setAdded(true);
   }
 

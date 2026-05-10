@@ -4,6 +4,7 @@ import {
   getPublishedCardBySlug,
   type PublishedCard,
 } from "@/lib/public-catalog";
+import StorefrontNav from "@/app/components/StorefrontNav";
 import AddToCartButton from "./AddToCartButton";
 
 type CardDetailPageProps = {
@@ -58,59 +59,6 @@ function ShieldIcon() {
         strokeWidth="1.8"
       />
     </svg>
-  );
-}
-
-function Logo() {
-  return (
-    <Link
-      className="inline-flex items-center gap-1.5 font-black tracking-tight text-[#8b4f2c]"
-      href="/shop"
-    >
-      <span className="text-2xl">AW</span>
-      <span className="inline-flex size-8 items-center justify-center rounded-full bg-[radial-gradient(circle_at_center,#c98a55_0,#8b4f2c_45%,#5a311b_100%)] text-xs text-[#f8efe4] shadow-[inset_0_0_0_3px_rgba(255,255,255,.2)]">
-        O
-      </span>
-    </Link>
-  );
-}
-
-function TopNav() {
-  return (
-    <header className="sticky top-0 z-20 border-b border-[#e6e0d9] bg-white/95 backdrop-blur">
-      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-10">
-        <Logo />
-        <nav className="hidden items-center gap-14 text-sm font-bold uppercase tracking-wide text-[#2b2927] md:flex">
-          {["Shop", "Artists", "How It Works", "About"].map((item) => (
-            <Link
-              className={`py-7 ${
-                item === "Shop"
-                  ? "border-b-2 border-[#b7653a] text-[#a85f38]"
-                  : "hover:text-[#a85f38]"
-              }`}
-              href="/shop"
-              key={item}
-            >
-              {item}
-            </Link>
-          ))}
-        </nav>
-        <div className="flex items-center gap-4 text-[#252525]">
-          <LineIcon kind="search" />
-          <LineIcon kind="user" />
-          <Link
-            aria-label="Cart"
-            className="relative inline-flex size-9 items-center justify-center"
-            href="/cart"
-          >
-            <LineIcon kind="cart" />
-            <span className="absolute right-0 top-0 inline-flex size-5 items-center justify-center rounded-full bg-[#a85f38] text-xs font-bold text-white">
-              0
-            </span>
-          </Link>
-        </div>
-      </div>
-    </header>
   );
 }
 
@@ -210,7 +158,7 @@ export default async function CardDetailPage({ params }: CardDetailPageProps) {
   if (result.status !== "ready") {
     return (
       <main className="min-h-screen bg-[#fbfaf8] text-[#252525]">
-        <TopNav />
+        <StorefrontNav active="shop" />
         <section className="mx-auto max-w-3xl px-6 py-12 lg:px-10">
           <div className="border border-[#e5ded6] bg-white p-8 text-center">
             <h1 className="text-2xl font-bold">Card Not Ready</h1>
@@ -233,7 +181,7 @@ export default async function CardDetailPage({ params }: CardDetailPageProps) {
 
   return (
     <main className="min-h-screen bg-[#fbfaf8] text-[#252525]">
-      <TopNav />
+      <StorefrontNav active="shop" />
 
       <section className="mx-auto grid max-w-7xl gap-10 px-6 py-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(420px,.95fr)] lg:px-10 lg:py-14">
         <div>
