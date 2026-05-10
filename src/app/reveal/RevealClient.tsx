@@ -26,6 +26,29 @@ const previewSections = [
   },
 ];
 
+const timelineSteps = [
+  {
+    body: "The artist creates the original work and starts the origin record.",
+    label: "Created",
+  },
+  {
+    body: "AWO captures the story, artwork state, and demo evidence package.",
+    label: "Captured",
+  },
+  {
+    body: "The buyer selects the card and prepares it for a specific recipient.",
+    label: "Purchased",
+  },
+  {
+    body: "The card is gifted with a QR + PIN path for the honoree reveal.",
+    label: "Gifted",
+  },
+  {
+    body: "The recipient unlocks the story and sees the provenance preview.",
+    label: "Revealed",
+  },
+];
+
 function QrIcon() {
   return (
     <svg aria-hidden="true" className="size-9" viewBox="0 0 24 24">
@@ -167,6 +190,28 @@ export default function RevealClient() {
             <h2 className="mt-3 text-3xl font-black tracking-tight">
               Provenance preview for {cardCode.trim()}
             </h2>
+            <div className="mt-8 border border-[#e5ded6] bg-white p-6 shadow-[0_18px_45px_rgba(45,38,32,.06)]">
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-[#b7653a]">
+                Provenance Timeline
+              </p>
+              <div className="mt-5 grid gap-4 lg:grid-cols-5">
+                {timelineSteps.map((step, index) => (
+                  <div className="relative" key={step.label}>
+                    <div className="flex items-center gap-3">
+                      <span className="inline-flex size-8 items-center justify-center rounded-full bg-[#252525] text-sm font-black text-white">
+                        {index + 1}
+                      </span>
+                      <h3 className="text-sm font-black uppercase tracking-wide">
+                        {step.label}
+                      </h3>
+                    </div>
+                    <p className="mt-3 text-sm leading-6 text-[#4b4743]">
+                      {step.body}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
             <div className="mt-8 grid gap-5 md:grid-cols-2">
               {previewSections.map((section) => (
                 <article
