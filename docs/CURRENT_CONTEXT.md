@@ -8,11 +8,11 @@ GPT-Codex AWO lives at `C:\HatchVision\AWO\GPT-Codex`.
 
 ## Current Phase
 
-Reveal lifecycle hardening.
+Admin lifecycle queue visibility.
 
-Active Linear issue: AWO-47.
+Active Linear issue: AWO-48.
 
-Goal: enforce reveal credential status and lock rules before returning any sensitive reveal payload.
+Goal: expose read-only lifecycle queues for orders, payments, item fulfillment, reveals, and stuck states in admin ops.
 
 ## What Exists
 
@@ -100,10 +100,16 @@ Goal: enforce reveal credential status and lock rules before returning any sensi
     credentials return safe failure messages without card/artist payloads
   - invalid PIN attempts lock the credential at the configured threshold
   - successful reveals emit `recipient_revealed` custody events
+- AWO-48 extends `/admin/ops` with lifecycle queues:
+  - order, payment, item, and reveal credential state counts
+  - stuck queues for stale draft orders, failed payments, credential generation
+    failures, and locked reveals
+  - recent orders include order, payment, and fulfillment states
+  - the page remains read-only and depends on server-only service-role access for
+    sensitive operational metrics
 
 ## Next Work
 
 - Use the new Linear runway:
   - AWO-46 Stripe test-mode payment lifecycle
-  - AWO-48 lifecycle queues in admin ops
   - AWO-44 mobile and visual QA across golden paths

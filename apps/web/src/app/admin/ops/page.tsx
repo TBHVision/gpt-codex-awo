@@ -3,6 +3,14 @@ import { loadAdminOpsSnapshot } from "@/lib/admin-ops";
 
 export const dynamic = "force-dynamic";
 
+type MetricState = "blocked" | "healthy" | "warning";
+
+type Metric = {
+  label: string;
+  state: MetricState;
+  value: string;
+};
+
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("en-US", {
     dateStyle: "medium",
@@ -10,7 +18,7 @@ function formatDate(value: string) {
   }).format(new Date(value));
 }
 
-function stateClass(state: "blocked" | "healthy" | "warning") {
+function stateClass(state: MetricState) {
   if (state === "healthy") {
     return "border-emerald-200 bg-emerald-50 text-emerald-900";
   }
@@ -20,6 +28,39 @@ function stateClass(state: "blocked" | "healthy" | "warning") {
   }
 
   return "border-rose-200 bg-rose-50 text-rose-950";
+}
+
+function MetricGrid({
+  emptyText,
+  items,
+  title,
+}: {
+  emptyText: string;
+  items: Metric[];
+  title: string;
+}) {
+  return (
+    <div className="rounded-lg border border-slate-200 bg-white p-5">
+      <h2 className="text-xl font-semibold">{title}</h2>
+      {items.length > 0 ? (
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          {items.map((metric) => (
+            <div
+              className={`rounded-md border p-4 ${stateClass(metric.state)}`}
+              key={`${title}-${metric.label}`}
+            >
+              <p className="text-sm font-semibold capitalize">{metric.label}</p>
+              <p className="mt-2 text-3xl font-semibold">{metric.value}</p>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="mt-4 rounded-md border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+          {emptyText}
+        </p>
+      )}
+    </div>
+  );
 }
 
 export default async function AdminOpsPage() {
@@ -42,7 +83,7 @@ export default async function AdminOpsPage() {
               deliberately designed.
             </p>
             <p className="mt-2 text-sm font-semibold text-slate-500">
-              Snapshot: {formatDate(snapshot.generatedAt)} ·{" "}
+              Snapshot: {formatDate(snapshot.generatedAt)} -{" "}
               {snapshot.mode === "full" ? "Full ops mode" : "Limited ops mode"}
             </p>
           </div>
@@ -65,26 +106,23 @@ export default async function AdminOpsPage() {
 
       <div className="mx-auto grid max-w-6xl gap-6 px-5 py-6 sm:px-8 lg:grid-cols-[1fr_360px]">
         <section className="space-y-6">
-          <div className="rounded-lg border border-slate-200 bg-white p-5">
-            <h2 className="text-xl font-semibold">Order Metrics</h2>
-            {snapshot.orderMetrics.length > 0 ? (
-              <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                {snapshot.orderMetrics.map((metric) => (
-                  <div
-                    className={`rounded-md border p-4 ${stateClass(metric.state)}`}
-                    key={metric.label}
-                  >
-                    <p className="text-sm font-semibold">{metric.label}</p>
-                    <p className="mt-2 text-3xl font-semibold">{metric.value}</p>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="mt-4 rounded-md border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
-                Order metrics require server-only Supabase service-role access.
-              </p>
-            )}
-          </div>
+          <MetricGrid
+            emptyText="Order lifecycle metrics require server-only Supabase service-role access."
+            items={snapshot.orderMetrics}
+            title="Order Lifecycle"
+          />
+
+          <MetricGrid
+            emptyText="Payment lifecycle metrics require server-only Supabase service-role access."
+            items={snapshot.paymentLifecycle}
+            title="Payment Lifecycle"
+          />
+
+          <MetricGrid
+            emptyText="Order item lifecycle metrics require server-only Supabase service-role access."
+            items={snapshot.itemLifecycle}
+            title="Order Item Lifecycle"
+          />
 
           <div className="rounded-lg border border-slate-200 bg-white p-5">
             <h2 className="text-xl font-semibold">Recent Orders</h2>
@@ -92,7 +130,7 @@ export default async function AdminOpsPage() {
               {snapshot.recentOrders.length > 0 ? (
                 snapshot.recentOrders.map((order) => (
                   <article
-                    className="grid gap-2 py-4 sm:grid-cols-[1fr_180px]"
+                    className="grid gap-2 py-4 sm:grid-cols-[1fr_260px]"
                     key={order.id}
                   >
                     <div>
@@ -106,9 +144,18 @@ export default async function AdminOpsPage() {
                         {formatDate(order.created_at)}
                       </p>
                     </div>
-                    <span className="h-fit rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700">
-                      {order.status}
-                    </span>
+                    <div className="flex flex-wrap gap-2 sm:justify-end">
+                      {[order.status, order.payment_status, order.fulfillment_status].map(
+                        (state) => (
+                          <span
+                            className="h-fit rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold capitalize text-slate-700"
+                            key={`${order.id}-${state}`}
+                          >
+                            {state.replace(/_/g, " ")}
+                          </span>
+                        ),
+                      )}
+                    </div>
                   </article>
                 ))
               ) : (
@@ -119,26 +166,17 @@ export default async function AdminOpsPage() {
             </div>
           </div>
 
-          <div className="rounded-lg border border-slate-200 bg-white p-5">
-            <h2 className="text-xl font-semibold">Reveal Metrics</h2>
-            {snapshot.revealMetrics.length > 0 ? (
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                {snapshot.revealMetrics.map((metric) => (
-                  <div
-                    className={`rounded-md border p-4 ${stateClass(metric.state)}`}
-                    key={metric.label}
-                  >
-                    <p className="text-sm font-semibold">{metric.label}</p>
-                    <p className="mt-2 text-3xl font-semibold">{metric.value}</p>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="mt-4 rounded-md border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
-                Reveal metrics require server-only Supabase service-role access.
-              </p>
-            )}
-          </div>
+          <MetricGrid
+            emptyText="Reveal metrics require server-only Supabase service-role access."
+            items={snapshot.revealMetrics}
+            title="Reveal Credential Lifecycle"
+          />
+
+          <MetricGrid
+            emptyText="Stuck lifecycle queues require server-only Supabase service-role access."
+            items={snapshot.stuckQueues}
+            title="Stuck Queues"
+          />
         </section>
 
         <aside className="space-y-6">

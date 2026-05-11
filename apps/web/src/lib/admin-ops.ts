@@ -7,7 +7,9 @@ type CountResult = {
 type RecentOrder = {
   checkout_reference: string | null;
   created_at: string;
+  fulfillment_status: string;
   id: string;
+  payment_status: string;
   recipient_name: string | null;
   status: string;
   total_cents: number;
@@ -16,10 +18,13 @@ type RecentOrder = {
 export type AdminOpsSnapshot = {
   generatedAt: string;
   health: CountResult[];
+  itemLifecycle: CountResult[];
   mode: "full" | "limited";
   orderMetrics: CountResult[];
+  paymentLifecycle: CountResult[];
   recentOrders: RecentOrder[];
   revealMetrics: CountResult[];
+  stuckQueues: CountResult[];
 };
 
 function getSupabaseConfig() {
@@ -73,7 +78,7 @@ async function fetchCount(input: {
 
 async function fetchRecentOrders(input: { key: string; supabaseUrl: string }) {
   const response = await fetch(
-    `${input.supabaseUrl}/rest/v1/orders?select=id,checkout_reference,recipient_name,status,total_cents,created_at&order=created_at.desc&limit=5`,
+    `${input.supabaseUrl}/rest/v1/orders?select=id,checkout_reference,recipient_name,status,payment_status,fulfillment_status,total_cents,created_at&order=created_at.desc&limit=5`,
     {
       cache: "no-store",
       headers: headersFor(input.key),
@@ -97,11 +102,34 @@ function missingConfigSnapshot(missing: string[]): AdminOpsSnapshot {
         value: `Missing ${missing.join(", ")}`,
       },
     ],
+    itemLifecycle: [],
     mode: "limited",
     orderMetrics: [],
+    paymentLifecycle: [],
     recentOrders: [],
     revealMetrics: [],
+    stuckQueues: [],
   };
+}
+
+async function fetchMetricSet(input: {
+  key: string;
+  metric: (state: string, count: number | null) => CountResult;
+  pathFor: (state: string) => string;
+  states: string[];
+  supabaseUrl: string;
+}) {
+  const counts = await Promise.all(
+    input.states.map((state) =>
+      fetchCount({
+        key: input.key,
+        path: input.pathFor(state),
+        supabaseUrl: input.supabaseUrl,
+      }),
+    ),
+  );
+
+  return input.states.map((state, index) => input.metric(state, counts[index]));
 }
 
 export async function loadAdminOpsSnapshot(): Promise<AdminOpsSnapshot> {
@@ -137,33 +165,103 @@ export async function loadAdminOpsSnapshot(): Promise<AdminOpsSnapshot> {
         },
       ],
       mode: "limited",
+      itemLifecycle: [],
       orderMetrics: [],
+      paymentLifecycle: [],
       recentOrders: [],
       revealMetrics: [],
+      stuckQueues: [],
     };
   }
 
+  const staleDraftCutoff = encodeURIComponent(
+    new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+  );
+
   const [
-    draftOrders,
-    paidOrders,
-    totalOrders,
+    orderLifecycle,
+    paymentLifecycle,
+    itemLifecycle,
+    revealLifecycle,
     revealRows,
     pendingCards,
+    staleDraftOrders,
+    failedPayments,
+    generationFailures,
+    lockedReveals,
     recentOrders,
   ] = await Promise.all([
-    fetchCount({
+    fetchMetricSet({
       key: serviceRoleKey,
-      path: "/rest/v1/orders?select=id&status=eq.draft",
+      metric: (state, count) => ({
+        label: state.replace(/_/g, " "),
+        state: state === "canceled" || state === "refunded" ? "warning" : "healthy",
+        value: formatCount(count),
+      }),
+      pathFor: (state) => `/rest/v1/orders?select=id&status=eq.${state}`,
+      states: ["draft", "pending_payment", "paid", "fulfilled", "canceled", "refunded"],
       supabaseUrl,
     }),
-    fetchCount({
+    fetchMetricSet({
       key: serviceRoleKey,
-      path: "/rest/v1/orders?select=id&status=eq.paid",
+      metric: (state, count) => ({
+        label: state.replace(/_/g, " "),
+        state:
+          state === "failed" || state === "partially_refunded" || state === "refunded"
+            ? "warning"
+            : "healthy",
+        value: formatCount(count),
+      }),
+      pathFor: (state) => `/rest/v1/orders?select=id&payment_status=eq.${state}`,
+      states: ["not_started", "pending", "paid", "failed", "partially_refunded", "refunded"],
       supabaseUrl,
     }),
-    fetchCount({
+    fetchMetricSet({
       key: serviceRoleKey,
-      path: "/rest/v1/orders?select=id",
+      metric: (state, count) => ({
+        label: state.replace(/_/g, " "),
+        state:
+          state === "credential_pending" || state === "canceled" || state === "refunded"
+            ? "warning"
+            : "healthy",
+        value: formatCount(count),
+      }),
+      pathFor: (state) => `/rest/v1/order_items?select=id&status=eq.${state}`,
+      states: [
+        "reserved",
+        "purchased",
+        "credential_pending",
+        "credential_active",
+        "revealed",
+        "completed",
+        "canceled",
+        "refunded",
+      ],
+      supabaseUrl,
+    }),
+    fetchMetricSet({
+      key: serviceRoleKey,
+      metric: (state, count) => ({
+        label: state.replace(/_/g, " "),
+        state:
+          state === "locked" ||
+          state === "expired" ||
+          state === "revoked" ||
+          state === "generation_failed"
+            ? "blocked"
+            : "healthy",
+        value: formatCount(count),
+      }),
+      pathFor: (state) => `/rest/v1/honoree_reveals?select=id&credential_status=eq.${state}`,
+      states: [
+        "active",
+        "opened",
+        "completed",
+        "locked",
+        "expired",
+        "revoked",
+        "generation_failed",
+      ],
       supabaseUrl,
     }),
     fetchCount({
@@ -174,6 +272,26 @@ export async function loadAdminOpsSnapshot(): Promise<AdminOpsSnapshot> {
     fetchCount({
       key: serviceRoleKey,
       path: "/rest/v1/cards?select=id&status=eq.pending_review",
+      supabaseUrl,
+    }),
+    fetchCount({
+      key: serviceRoleKey,
+      path: `/rest/v1/orders?select=id&status=eq.draft&created_at=lt.${staleDraftCutoff}`,
+      supabaseUrl,
+    }),
+    fetchCount({
+      key: serviceRoleKey,
+      path: "/rest/v1/orders?select=id&payment_status=eq.failed",
+      supabaseUrl,
+    }),
+    fetchCount({
+      key: serviceRoleKey,
+      path: "/rest/v1/honoree_reveals?select=id&credential_status=eq.generation_failed",
+      supabaseUrl,
+    }),
+    fetchCount({
+      key: serviceRoleKey,
+      path: "/rest/v1/honoree_reveals?select=id&credential_status=eq.locked",
       supabaseUrl,
     }),
     fetchRecentOrders({ key: serviceRoleKey, supabaseUrl }),
@@ -199,29 +317,38 @@ export async function loadAdminOpsSnapshot(): Promise<AdminOpsSnapshot> {
       },
     ],
     mode: "full",
-    orderMetrics: [
-      {
-        label: "Total orders",
-        state: "healthy",
-        value: formatCount(totalOrders),
-      },
-      {
-        label: "Draft orders",
-        state: draftOrders && draftOrders > 0 ? "warning" : "healthy",
-        value: formatCount(draftOrders),
-      },
-      {
-        label: "Paid orders",
-        state: "healthy",
-        value: formatCount(paidOrders),
-      },
-    ],
+    itemLifecycle,
+    orderMetrics: orderLifecycle,
+    paymentLifecycle,
     recentOrders,
     revealMetrics: [
       {
         label: "Reveal records",
         state: "healthy",
         value: formatCount(revealRows),
+      },
+      ...revealLifecycle,
+    ],
+    stuckQueues: [
+      {
+        label: "Stale draft orders",
+        state: staleDraftOrders && staleDraftOrders > 0 ? "warning" : "healthy",
+        value: formatCount(staleDraftOrders),
+      },
+      {
+        label: "Failed payments",
+        state: failedPayments && failedPayments > 0 ? "blocked" : "healthy",
+        value: formatCount(failedPayments),
+      },
+      {
+        label: "Credential generation failures",
+        state: generationFailures && generationFailures > 0 ? "blocked" : "healthy",
+        value: formatCount(generationFailures),
+      },
+      {
+        label: "Locked reveals",
+        state: lockedReveals && lockedReveals > 0 ? "blocked" : "healthy",
+        value: formatCount(lockedReveals),
       },
     ],
   };
