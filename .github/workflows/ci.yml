@@ -37,9 +37,31 @@ jobs:
         run: npm ci
 
       - name: Run release readiness
+        id: release
+        continue-on-error: true
         env:
           CHROME_PATH: ${{ steps.setup-chrome.outputs.chrome-path }}
         run: npm run test:release
+
+      - name: Summarize release failure
+        if: steps.release.outcome == 'failure'
+        run: |
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const reportPath = '.qa/release-readiness/latest.json';
+          if (!fs.existsSync(reportPath)) {
+            console.log('::error title=Release readiness failed::No release report was written.');
+            process.exit(1);
+          }
+          const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+          const failed = report.steps.find((step) => step.status === 'failed');
+          const message = failed
+            ? `${failed.name} failed. ${String(failed.outputTail || '').slice(-900)}`
+            : report.error || 'Release readiness failed.';
+          const safe = message.replace(/\r?\n/g, ' ').replace(/%/g, '%25');
+          console.log(`::error title=Release readiness failed::${safe}`);
+          process.exit(1);
+          NODE
 
       - name: Upload QA evidence
         if: always()
