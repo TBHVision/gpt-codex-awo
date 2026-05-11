@@ -281,7 +281,10 @@ async function main() {
   const port = 9229;
   const chromeProcess = spawn(chrome, [
     "--headless=new",
+    "--no-sandbox",
+    "--disable-dev-shm-usage",
     `--remote-debugging-port=${port}`,
+    "--remote-allow-origins=*",
     `--user-data-dir=${userDataDir}`,
     "--disable-gpu",
     "--hide-scrollbars",
