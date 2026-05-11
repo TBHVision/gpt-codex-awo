@@ -1,6 +1,6 @@
 # Production Gap Audit
 
-Linear issue: AWO-36, refreshed by AWO-56
+Linear issue: AWO-36, refreshed by AWO-56 and AWO-62
 
 Last updated: 2026-05-11
 
@@ -13,10 +13,10 @@ order history is account-owned, reveal validation is server-mediated, artist
 drafts persist for signed-in creators, and admin ops shows read-only lifecycle
 queues.
 
-The primary blocker before a real payment review is Stripe test configuration.
-AWO-46 already has server-side Stripe test Checkout Session and webhook code;
-Tony still needs to provide/verify the Stripe test secrets and webhook endpoint
-in Vercel.
+Stripe test-mode checkout is now verified end to end. The remaining production
+work is no longer "can we collect a test payment"; it is hardening the launch
+posture around observability, admin actions, fulfillment, ownership transfer,
+and final human review.
 
 ## Verified Surfaces
 
@@ -51,7 +51,7 @@ desktop/mobile visual QA, then writes `.qa/release-readiness/latest.json`.
 
 - Local route smoke tests pass.
 - Desktop/mobile visual QA passes across golden routes.
-- Public Vercel environment has Supabase catalog variables configured.
+- Public Vercel environment has Supabase and Stripe test variables configured.
 - Admin routes redirect unauthenticated users to login.
 - Temporary admin password gate remains in place for `/admin/*`.
 - Linear is the project source of truth.
@@ -73,7 +73,6 @@ Completed:
 
 Remaining:
 
-- Stripe test payment verification is open in AWO-46.
 - Server-side Supabase auth cookies are still future work; the current buyer
   session is stored in browser localStorage.
 - Existing anonymous draft orders and carts are not retroactively attached unless
@@ -115,6 +114,8 @@ Completed:
 - AWO-40: `/admin/ops` reads real Supabase operational data.
 - AWO-48: Admin ops shows lifecycle queues, stale drafts, failed payments,
   credential generation failures, locked reveals, and recent order states.
+- AWO-46: Stripe sandbox payment lifecycle is verified; a test Checkout Session
+  moved an order through `pending_payment` to `paid` by webhook.
 - Admin ops remains read-only; no destructive controls are exposed.
 
 Remaining:
@@ -131,11 +132,10 @@ Completed:
 - AWO-43: Lifecycle model documented.
 - AWO-45: Lifecycle schema foundations added for payments, fulfillment, item
   status, reveal credential status, custody events, and ownership records.
-- AWO-46 partial: Stripe test-mode session and webhook code exists.
+- AWO-46: Stripe test-mode Checkout Session and webhook lifecycle is verified.
 
 Remaining:
 
-- Stripe test env/webhook verification.
 - Fulfillment automation and ownership transfer workflows.
 - Production reporting/analytics beyond the current read-only ops snapshot.
 
@@ -151,31 +151,33 @@ Completed:
 Remaining:
 
 - CI-hosted release gate is still future work.
+- Observability setup for production errors, analytics, and performance is still
+  planned rather than configured.
 - Browser-based authenticated end-to-end tests are still parked until account
   flows stabilize further.
 - Production smoke/visual checks should be run after every Vercel deploy when
   nearing launch.
 
-## Primary Open Blocker
+## Recent Payment Evidence
 
-AWO-46: Stripe test-mode payment lifecycle.
+AWO-46 is complete from the test-mode perspective.
 
-Tony action still needed:
+Evidence captured on 2026-05-11:
 
-1. Add `STRIPE_SECRET_KEY` with a Stripe test secret key in Vercel.
-2. Add the Vercel `/api/stripe/webhook` endpoint in Stripe test mode.
-3. Add `STRIPE_WEBHOOK_SECRET` in Vercel.
-4. Redeploy.
-5. Run a Stripe test card payment and confirm order lifecycle moves through
-   pending/paid states.
+- Vercel production and preview env vars include `STRIPE_SECRET_KEY`,
+  `STRIPE_WEBHOOK_SECRET`, and `SUPABASE_SERVICE_ROLE_KEY`.
+- Stripe test checkout session `cs_test_a1tz...` was created from production.
+- Tony completed Stripe test card payment with `4242 4242 4242 4242`.
+- Supabase order `AWO-DRAFT-F2EC02824E` is `status = paid` and
+  `payment_status = paid`.
+- `/checkout?payment=success&order=...` shows a success confirmation instead of
+  dropping the buyer into an empty checkout form.
 
 ## Recommended Next Build Order
 
-1. Finish AWO-46 with Stripe test secrets and webhook verification.
-2. Add production-style payment success/failure UI around the checkout return
-   path.
+1. Finish V0.6 gate review after Tony reviews `/admin/ops`.
+2. Add the V0.7 observability and CI posture.
 3. Build admin approval tools for cards/artists/orders after payment state is
    verified.
 4. Add fulfillment and ownership workflows.
-5. Add CI-hosted release readiness checks.
-6. Add analytics/observability and authenticated E2E tests.
+5. Add authenticated E2E tests once account/session mechanics stabilize.

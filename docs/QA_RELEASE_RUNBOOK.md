@@ -20,6 +20,7 @@ Run these from the repo root:
 npm run lint
 npm run build
 npm run test:smoke
+npm run test:release
 ```
 
 What each command proves:
@@ -28,6 +29,20 @@ What each command proves:
 - `npm run build`: production Next.js build succeeds.
 - `npm run test:smoke`: key public routes respond and protected admin routes
   redirect to login when unauthenticated.
+- `npm run test:release`: runs the full local gate: lint, build, fresh
+  production server, smoke routes, and desktop/mobile visual QA.
+
+For local release testing of authenticated admin screenshots, set temporary
+process-only admin values before running the release gate:
+
+```powershell
+$env:AWO_ADMIN_PASSWORD="test"
+$env:AWO_ADMIN_SESSION_TOKEN="test"
+npm run test:release
+```
+
+Do not commit local secret values. Vercel production uses real dashboard
+secrets stored in Project Settings.
 
 ## Smoke Test Coverage
 
@@ -106,6 +121,9 @@ For each Linear issue, add a closing comment with:
 - `npm run lint` result.
 - `npm run build` result.
 - `npm run test:smoke` result when relevant.
+- `npm run test:release` result for gate reviews and launch-impacting changes.
+- Any external verification result, such as Stripe webhook delivery or Supabase
+  lifecycle state.
 
 Then move the issue to Done.
 

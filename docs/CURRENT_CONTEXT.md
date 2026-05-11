@@ -8,11 +8,16 @@ GPT-Codex AWO lives at `C:\HatchVision\AWO\GPT-Codex`.
 
 ## Current Phase
 
-Stripe-gated checkout plus storefront polish.
+V0.6 Admin + Ops is in review, and V0.7 QA + Observability is active.
 
-Active Linear issues: AWO-46 is blocked on Stripe test secrets; AWO-54 is the active buyer cart persistence follow-up.
+Active Linear issues:
 
-Goal: keep payment wiring ready for Stripe test verification while making buyer-owned cart/checkout/account state production-shaped.
+- AWO-61: V0.6 Admin + Ops gate, waiting on Tony review of `/admin/ops`.
+- AWO-62: V0.7 QA + Observability gate, Codex evidence in progress.
+
+Goal: keep moving autonomously through Linear by attaching concrete release
+evidence to gate issues, then batching Tony review asks instead of stopping for
+every small decision.
 
 ## What Exists
 
@@ -135,13 +140,16 @@ Goal: keep payment wiring ready for Stripe test verification while making buyer-
     Wildflower Notes, Coastal Morning, With All My Heart, Morning Song, and
     Misty Pines
   - matching public card artwork lives under `/cards/*.svg`
-- AWO-46 is in progress:
+- AWO-46 is complete:
   - `/api/checkout/session` creates a Supabase draft order, then a Stripe
     test-mode Checkout Session from trusted database prices
   - `/api/stripe/webhook` handles Stripe test webhook events and updates order
     payment lifecycle state server-side
   - the app rejects live Stripe secret keys while AWO is in test-mode wiring
   - env and webhook setup are documented in `docs/STRIPE_TEST_MODE.md`
+  - Stripe test payment moved `AWO-DRAFT-F2EC02824E` to `status = paid` and
+    `payment_status = paid`
+  - checkout return URLs now show success/cancel messaging
 - AWO-52 tightens mobile storefront density:
   - mobile shop hero uses a smaller brand logo than desktop
   - trust cues move to a compact two-column mobile grid
@@ -162,12 +170,18 @@ Goal: keep payment wiring ready for Stripe test verification while making buyer-
   - `npm.cmd run test:release` runs lint, build, starts a fresh local production
     server on port 3100, then runs smoke and visual QA
   - report output is written to `.qa/release-readiness/latest.json`
+- AWO-61 gate evidence is attached in Linear:
+  - `npm run test:release` passed at 2026-05-11T17:11Z
+  - `/admin/ops` visual QA passed on desktop and mobile
+  - service-role data shows paid orders, payment states, reveal rows, and locked
+    reveal queues
+- AWO-62 adds `docs/OBSERVABILITY_PLAN.md` for error, analytics, performance,
+  uptime, and release evidence posture
 
 ## Next Work
 
 - Use the new Linear runway:
-  - finish AWO-46 by adding Stripe test keys/webhook secret and capturing
-    payment-success evidence
+  - have Tony review AWO-61 `/admin/ops` when convenient
+  - finish AWO-62 by deciding the observability stack or explicitly deferring it
   - Real card photography/art direction can replace the managed demo assets when
     Tony provides final production artwork
-  - finish Stripe setup when Tony returns with Stripe test keys/webhook config
