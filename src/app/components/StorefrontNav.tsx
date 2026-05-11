@@ -109,6 +109,10 @@ export default function StorefrontNav({ active }: StorefrontNavProps) {
               }`}
               href={item.href}
               key={item.label}
+              onClick={(event) => {
+                event.preventDefault();
+                window.location.assign(item.href);
+              }}
             >
               {item.label}
             </Link>

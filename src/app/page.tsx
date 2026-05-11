@@ -19,12 +19,14 @@ export default function Home() {
             provenance evidence into one trustable gifting experience.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Link
-              className="inline-flex h-12 items-center justify-center bg-[#252525] px-6 text-sm font-black uppercase tracking-wide text-white hover:bg-[#3a3632]"
-              href="/shop"
-            >
-              Shop Cards
-            </Link>
+            <form action="/shop">
+              <button
+                className="inline-flex h-12 items-center justify-center bg-[#252525] px-6 text-sm font-black uppercase tracking-wide text-white hover:bg-[#3a3632]"
+                type="submit"
+              >
+                Shop Cards
+              </button>
+            </form>
             <Link
               className="inline-flex h-12 items-center justify-center border border-[#b7653a] bg-white px-6 text-sm font-black uppercase tracking-wide text-[#7a472e] hover:bg-[#fff8f3]"
               href="/reveal"
