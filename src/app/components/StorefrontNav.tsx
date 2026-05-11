@@ -9,7 +9,7 @@ import {
 } from "@/lib/cart-types";
 
 type StorefrontNavProps = {
-  active?: "artists" | "cart" | "people" | "reveal" | "shop";
+  active?: "artists" | "cart" | "people" | "reminders" | "reveal" | "shop";
 };
 
 function LineIcon({ kind }: { kind: "cart" | "search" | "user" }) {
@@ -75,6 +75,7 @@ export default function StorefrontNav({ active = "shop" }: StorefrontNavProps) {
             { href: "/artists", label: "Artists", value: "artists" },
             { href: "/reveal", label: "Reveal", value: "reveal" },
             { href: "/people", label: "People", value: "people" },
+            { href: "/reminders", label: "Reminders", value: "reminders" },
           ].map((item) => (
             <Link
               className={`py-7 ${

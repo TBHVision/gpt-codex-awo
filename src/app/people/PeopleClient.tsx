@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import StorefrontNav from "@/app/components/StorefrontNav";
 
 type Person = {
@@ -167,6 +168,12 @@ export default function PeopleClient() {
           >
             Reset Demo People
           </button>
+          <Link
+            className="mt-3 inline-flex h-11 w-full items-center justify-center border border-[#b7653a] bg-[#fff8f3] px-4 text-sm font-black uppercase tracking-wide text-[#7a472e] hover:bg-[#f6ebe2]"
+            href="/reminders"
+          >
+            Plan Reminders
+          </Link>
         </aside>
 
         <div className="grid gap-6">
