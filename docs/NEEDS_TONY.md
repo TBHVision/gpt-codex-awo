@@ -1,5 +1,7 @@
 # Needs Tony
 
+The batched review/setup list lives in `docs/TONY_REVIEW_BATCH.md`.
+
 Current action:
 
 - Review Linear gate issues AWO-57 through AWO-60. Codex has attached evidence;

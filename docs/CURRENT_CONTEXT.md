@@ -209,6 +209,8 @@ every small decision.
   - the existing `AWO_ADMIN_PASSWORD` fallback still works while named admin
     users are being phased in
   - Supabase access tokens are not stored after the login verification step
+- `docs/TONY_REVIEW_BATCH.md` is the current batched list of Tony reviews,
+  external checks, and later decisions.
 
 ## Next Work
 
