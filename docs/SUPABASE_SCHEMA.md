@@ -31,6 +31,23 @@ This is the initial GPT-Codex AWO data model. It starts clean in the HatchVision
 | `honoree_reveals` | QR/PIN reveal state for recipients. |
 | `admin_audit_events` | Append-only operational audit trail. |
 
+## AWO-37 Anonymous Order Drafts
+
+Checkout drafts are created through `public.create_anonymous_order_draft(...)`.
+The browser posts to the app server route at `/api/checkout/draft`; that server
+route calls the narrow Supabase RPC with the browser-safe anon key. Direct
+anonymous writes to `orders` and `order_items` remain blocked by RLS.
+
+The RPC:
+
+- validates that a recipient name and at least one item are present
+- accepts published card slugs and quantities
+- creates an `orders` row with `status = 'draft'`
+- stores `recipient_name`, `occasion_label`, and `message_notes`
+- creates matching `order_items`
+- returns an `AWO-DRAFT-*` checkout reference
+- does not collect payment
+
 ## Role Model
 
 `profiles.role` is intentionally simple for V0.1:
@@ -53,7 +70,8 @@ Policy direction:
 - Recipients will access reveal records through a server-side API/RPC that verifies public reveal ID and PIN.
 - Admins can manage approvals and operational records.
 
-Anonymous carts are deferred to a server-mediated flow. Direct anonymous writes are not exposed in the first RLS layer.
+Anonymous carts and checkout drafts use server-mediated flows. Direct anonymous
+table writes are not exposed in the first RLS layer.
 
 ## Environment Variables
 

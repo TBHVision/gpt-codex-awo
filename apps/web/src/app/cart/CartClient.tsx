@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import StorefrontNav from "@/app/components/StorefrontNav";
 import {
   clearCartStorage,
@@ -32,7 +32,7 @@ function MiniArtwork({ title }: { title: string }) {
 }
 
 export default function CartClient() {
-  const [items, setItems] = useState<CartItem[]>(readCartFromStorage);
+  const [items, setItems] = useState<CartItem[]>([]);
 
   const itemCount = useMemo(() => countCartItems(items), [items]);
 
@@ -44,6 +44,14 @@ export default function CartClient() {
       ),
     [items],
   );
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setItems(readCartFromStorage());
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, []);
 
   function clearCart() {
     clearCartStorage();
@@ -63,8 +71,8 @@ export default function CartClient() {
             Your Cart
           </h1>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-[#4b4743]">
-            Review selected cards before moving into the V0.2 checkout shell.
-            Payments stay disabled until the checkout model is approved.
+            Review selected cards before saving a real draft order. Payments
+            stay disabled until the checkout lifecycle is approved.
           </p>
         </div>
       </section>

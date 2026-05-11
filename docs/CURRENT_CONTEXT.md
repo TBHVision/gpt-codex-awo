@@ -65,3 +65,7 @@ Goal: turn the shell/demo site into a prioritized real-product build plan after 
   - AWO-42 persist artist profiles and studio drafts
   - AWO-43 define order/reveal/custody/ownership lifecycle states
   - AWO-44 mobile and visual QA across golden paths
+
+AWO-37 implementation note: checkout drafts use the narrow
+`create_anonymous_order_draft` Supabase RPC plus `/api/checkout/draft`. It saves
+recipient, occasion, message, cart items, and totals without collecting payment.

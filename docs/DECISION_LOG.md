@@ -95,3 +95,11 @@ Decision: Keep the current app-level admin password gate only as a temporary V0.
 Why: The internal project home needed immediate protection, but long-term user/admin identity should be managed through Supabase Auth and RLS.
 
 Status: Accepted
+
+## 2026-05-10: Use Narrow RPC For Anonymous Checkout Drafts
+
+Decision: Implement draft checkout writes through a validated Supabase RPC called by the app server route, rather than exposing direct anonymous table writes or requiring a browser-visible service role.
+
+Why: AWO needs a real checkout draft before buyer auth exists, while keeping RLS boundaries intact and avoiding service-role exposure.
+
+Status: Accepted
