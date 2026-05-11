@@ -94,8 +94,5 @@ export async function POST(request: Request) {
     );
   }
 
-  return NextResponse.json(
-    reveal.success ? { ...reveal, reveal_status: "opened" } : reveal,
-    { status: reveal.success ? 200 : 404 },
-  );
+  return NextResponse.json(reveal, { status: reveal.success ? 200 : 404 });
 }

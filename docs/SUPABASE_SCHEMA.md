@@ -148,6 +148,31 @@ RLS direction:
 - Recipients still receive curated reveal/custody/ownership data through the
   server-mediated reveal path, not direct table reads.
 
+## AWO-47 Reveal Lifecycle Rules
+
+`public.verify_honoree_reveal(card_code, pin)` now checks
+`honoree_reveals.credential_status` before returning any card, artist, custody,
+or ownership payload.
+
+Safe blocked states:
+
+- `pending_generation`
+- `locked`
+- `expired`
+- `revoked`
+- `generation_failed`
+
+Invalid PIN attempts increment `failed_attempts`. When the attempt count reaches
+`max_failed_attempts`, the credential is moved to `locked` and the legacy
+`honoree_reveals.status` is also set to `locked`.
+
+Successful reveals:
+
+- move `credential_status` from `active` to `opened`
+- move legacy reveal status from `not_started` to `opened`
+- preserve `completed` when already completed
+- emit a `custody_events` row with event type `recipient_revealed`
+
 ## Role Model
 
 `profiles.role` is intentionally simple for V0.1:
