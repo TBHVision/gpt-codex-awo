@@ -1,3 +1,4 @@
+import Link from "next/link";
 import StorefrontNav from "@/app/components/StorefrontNav";
 
 const artists = [
@@ -54,6 +55,12 @@ export default function ArtistsPage() {
             and evidence trails. These demo profiles are placeholders until the
             artist onboarding workflow is built.
           </p>
+          <Link
+            className="mt-7 inline-flex h-12 items-center justify-center bg-[#252525] px-6 text-sm font-black uppercase tracking-wide text-white hover:bg-[#3a3632]"
+            href="/studio"
+          >
+            Open Artist Studio
+          </Link>
         </div>
       </section>
 
