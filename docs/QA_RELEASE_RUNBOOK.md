@@ -101,6 +101,10 @@ For local manual admin testing, `AWO_ADMIN_PASSWORD` and
 previously used a temporary local password of `test`; production should use a
 real secret in Vercel.
 
+Temporary password sessions are intentionally read-only for write-capable admin
+flows. Card review and fulfillment transitions require a Supabase-backed named
+admin login so audit events can identify the actor.
+
 ## Vercel Supabase Public Env
 
 AWO-18 is closed. Vercel has the browser-safe Supabase public variables set for

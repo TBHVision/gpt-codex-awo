@@ -1,10 +1,18 @@
 import Link from "next/link";
+import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
+import {
+  transitionFulfillmentItem,
+  type FulfillmentTransitionStatus,
+} from "@/lib/admin-fulfillment-actions";
 import {
   type FulfillmentMetric,
   loadAdminFulfillmentSnapshot,
 } from "@/lib/admin-fulfillment";
 
 export const dynamic = "force-dynamic";
+
+const adminUserCookieName = "awo_admin_user_id";
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("en-US", {
@@ -33,8 +41,59 @@ function StatusPill({ value }: { value: string }) {
   );
 }
 
+function nextTransitions(status: string) {
+  if (status === "reserved") {
+    return [{ label: "Move To Purchased", value: "purchased" as const }];
+  }
+
+  if (status === "purchased") {
+    return [
+      { label: "Start Credential Work", value: "credential_pending" as const },
+      { label: "Mark Credential Active", value: "credential_active" as const },
+    ];
+  }
+
+  if (status === "credential_pending") {
+    return [{ label: "Mark Credential Active", value: "credential_active" as const }];
+  }
+
+  if (status === "credential_active" || status === "revealed") {
+    return [{ label: "Mark Fulfilled", value: "completed" as const }];
+  }
+
+  return [];
+}
+
+async function submitFulfillmentTransition(formData: FormData) {
+  "use server";
+
+  const cookieStore = await cookies();
+  const adminUserId = cookieStore.get(adminUserCookieName)?.value;
+  const itemId = String(formData.get("itemId") ?? "");
+  const nextStatus = String(
+    formData.get("nextStatus") ?? "",
+  ) as FulfillmentTransitionStatus;
+
+  if (
+    !itemId ||
+    !["purchased", "credential_pending", "credential_active", "completed"].includes(
+      nextStatus,
+    )
+  ) {
+    throw new Error("Invalid fulfillment transition.");
+  }
+
+  await transitionFulfillmentItem({ adminUserId, itemId, nextStatus });
+  revalidatePath("/admin/fulfillment");
+  revalidatePath("/admin/audit");
+  revalidatePath("/admin/ops");
+  revalidatePath("/admin/launch");
+}
+
 export default async function AdminFulfillmentPage() {
   const snapshot = await loadAdminFulfillmentSnapshot();
+  const cookieStore = await cookies();
+  const hasNamedAdmin = Boolean(cookieStore.get(adminUserCookieName)?.value);
 
   return (
     <main className="min-h-screen bg-[#f6f4ef] text-slate-950">
@@ -57,6 +116,12 @@ export default async function AdminFulfillmentPage() {
               {snapshot.mode === "full"
                 ? "Full fulfillment mode"
                 : "Limited fulfillment mode"}
+            </p>
+            <p className="mt-2 text-sm font-semibold text-slate-500">
+              Actions:{" "}
+              {hasNamedAdmin
+                ? "Named admin transitions enabled"
+                : "Read-only until Supabase admin login"}
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
@@ -126,6 +191,31 @@ export default async function AdminFulfillmentPage() {
                               <StatusPill value={item.revealCredentialStatus} />
                               <StatusPill value={`ownership ${item.ownershipStatus}`} />
                             </div>
+                          </div>
+                          <div className="mt-4 flex flex-wrap gap-2">
+                            {nextTransitions(item.itemStatus).length > 0 ? (
+                              nextTransitions(item.itemStatus).map((action) => (
+                                <form action={submitFulfillmentTransition} key={`${item.id}-${action.value}`}>
+                                  <input name="itemId" type="hidden" value={item.id} />
+                                  <input
+                                    name="nextStatus"
+                                    type="hidden"
+                                    value={action.value}
+                                  />
+                                  <button
+                                    className="h-9 rounded-md border border-slate-300 bg-white px-3 text-xs font-semibold text-slate-800 shadow-sm hover:border-slate-400 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+                                    disabled={!hasNamedAdmin}
+                                    type="submit"
+                                  >
+                                    {action.label}
+                                  </button>
+                                </form>
+                              ))
+                            ) : (
+                              <p className="text-xs font-semibold text-slate-500">
+                                No fulfillment transition available.
+                              </p>
+                            )}
                           </div>
                         </div>
                       ))

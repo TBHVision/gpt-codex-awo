@@ -1,6 +1,7 @@
 export type FulfillmentItem = {
   artistName: string;
   cardTitle: string;
+  id: string;
   itemStatus: string;
   ownershipStatus: string;
   quantity: number;
@@ -46,6 +47,7 @@ type SupabaseFulfillmentOrderRow = {
     ownership_records?: {
       status?: string;
     }[] | null;
+    id: string;
     quantity: number;
     reveal_public_id: string;
     status: string;
@@ -116,7 +118,7 @@ async function fetchFulfillmentOrders(input: {
   supabaseUrl: string;
 }) {
   const response = await fetch(
-    `${input.supabaseUrl}/rest/v1/orders?select=checkout_reference,recipient_name,status,payment_status,fulfillment_status,total_cents,created_at,order_items(status,quantity,reveal_public_id,cards(title),artists(public_name),honoree_reveals(status,credential_status),ownership_records(status))&payment_status=in.(paid,pending)&order=created_at.desc&limit=10`,
+    `${input.supabaseUrl}/rest/v1/orders?select=checkout_reference,recipient_name,status,payment_status,fulfillment_status,total_cents,created_at,order_items(id,status,quantity,reveal_public_id,cards(title),artists(public_name),honoree_reveals(status,credential_status),ownership_records(status))&payment_status=in.(paid,pending)&order=created_at.desc&limit=10`,
     {
       cache: "no-store",
       headers: headersFor(input.key),
@@ -229,6 +231,7 @@ export async function loadAdminFulfillmentSnapshot(): Promise<AdminFulfillmentSn
       items: (order.order_items ?? []).map((item) => ({
         artistName: item.artists?.public_name ?? "Unknown artist",
         cardTitle: item.cards?.title ?? "Unknown card",
+        id: item.id,
         itemStatus: item.status,
         ownershipStatus: item.ownership_records?.[0]?.status ?? "none",
         quantity: item.quantity,

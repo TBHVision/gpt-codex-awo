@@ -61,6 +61,8 @@ AWO-69 adds the first fulfillment transition foundation: Stripe payment success
 moves reserved items into `purchased`, emits `order_paid` custody events, and a
 new admin RPC defines audited future item-state transitions without exposing UI
 write controls yet.
+AWO-70 exposes narrow fulfillment transition controls only for Supabase-backed
+named admin sessions. Temporary password admin sessions remain read-only.
 
 ## Current Health
 
@@ -181,12 +183,10 @@ Remaining:
   available in the runner.
 - Broader write-capable approval tools are still deferred. Current admin writes
   are limited to audited card approve/reject actions for named Supabase admins.
-- Fulfillment is visible but intentionally read-only; fulfillment, shipping,
+- Fulfillment now has narrow named-admin item transition controls, but shipping,
   refunds, credential revocation, and ownership transfer still need separately
   audited workflows.
-- The fulfillment transition RPC exists in migrations, but the production
-  Supabase database must receive the migration before future write controls can
-  call it.
+- Temporary password admin sessions remain read-only for fulfillment actions.
 - Observability setup for production errors, analytics, and performance is still
   planned rather than configured.
 - Browser-based authenticated end-to-end tests are still parked until account

@@ -232,6 +232,11 @@ every small decision.
   - the RPC requires a named admin actor, writes `admin_audit_events`, and emits
     custody events for credential activation and item fulfillment
   - `/admin/fulfillment` remains read-only until operator actions are designed
+- AWO-70 adds the first named-admin fulfillment action controls:
+  - temporary password sessions still see `/admin/fulfillment` as read-only
+  - Supabase-backed named admins can submit narrow item-state transitions
+  - transitions call `admin_transition_fulfillment_item(...)` through a server
+    action and revalidate fulfillment, audit, ops, and launch surfaces
 - `docs/TONY_REVIEW_BATCH.md` is the current batched list of Tony reviews,
   external checks, and later decisions.
 
