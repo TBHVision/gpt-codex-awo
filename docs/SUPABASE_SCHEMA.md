@@ -59,6 +59,27 @@ The browser uses the buyer's Supabase Auth access token, so reads and writes run
 through the same owner policies as the rest of the account model. Anonymous
 users keep local browser storage and cannot read `people` or `occasions`.
 
+## AWO-41 Honoree Reveal Verification
+
+Reveal validation uses `public.verify_honoree_reveal(card_code, pin)` through
+the app server route `/api/reveal/verify`.
+
+The RPC:
+
+- looks up `order_items.reveal_public_id`
+- checks the submitted PIN against `order_items.reveal_pin_hash`
+- increments failed attempts for invalid PINs
+- marks a reveal opened on successful verification
+- returns only safe card, artist, evidence, custody, and ownership fields
+
+Current demo seed:
+
+- Card code: `AWO-DEMO-001`
+- PIN: `1234`
+- Order reference: `AWO-DEMO-REVEAL`
+
+Raw PINs are not returned to browser code.
+
 ## Role Model
 
 `profiles.role` is intentionally simple for V0.1:

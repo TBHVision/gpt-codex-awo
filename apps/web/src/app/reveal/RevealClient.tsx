@@ -3,51 +3,21 @@
 import { useState } from "react";
 import StorefrontNav from "@/app/components/StorefrontNav";
 
-const previewSections = [
-  {
-    body: "A short, personal note from the artist will live here, tying the work back to the moment and human intention behind it.",
-    eyebrow: "Artist Story",
-    title: "Made by a real person",
-  },
-  {
-    body: "This preview will show timestamped capture evidence, creation notes, and the provenance record tied to the purchased card.",
-    eyebrow: "Capture Evidence",
-    title: "Creation proof, not just a claim",
-  },
-  {
-    body: "The chain of custody will show how the piece moved from artist to buyer to recipient without exposing private customer data.",
-    eyebrow: "Chain of Custody",
-    title: "A clear path from origin to you",
-  },
-  {
-    body: "Ownership preview will summarize what was unlocked and how the recipient can revisit the story later.",
-    eyebrow: "Verified Ownership",
-    title: "Your card, your provenance",
-  },
-];
-
-const timelineSteps = [
-  {
-    body: "The artist creates the original work and starts the origin record.",
-    label: "Created",
-  },
-  {
-    body: "AWO captures the story, artwork state, and demo evidence package.",
-    label: "Captured",
-  },
-  {
-    body: "The buyer selects the card and prepares it for a specific recipient.",
-    label: "Purchased",
-  },
-  {
-    body: "The card is gifted with a QR + PIN path for the honoree reveal.",
-    label: "Gifted",
-  },
-  {
-    body: "The recipient unlocks the story and sees the provenance preview.",
-    label: "Revealed",
-  },
-];
+type RevealPayload = {
+  artist_bio: string | null;
+  artist_name: string | null;
+  card_description: string | null;
+  card_title: string | null;
+  checkout_reference: string | null;
+  custody_steps: Array<{ label: string; value: string }>;
+  evidence_items: Array<{ label: string; value: string }>;
+  message: string;
+  ownership_summary: string | null;
+  recipient_name: string | null;
+  reveal_public_id: string | null;
+  reveal_status: string | null;
+  success: boolean;
+};
 
 function QrIcon() {
   return (
@@ -86,18 +56,48 @@ function ShieldIcon() {
 }
 
 export default function RevealClient() {
-  const [cardCode, setCardCode] = useState("");
+  const [cardCode, setCardCode] = useState("AWO-DEMO-001");
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [pin, setPin] = useState("");
-  const [isRevealed, setIsRevealed] = useState(false);
+  const [reveal, setReveal] = useState<RevealPayload | null>(null);
 
-  const canPreview = cardCode.trim().length > 0 && pin.trim().length > 0;
+  const canReveal = cardCode.trim().length > 0 && pin.trim().length > 0;
 
-  function revealPreview() {
-    if (!canPreview) {
+  async function verifyReveal() {
+    if (!canReveal) {
       return;
     }
 
-    setIsRevealed(true);
+    setError("");
+    setReveal(null);
+    setIsLoading(true);
+
+    try {
+      const response = await fetch("/api/reveal/verify", {
+        body: JSON.stringify({
+          cardCode,
+          pin,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+      });
+
+      const payload = (await response.json()) as RevealPayload | { message?: string };
+
+      if (!response.ok || !("success" in payload) || !payload.success) {
+        setError(payload.message ?? "That code and PIN could not be verified.");
+        return;
+      }
+
+      setReveal(payload);
+    } catch {
+      setError("Reveal validation is temporarily unavailable.");
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -114,9 +114,9 @@ export default function RevealClient() {
               Unlock the story behind the card.
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-7 text-[#4b4743]">
-              This V0.3 shell previews the recipient experience. It does not
-              validate real secrets yet, but it frames the future reveal flow
-              around human creation, evidence, custody, and ownership.
+              Enter the card code and PIN from a real reveal record. Validation
+              runs through AWO and Supabase; raw PINs are never exposed back to
+              the browser.
             </p>
             <div className="mt-8 grid gap-3 sm:grid-cols-3">
               {["Scan QR", "Enter PIN", "Reveal Provenance"].map((step) => (
@@ -135,7 +135,7 @@ export default function RevealClient() {
               <QrIcon />
               <div>
                 <h2 className="text-xl font-black">Reveal Access</h2>
-                <p className="text-sm text-[#4b4743]">Demo-only unlock shell</p>
+                <p className="text-sm text-[#4b4743]">Demo code: AWO-DEMO-001</p>
               </div>
             </div>
 
@@ -162,41 +162,79 @@ export default function RevealClient() {
               </label>
             </div>
 
+            {error ? (
+              <p className="mt-4 border border-[#f0c7c7] bg-[#fff5f5] p-3 text-sm font-bold text-[#9d1c1c]">
+                {error}
+              </p>
+            ) : null}
+
             <button
               className={`mt-6 h-12 w-full px-4 text-sm font-black uppercase tracking-wide ${
-                canPreview
+                canReveal
                   ? "bg-[#252525] text-white hover:bg-[#3a3632]"
                   : "bg-[#e5ded6] text-[#8a8178]"
               }`}
-              disabled={!canPreview}
-              onClick={revealPreview}
+              disabled={!canReveal || isLoading}
+              onClick={verifyReveal}
               type="button"
             >
-              Reveal Preview
+              {isLoading ? "Verifying..." : "Verify Reveal"}
             </button>
           </div>
         </div>
       </section>
 
       <section className="mx-auto max-w-7xl px-6 py-10 lg:px-10">
-        {isRevealed ? (
+        {reveal ? (
           <div>
             <div className="flex items-center gap-3 text-[#b7653a]">
               <ShieldIcon />
               <p className="text-xs font-black uppercase tracking-[0.16em] text-[#b7653a]">
-                Preview unlocked
+                Reveal unlocked
               </p>
             </div>
             <h2 className="mt-3 text-3xl font-black tracking-tight">
-              Provenance preview for {cardCode.trim()}
+              {reveal.card_title}
             </h2>
+            <p className="mt-3 max-w-3xl text-sm leading-6 text-[#4b4743]">
+              {reveal.card_description}
+            </p>
+            <div className="mt-8 grid gap-5 md:grid-cols-3">
+              <div className="border border-[#e5ded6] bg-white p-5">
+                <p className="text-xs font-black uppercase tracking-wide text-[#8a8178]">
+                  Artist
+                </p>
+                <p className="mt-2 text-xl font-black">{reveal.artist_name}</p>
+                <p className="mt-2 text-sm leading-6 text-[#4b4743]">
+                  {reveal.artist_bio}
+                </p>
+              </div>
+              <div className="border border-[#e5ded6] bg-white p-5">
+                <p className="text-xs font-black uppercase tracking-wide text-[#8a8178]">
+                  Recipient
+                </p>
+                <p className="mt-2 text-xl font-black">{reveal.recipient_name}</p>
+                <p className="mt-2 text-sm text-[#4b4743]">
+                  {reveal.ownership_summary}
+                </p>
+              </div>
+              <div className="border border-[#e5ded6] bg-white p-5">
+                <p className="text-xs font-black uppercase tracking-wide text-[#8a8178]">
+                  Record
+                </p>
+                <p className="mt-2 text-xl font-black">{reveal.reveal_public_id}</p>
+                <p className="mt-2 text-sm text-[#4b4743]">
+                  {reveal.checkout_reference} · {reveal.reveal_status}
+                </p>
+              </div>
+            </div>
             <div className="mt-8 border border-[#e5ded6] bg-white p-6 shadow-[0_18px_45px_rgba(45,38,32,.06)]">
               <p className="text-xs font-black uppercase tracking-[0.16em] text-[#b7653a]">
-                Provenance Timeline
+                Chain of Custody
               </p>
-              <div className="mt-5 grid gap-4 lg:grid-cols-5">
-                {timelineSteps.map((step, index) => (
-                  <div className="relative" key={step.label}>
+              <div className="mt-5 grid gap-4 lg:grid-cols-4">
+                {reveal.custody_steps.map((step, index) => (
+                  <div className="relative" key={`${step.label}-${index}`}>
                     <div className="flex items-center gap-3">
                       <span className="inline-flex size-8 items-center justify-center rounded-full bg-[#252525] text-sm font-black text-white">
                         {index + 1}
@@ -206,24 +244,23 @@ export default function RevealClient() {
                       </h3>
                     </div>
                     <p className="mt-3 text-sm leading-6 text-[#4b4743]">
-                      {step.body}
+                      {step.value}
                     </p>
                   </div>
                 ))}
               </div>
             </div>
-            <div className="mt-8 grid gap-5 md:grid-cols-2">
-              {previewSections.map((section) => (
+            <div className="mt-8 grid gap-5 md:grid-cols-3">
+              {reveal.evidence_items.map((item) => (
                 <article
                   className="border border-[#e5ded6] bg-white p-6 shadow-[0_18px_45px_rgba(45,38,32,.06)]"
-                  key={section.eyebrow}
+                  key={item.label}
                 >
                   <p className="text-xs font-black uppercase tracking-[0.16em] text-[#b7653a]">
-                    {section.eyebrow}
+                    {item.label}
                   </p>
-                  <h3 className="mt-3 text-2xl font-black">{section.title}</h3>
                   <p className="mt-3 text-sm leading-6 text-[#4b4743]">
-                    {section.body}
+                    {item.value}
                   </p>
                 </article>
               ))}
@@ -231,11 +268,11 @@ export default function RevealClient() {
           </div>
         ) : (
           <div className="border border-[#e5ded6] bg-white p-8 text-center">
-            <h2 className="text-2xl font-black">Reveal Preview Locked</h2>
+            <h2 className="text-2xl font-black">Reveal Locked</h2>
             <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-[#4b4743]">
-              Enter any demo card code and PIN to preview the future recipient
-              reveal. Real QR/PIN validation will come after this experience is
-              reviewed.
+              Use demo code <span className="font-black">AWO-DEMO-001</span> and
+              PIN <span className="font-black">1234</span> to verify the current
+              Supabase-backed reveal path.
             </p>
           </div>
         )}

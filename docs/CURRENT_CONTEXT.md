@@ -10,9 +10,9 @@ GPT-Codex AWO lives at `C:\HatchVision\AWO\GPT-Codex`.
 
 Buyer account auth path.
 
-Active Linear issue: AWO-40.
+Active Linear issue: AWO-41.
 
-Goal: replace placeholder Admin Ops content with protected read-only operational visibility.
+Goal: replace any-code reveal preview with server-mediated QR/PIN validation against Supabase records.
 
 ## What Exists
 
@@ -71,11 +71,16 @@ Goal: replace placeholder Admin Ops content with protected read-only operational
   - public catalog health reads from Supabase with public anon key
   - sensitive order/reveal metrics require `SUPABASE_SERVICE_ROLE_KEY`
   - no destructive admin controls are exposed
+- AWO-41 adds the first real reveal verification path:
+  - demo code `AWO-DEMO-001` and PIN `1234`
+  - `/api/reveal/verify` calls Supabase RPC `verify_honoree_reveal`
+  - invalid code/PIN responses return safe messages without card/artist payloads
+  - successful reveal returns card, artist, evidence, chain-of-custody, and
+    ownership summary
 
 ## Next Work
 
 - Use the new Linear runway:
-  - AWO-41 real QR/PIN reveal validation
   - AWO-42 persist artist profiles and studio drafts
   - AWO-43 define order/reveal/custody/ownership lifecycle states
   - AWO-44 mobile and visual QA across golden paths
