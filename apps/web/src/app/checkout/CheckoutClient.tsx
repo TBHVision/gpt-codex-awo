@@ -13,6 +13,7 @@ import {
   formatCheckoutPrice,
   type CheckoutDraftResponse,
   type CheckoutDraftResult,
+  type CheckoutSessionResponse,
 } from "@/lib/checkout-draft";
 
 function cartTotal(items: CartItem[]) {
@@ -42,10 +43,15 @@ export default function CheckoutClient() {
     return () => window.clearTimeout(timer);
   }, []);
 
-  async function submitDraft(event: FormEvent<HTMLFormElement>) {
+  async function submitCheckout(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
     setDraft(null);
+    const submitter = event.nativeEvent as SubmitEvent;
+    const mode =
+      (submitter.submitter as HTMLButtonElement | null)?.value === "payment"
+        ? "payment"
+        : "draft";
 
     if (items.length === 0) {
       setError("Add at least one card before saving a checkout draft.");
@@ -60,24 +66,34 @@ export default function CheckoutClient() {
     setIsSaving(true);
 
     try {
-      const response = await fetch("/api/checkout/draft", {
-        body: JSON.stringify({
-          items,
-          messageNotes,
-          occasionLabel,
-          recipientName,
-        }),
-        headers: { "Content-Type": "application/json" },
-        method: "POST",
-      });
-      const result = (await response.json()) as CheckoutDraftResponse;
+      const response = await fetch(
+        mode === "payment" ? "/api/checkout/session" : "/api/checkout/draft",
+        {
+          body: JSON.stringify({
+            items,
+            messageNotes,
+            occasionLabel,
+            recipientName,
+          }),
+          headers: { "Content-Type": "application/json" },
+          method: "POST",
+        },
+      );
+      const result = (await response.json()) as
+        | CheckoutDraftResponse
+        | CheckoutSessionResponse;
 
       if (!response.ok || !result.ok) {
         setError(
           result.ok
-            ? "Checkout draft could not be saved yet."
+            ? "Checkout could not be started yet."
             : result.message,
         );
+        return;
+      }
+
+      if ("checkout" in result) {
+        window.location.assign(result.checkout.checkoutUrl);
         return;
       }
 
@@ -85,7 +101,7 @@ export default function CheckoutClient() {
       setItems([]);
       setDraft(result.draft);
     } catch {
-      setError("Checkout draft could not be saved. Please try again.");
+      setError("Checkout could not be started. Please try again.");
     } finally {
       setIsSaving(false);
     }
@@ -98,15 +114,14 @@ export default function CheckoutClient() {
       <section className="border-b border-[#e5ded6] bg-[radial-gradient(circle_at_center,#ffffff_0,#ffffff_48%,#f4f0ea_100%)]">
         <div className="mx-auto max-w-5xl px-6 py-10 lg:px-10">
           <p className="text-xs font-black uppercase tracking-[0.16em] text-[#b7653a]">
-            Draft order
+            Secure checkout
           </p>
           <h1 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">
-            Checkout Draft
+            Checkout
           </h1>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-[#4b4743]">
-            Save recipient, occasion, message, and cart items into the AWO
-            backend. Payment is still disabled; this creates a durable draft
-            order for the next workflow.
+            Save recipient, occasion, message, and cart items into AWO. Stripe
+            test checkout is available when test-mode keys are configured.
           </p>
         </div>
       </section>
@@ -114,7 +129,7 @@ export default function CheckoutClient() {
       <section className="mx-auto grid max-w-5xl gap-6 px-6 py-8 lg:grid-cols-[1fr_320px] lg:px-10">
         <form
           className="border border-[#e5ded6] bg-white p-6 shadow-[0_18px_45px_rgba(45,38,32,.08)]"
-          onSubmit={submitDraft}
+          onSubmit={submitCheckout}
         >
           {draft ? (
             <div className="mb-6 border border-emerald-200 bg-emerald-50 p-5">
@@ -125,7 +140,7 @@ export default function CheckoutClient() {
                 {draft.checkoutReference}
               </h2>
               <p className="mt-3 text-sm leading-6 text-emerald-900">
-                The order draft is now saved in Supabase with {draft.itemCount}{" "}
+                The order is now saved in Supabase with {draft.itemCount}{" "}
                 item{draft.itemCount === 1 ? "" : "s"} totaling{" "}
                 {formatCheckoutPrice(draft.totalCents)}. No payment was
                 collected.
@@ -174,9 +189,20 @@ export default function CheckoutClient() {
           <button
             className="mt-6 h-12 w-full bg-[#252525] px-4 text-sm font-black uppercase tracking-wide text-white hover:bg-[#3a3632] disabled:cursor-not-allowed disabled:bg-[#d8d0c7] disabled:text-[#7d746d]"
             disabled={isSaving || items.length === 0}
+            name="checkoutMode"
             type="submit"
+            value="payment"
           >
-            {isSaving ? "Saving Draft..." : "Save Checkout Draft"}
+            {isSaving ? "Starting Checkout..." : "Continue to Test Payment"}
+          </button>
+          <button
+            className="mt-3 h-11 w-full border border-[#dfd5ca] bg-white px-4 text-sm font-black uppercase tracking-wide text-[#7a472e] hover:border-[#b7653a] disabled:cursor-not-allowed disabled:bg-[#f1ece6] disabled:text-[#9d938b]"
+            disabled={isSaving || items.length === 0}
+            name="checkoutMode"
+            type="submit"
+            value="draft"
+          >
+            Save Draft Only
           </button>
         </form>
 
@@ -193,12 +219,12 @@ export default function CheckoutClient() {
             </div>
             <div className="flex items-center justify-between text-sm font-bold text-[#4b4743]">
               <span>Payment</span>
-              <span>Not collected</span>
+              <span>Stripe test mode</span>
             </div>
           </div>
           <p className="mt-5 text-sm leading-6 text-[#4b4743]">
-            This step creates a database-backed draft only. Stripe and live
-            fulfillment stay disabled until the lifecycle model is approved.
+            Test payment redirects to Stripe when test keys are configured.
+            Live charges stay disabled until Tony explicitly approves them.
           </p>
           <Link
             className="mt-6 inline-flex h-11 w-full items-center justify-center border border-[#dfd5ca] bg-white px-4 text-sm font-black uppercase tracking-wide text-[#b7653a] hover:border-[#b7653a]"

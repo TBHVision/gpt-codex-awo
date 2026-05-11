@@ -10,9 +10,9 @@ GPT-Codex AWO lives at `C:\HatchVision\AWO\GPT-Codex`.
 
 Storefront polish pass.
 
-Active Linear issue: AWO-51.
+Active Linear issue: AWO-46.
 
-Goal: align the shop with the AWO pre-visualization using the real logo and the five-card demo catalog.
+Goal: wire Stripe test-mode payment lifecycle while keeping live charges disabled.
 
 ## What Exists
 
@@ -135,10 +135,18 @@ Goal: align the shop with the AWO pre-visualization using the real logo and the 
     Wildflower Notes, Coastal Morning, With All My Heart, Morning Song, and
     Misty Pines
   - matching public card artwork lives under `/cards/*.svg`
+- AWO-46 is in progress:
+  - `/api/checkout/session` creates a Supabase draft order, then a Stripe
+    test-mode Checkout Session from trusted database prices
+  - `/api/stripe/webhook` handles Stripe test webhook events and updates order
+    payment lifecycle state server-side
+  - the app rejects live Stripe secret keys while AWO is in test-mode wiring
+  - env and webhook setup are documented in `docs/STRIPE_TEST_MODE.md`
 
 ## Next Work
 
 - Use the new Linear runway:
-  - AWO-46 Stripe test-mode payment lifecycle
+  - finish AWO-46 by adding Stripe test keys/webhook secret and capturing
+    payment-success evidence
   - Real card photography/art direction can replace the managed demo assets when
     Tony provides final production artwork

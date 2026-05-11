@@ -19,6 +19,17 @@ export type CheckoutDraftResponse =
   | { draft: CheckoutDraftResult; ok: true }
   | { message: string; ok: false };
 
+export type CheckoutSessionResult = {
+  checkoutReference: string;
+  checkoutUrl: string;
+  orderId: string;
+  sessionId: string;
+};
+
+export type CheckoutSessionResponse =
+  | { checkout: CheckoutSessionResult; ok: true }
+  | { message: string; ok: false };
+
 export function formatCheckoutPrice(cents: number, currency = "USD") {
   return new Intl.NumberFormat("en-US", {
     currency,
