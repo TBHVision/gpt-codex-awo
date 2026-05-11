@@ -2,14 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 import StorefrontNav from "@/app/components/StorefrontNav";
-
-type Reminder = {
-  id: string;
-  cadence: string;
-  channel: string;
-  occasion: string;
-  person: string;
-};
+import { readBuyerSession } from "@/lib/buyer-auth";
+import {
+  combineReminderQueue,
+  createPlanningReminder,
+  fetchPlanningData,
+} from "@/lib/buyer-planning";
+import type { PlanningReminder } from "@/lib/buyer-planning";
 
 type StoredPerson = {
   name: string;
@@ -18,13 +17,14 @@ type StoredPerson = {
 
 const PEOPLE_STORAGE_KEY = "awo-demo-people";
 
-const demoReminders: Reminder[] = [
+const demoReminders: PlanningReminder[] = [
   {
     id: "reminder-mom",
     cadence: "30 days before",
     channel: "Dashboard only",
     occasion: "Birthday",
     person: "Mom",
+    source: "local",
   },
   {
     id: "reminder-sam",
@@ -32,6 +32,7 @@ const demoReminders: Reminder[] = [
     channel: "Dashboard only",
     occasion: "Encouragement",
     person: "Sam",
+    source: "local",
   },
 ];
 
@@ -55,6 +56,7 @@ function loadReminderSeed() {
       channel: "Dashboard only",
       occasion: person.occasion,
       person: person.name,
+      source: "local" as const,
     }));
   } catch {
     return demoReminders;
@@ -62,15 +64,44 @@ function loadReminderSeed() {
 }
 
 export default function RemindersClient() {
-  const [reminders, setReminders] = useState<Reminder[]>(demoReminders);
-  const [person, setPerson] = useState("");
-  const [occasion, setOccasion] = useState("");
+  const [accountMode, setAccountMode] = useState(false);
   const [cadence, setCadence] = useState("30 days before");
+  const [error, setError] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [occasion, setOccasion] = useState("");
+  const [person, setPerson] = useState("");
+  const [reminders, setReminders] = useState<PlanningReminder[]>(demoReminders);
+  const [status, setStatus] = useState("");
 
   useEffect(() => {
-    queueMicrotask(() => {
-      setReminders(loadReminderSeed());
-    });
+    const timer = window.setTimeout(() => {
+      const session = readBuyerSession();
+
+      if (!session) {
+        setAccountMode(false);
+        setReminders(loadReminderSeed());
+        setStatus("Using local browser reminders. Sign in to save reminders to your account.");
+        return;
+      }
+
+      setAccountMode(true);
+      fetchPlanningData(session)
+        .then(({ occasions, people }) => {
+          setReminders(combineReminderQueue(people, occasions));
+          setStatus("Using Supabase account storage.");
+        })
+        .catch((loadError: unknown) => {
+          setError(
+            loadError instanceof Error
+              ? loadError.message
+              : "Could not load account reminders.",
+          );
+          setAccountMode(false);
+          setReminders(loadReminderSeed());
+        });
+    }, 0);
+
+    return () => window.clearTimeout(timer);
   }, []);
 
   const sortedReminders = useMemo(
@@ -81,24 +112,62 @@ export default function RemindersClient() {
     [reminders],
   );
 
-  function addReminder() {
+  async function addReminder() {
     if (!person.trim() || !occasion.trim()) {
       return;
     }
 
-    setReminders((current) => [
-      ...current,
-      {
-        id: `${person}-${Date.now()}`,
+    setError("");
+    setStatus("");
+    setIsSaving(true);
+
+    try {
+      const session = readBuyerSession();
+      const nextReminder = {
         cadence,
-        channel: "Dashboard only",
         occasion: occasion.trim(),
         person: person.trim(),
-      },
-    ]);
-    setPerson("");
-    setOccasion("");
-    setCadence("30 days before");
+      };
+
+      if (accountMode && session) {
+        const saved = await createPlanningReminder(session, nextReminder);
+        setReminders((current) => [
+          ...current,
+          {
+            cadence,
+            channel: "Account storage",
+            id: saved.occasion.id,
+            occasion: saved.occasion.title,
+            person: saved.person.display_name,
+            source: "account",
+          },
+        ]);
+        setStatus("Saved reminder to Supabase.");
+      } else {
+        setReminders((current) => [
+          ...current,
+          {
+            id: `${person}-${Date.now()}`,
+            ...nextReminder,
+            channel: "Dashboard only",
+            source: "local",
+          },
+        ]);
+        setStatus("Saved reminder locally in this browser.");
+      }
+
+      setPerson("");
+      setOccasion("");
+      setCadence("30 days before");
+    } catch (saveError) {
+      setError(
+        saveError instanceof Error
+          ? saveError.message
+          : "Could not save reminder.",
+      );
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   return (
@@ -114,16 +183,28 @@ export default function RemindersClient() {
             Plan the nudge before the moment passes.
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-7 text-[#4b4743]">
-            This is a planning shell only. Real SMS, email, and calendar
-            automation stay in Parking Lot / Future until account storage and
-            consent rules are ready.
+            Signed-in buyers save reminders to Supabase. Real SMS, email, and
+            calendar automation stay in Parking Lot / Future until consent rules
+            are ready.
           </p>
         </div>
       </section>
 
       <section className="mx-auto grid max-w-7xl gap-6 px-6 py-10 lg:grid-cols-[380px_1fr] lg:px-10">
         <aside className="h-fit border border-[#e5ded6] bg-white p-6 shadow-[0_18px_45px_rgba(45,38,32,.08)]">
-          <h2 className="text-2xl font-black">Add Demo Reminder</h2>
+          <h2 className="text-2xl font-black">
+            {accountMode ? "Add Reminder" : "Add Local Reminder"}
+          </h2>
+          {status ? (
+            <p className="mt-3 border border-[#cfe8d8] bg-[#f2fbf5] p-3 text-sm font-bold text-[#256b3d]">
+              {status}
+            </p>
+          ) : null}
+          {error ? (
+            <p className="mt-3 border border-[#f0c7c7] bg-[#fff5f5] p-3 text-sm font-bold text-[#9d1c1c]">
+              {error}
+            </p>
+          ) : null}
           <div className="mt-5 grid gap-4">
             <label className="block text-sm font-black uppercase tracking-wide text-[#373431]">
               Person
@@ -169,7 +250,7 @@ export default function RemindersClient() {
             onClick={addReminder}
             type="button"
           >
-            Add Reminder
+            {isSaving ? "Saving..." : "Add Reminder"}
           </button>
         </aside>
 
@@ -212,6 +293,9 @@ export default function RemindersClient() {
                     Channel
                   </p>
                   <p className="mt-2 font-bold">{reminder.channel}</p>
+                  <p className="mt-2 text-xs font-black uppercase tracking-wide text-[#8a8178]">
+                    {reminder.source === "account" ? "Supabase" : "Local"}
+                  </p>
                 </div>
               </article>
             ))}

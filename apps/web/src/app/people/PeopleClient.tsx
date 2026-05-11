@@ -3,26 +3,28 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import StorefrontNav from "@/app/components/StorefrontNav";
+import { readBuyerSession } from "@/lib/buyer-auth";
+import {
+  combinePeopleAndOccasions,
+  createPlanningPerson,
+  fetchPlanningData,
+} from "@/lib/buyer-planning";
+import type { PlanningPerson } from "@/lib/buyer-planning";
 
-type Person = {
-  id: string;
-  name: string;
-  occasion: string;
-  relationship: string;
-};
-
-const initialPeople: Person[] = [
+const initialPeople: PlanningPerson[] = [
   {
     id: "demo-mom",
     name: "Mom",
     occasion: "Birthday",
     relationship: "Family",
+    source: "local",
   },
   {
     id: "demo-sam",
     name: "Sam",
     occasion: "Encouragement",
     relationship: "Friend",
+    source: "local",
   },
 ];
 
@@ -36,10 +38,13 @@ function loadInitialPeople() {
       return initialPeople;
     }
 
-    const parsedPeople = JSON.parse(savedPeople) as Person[];
+    const parsedPeople = JSON.parse(savedPeople) as PlanningPerson[];
 
     if (Array.isArray(parsedPeople) && parsedPeople.length > 0) {
-      return parsedPeople;
+      return parsedPeople.map((person) => ({
+        ...person,
+        source: "local" as const,
+      }));
     }
   } catch {
     return initialPeople;
@@ -49,26 +54,56 @@ function loadInitialPeople() {
 }
 
 export default function PeopleClient() {
-  const [people, setPeople] = useState<Person[]>(initialPeople);
+  const [accountMode, setAccountMode] = useState(false);
+  const [error, setError] = useState("");
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [name, setName] = useState("");
-  const [relationship, setRelationship] = useState("");
   const [occasion, setOccasion] = useState("");
+  const [people, setPeople] = useState<PlanningPerson[]>(initialPeople);
+  const [relationship, setRelationship] = useState("");
+  const [status, setStatus] = useState("");
 
   useEffect(() => {
-    queueMicrotask(() => {
-      setPeople(loadInitialPeople());
-      setIsLoaded(true);
-    });
+    const timer = window.setTimeout(() => {
+      const session = readBuyerSession();
+
+      if (!session) {
+        setPeople(loadInitialPeople());
+        setAccountMode(false);
+        setStatus("Using local browser storage. Sign in to save people to your account.");
+        setIsLoaded(true);
+        return;
+      }
+
+      setAccountMode(true);
+      fetchPlanningData(session)
+        .then(({ occasions, people: savedPeople }) => {
+          setPeople(combinePeopleAndOccasions(savedPeople, occasions));
+          setStatus("Using Supabase account storage.");
+        })
+        .catch((loadError: unknown) => {
+          setError(
+            loadError instanceof Error
+              ? loadError.message
+              : "Could not load account people.",
+          );
+          setPeople(loadInitialPeople());
+          setAccountMode(false);
+        })
+        .finally(() => setIsLoaded(true));
+    }, 0);
+
+    return () => window.clearTimeout(timer);
   }, []);
 
   useEffect(() => {
-    if (!isLoaded) {
+    if (!isLoaded || accountMode) {
       return;
     }
 
     window.localStorage.setItem(PEOPLE_STORAGE_KEY, JSON.stringify(people));
-  }, [isLoaded, people]);
+  }, [accountMode, isLoaded, people]);
 
   const upcomingOccasions = useMemo(
     () =>
@@ -79,26 +114,66 @@ export default function PeopleClient() {
     [people],
   );
 
-  function addPerson() {
+  async function addPerson() {
     if (!name.trim() || !occasion.trim()) {
       return;
     }
 
-    setPeople((current) => [
-      ...current,
-      {
-        id: `${name}-${Date.now()}`,
+    setError("");
+    setStatus("");
+    setIsSaving(true);
+
+    try {
+      const session = readBuyerSession();
+      const nextPerson = {
         name: name.trim(),
         occasion: occasion.trim(),
         relationship: relationship.trim() || "Recipient",
-      },
-    ]);
-    setName("");
-    setRelationship("");
-    setOccasion("");
+      };
+
+      if (accountMode && session) {
+        const saved = await createPlanningPerson(session, nextPerson);
+        setPeople((current) => [
+          ...current,
+          {
+            id: saved.person.id,
+            name: saved.person.display_name,
+            occasion: saved.occasion.title,
+            relationship: saved.person.relationship || "Recipient",
+            source: "account",
+          },
+        ]);
+        setStatus("Saved person and first reminder to Supabase.");
+      } else {
+        setPeople((current) => [
+          ...current,
+          {
+            id: `${name}-${Date.now()}`,
+            ...nextPerson,
+            source: "local",
+          },
+        ]);
+        setStatus("Saved locally in this browser.");
+      }
+
+      setName("");
+      setRelationship("");
+      setOccasion("");
+    } catch (saveError) {
+      setError(
+        saveError instanceof Error ? saveError.message : "Could not save person.",
+      );
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   function resetPeople() {
+    if (accountMode) {
+      setError("Account-backed people cannot be reset from this local demo control yet.");
+      return;
+    }
+
     setPeople(initialPeople);
     setIsLoaded(true);
     window.localStorage.removeItem(PEOPLE_STORAGE_KEY);
@@ -117,15 +192,27 @@ export default function PeopleClient() {
             Remember the people you send meaning to.
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-7 text-[#4b4743]">
-            This shell previews relationship-centered planning. Demo people live
-            in this browser only for now; full account storage comes later.
+            Signed-in buyers save people and first reminders to Supabase. Guests
+            can still plan locally in this browser.
           </p>
         </div>
       </section>
 
       <section className="mx-auto grid max-w-7xl gap-6 px-6 py-10 lg:grid-cols-[380px_1fr] lg:px-10">
         <aside className="h-fit border border-[#e5ded6] bg-white p-6 shadow-[0_18px_45px_rgba(45,38,32,.08)]">
-          <h2 className="text-2xl font-black">Add Demo Person</h2>
+          <h2 className="text-2xl font-black">
+            {accountMode ? "Add Person" : "Add Local Person"}
+          </h2>
+          {status ? (
+            <p className="mt-3 border border-[#cfe8d8] bg-[#f2fbf5] p-3 text-sm font-bold text-[#256b3d]">
+              {status}
+            </p>
+          ) : null}
+          {error ? (
+            <p className="mt-3 border border-[#f0c7c7] bg-[#fff5f5] p-3 text-sm font-bold text-[#9d1c1c]">
+              {error}
+            </p>
+          ) : null}
           <div className="mt-5 grid gap-4">
             <label className="block text-sm font-black uppercase tracking-wide text-[#373431]">
               Name
@@ -168,15 +255,17 @@ export default function PeopleClient() {
             onClick={addPerson}
             type="button"
           >
-            Add Person
+            {isSaving ? "Saving..." : "Add Person"}
           </button>
-          <button
-            className="mt-3 h-11 w-full border border-[#d8c8bb] px-4 text-sm font-black uppercase tracking-wide text-[#7a472e] hover:border-[#b7653a] hover:bg-[#fff8f3]"
-            onClick={resetPeople}
-            type="button"
-          >
-            Reset Demo People
-          </button>
+          {!accountMode ? (
+            <button
+              className="mt-3 h-11 w-full border border-[#d8c8bb] px-4 text-sm font-black uppercase tracking-wide text-[#7a472e] hover:border-[#b7653a] hover:bg-[#fff8f3]"
+              onClick={resetPeople}
+              type="button"
+            >
+              Reset Local People
+            </button>
+          ) : null}
           <Link
             className="mt-3 inline-flex h-11 w-full items-center justify-center border border-[#b7653a] bg-[#fff8f3] px-4 text-sm font-black uppercase tracking-wide text-[#7a472e] hover:bg-[#f6ebe2]"
             href="/reminders"
@@ -197,6 +286,9 @@ export default function PeopleClient() {
                   <h3 className="mt-2 text-2xl font-black">{person.name}</h3>
                   <p className="mt-3 text-sm leading-6 text-[#4b4743]">
                     Next card intent: {person.occasion}
+                  </p>
+                  <p className="mt-4 text-xs font-black uppercase tracking-wide text-[#8a8178]">
+                    {person.source === "account" ? "Supabase" : "Local"} storage
                   </p>
                 </article>
               ))}

@@ -80,7 +80,7 @@ New auth users are bootstrapped as buyers by:
 Temporary limits:
 
 - Buyer sessions are stored client-side for now, not in server-side Supabase cookies.
-- Saved People, Reminders, carts, and order history are not yet attached to the buyer session.
+- Saved People and Reminders are account-aware in AWO-39, but carts and order history are not yet attached to the buyer session.
 - Email confirmation behavior is controlled by Supabase Auth settings.
 - Social login providers are not configured yet.
 

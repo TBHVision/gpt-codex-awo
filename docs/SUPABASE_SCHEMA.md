@@ -48,6 +48,17 @@ The RPC:
 - returns an `AWO-DRAFT-*` checkout reference
 - does not collect payment
 
+## AWO-39 People and Reminders
+
+Signed-in buyer planning uses existing RLS-protected tables:
+
+- `people` stores the recipient/contact row for the authenticated buyer.
+- `occasions` stores reminder/planning intent tied to a person where possible.
+
+The browser uses the buyer's Supabase Auth access token, so reads and writes run
+through the same owner policies as the rest of the account model. Anonymous
+users keep local browser storage and cannot read `people` or `occasions`.
+
 ## Role Model
 
 `profiles.role` is intentionally simple for V0.1:

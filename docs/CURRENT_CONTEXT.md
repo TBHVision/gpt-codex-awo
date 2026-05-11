@@ -10,9 +10,9 @@ GPT-Codex AWO lives at `C:\HatchVision\AWO\GPT-Codex`.
 
 Buyer account auth path.
 
-Active Linear issue: AWO-38.
+Active Linear issue: AWO-39.
 
-Goal: add the first Supabase Auth buyer account path while keeping anonymous browsing and cart flows available.
+Goal: move People and Reminders from browser-only demo state to account-backed Supabase storage where a buyer session exists.
 
 ## What Exists
 
@@ -62,11 +62,15 @@ Goal: add the first Supabase Auth buyer account path while keeping anonymous bro
 - Buyer sessions are temporarily stored in browser localStorage. Server-side
   Supabase session cookies come later when account-owned People, Reminders, and
   order history are wired.
+- AWO-39 adds account-aware People and Reminders behavior:
+  - signed-in buyers read/write `people` and `occasions` through Supabase RLS
+  - guests keep local browser fallback
+  - `occasions` are the current reminder records until a narrower reminders
+    model is justified
 
 ## Next Work
 
 - Use the new Linear runway:
-  - AWO-39 persist People and Reminders to Supabase
   - AWO-40 wire Admin Ops to real Supabase operational data
   - AWO-41 real QR/PIN reveal validation
   - AWO-42 persist artist profiles and studio drafts
