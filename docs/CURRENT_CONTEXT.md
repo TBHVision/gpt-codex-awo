@@ -237,6 +237,13 @@ every small decision.
   - Supabase-backed named admins can submit narrow item-state transitions
   - transitions call `admin_transition_fulfillment_item(...)` through a server
     action and revalidate fulfillment, audit, ops, and launch surfaces
+- AWO-71 wires ownership records to payment and fulfillment:
+  - Stripe payment success creates or updates pending `ownership_records` for
+    paid items
+  - completing fulfillment through the admin transition RPC activates the
+    ownership record and emits an `ownership_recorded` custody event
+  - transfer, revocation, and refund ownership workflows remain future audited
+    scopes
 - `docs/TONY_REVIEW_BATCH.md` is the current batched list of Tony reviews,
   external checks, and later decisions.
 

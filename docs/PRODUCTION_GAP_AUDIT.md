@@ -63,6 +63,9 @@ new admin RPC defines audited future item-state transitions without exposing UI
 write controls yet.
 AWO-70 exposes narrow fulfillment transition controls only for Supabase-backed
 named admin sessions. Temporary password admin sessions remain read-only.
+AWO-71 connects ownership records to lifecycle state: paid items create pending
+ownership records, and completed fulfillment activates the record and emits an
+`ownership_recorded` custody event.
 
 ## Current Health
 
@@ -184,8 +187,8 @@ Remaining:
 - Broader write-capable approval tools are still deferred. Current admin writes
   are limited to audited card approve/reject actions for named Supabase admins.
 - Fulfillment now has narrow named-admin item transition controls, but shipping,
-  refunds, credential revocation, and ownership transfer still need separately
-  audited workflows.
+  refunds, credential revocation, and ownership transfer/revocation still need
+  separately audited workflows.
 - Temporary password admin sessions remain read-only for fulfillment actions.
 - Observability setup for production errors, analytics, and performance is still
   planned rather than configured.

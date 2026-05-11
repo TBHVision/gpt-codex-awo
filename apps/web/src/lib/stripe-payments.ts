@@ -14,6 +14,7 @@ type OrderItemRow = {
   card_id: string;
   id: string;
   line_total_cents: number;
+  person_id?: string | null;
   quantity: number;
   status?: string;
   unit_price_cents: number;
@@ -328,12 +329,13 @@ async function patchOrderBySession(
 }
 
 type StripeOrderRow = {
+  buyer_profile_id: string | null;
   id: string;
 };
 
 async function fetchOrderBySession(config: SupabaseServerConfig, sessionId: string) {
   const endpoint = new URL("/rest/v1/orders", config.supabaseUrl);
-  endpoint.searchParams.set("select", "id");
+  endpoint.searchParams.set("select", "id,buyer_profile_id");
   endpoint.searchParams.set("payment_session_id", `eq.${sessionId}`);
   endpoint.searchParams.set("limit", "1");
 
@@ -349,10 +351,13 @@ async function fetchOrderBySession(config: SupabaseServerConfig, sessionId: stri
   return rows[0] ?? null;
 }
 
-async function markOrderItemsPurchased(config: SupabaseServerConfig, orderId: string) {
+async function markOrderItemsPurchased(
+  config: SupabaseServerConfig,
+  order: StripeOrderRow,
+) {
   const itemsEndpoint = new URL("/rest/v1/order_items", config.supabaseUrl);
-  itemsEndpoint.searchParams.set("select", "id,card_id,status");
-  itemsEndpoint.searchParams.set("order_id", `eq.${orderId}`);
+  itemsEndpoint.searchParams.set("select", "id,card_id,person_id,status");
+  itemsEndpoint.searchParams.set("order_id", `eq.${order.id}`);
 
   const itemsResponse = await fetch(itemsEndpoint, {
     headers: supabaseHeaders(config),
@@ -370,7 +375,7 @@ async function markOrderItemsPurchased(config: SupabaseServerConfig, orderId: st
   }
 
   const patchEndpoint = new URL("/rest/v1/order_items", config.supabaseUrl);
-  patchEndpoint.searchParams.set("order_id", `eq.${orderId}`);
+  patchEndpoint.searchParams.set("order_id", `eq.${order.id}`);
   patchEndpoint.searchParams.set("status", "eq.reserved");
 
   const patchResponse = await fetch(patchEndpoint, {
@@ -386,12 +391,44 @@ async function markOrderItemsPurchased(config: SupabaseServerConfig, orderId: st
     throw new Error("Paid order items could not be moved into fulfillment.");
   }
 
+  const ownershipEndpoint = new URL("/rest/v1/ownership_records", config.supabaseUrl);
+  ownershipEndpoint.searchParams.set("on_conflict", "order_item_id");
+
+  const ownershipResponse = await fetch(
+    ownershipEndpoint,
+    {
+      body: JSON.stringify(
+        reservedItems.map((item) => ({
+          buyer_profile_id: order.buyer_profile_id,
+          card_id: item.card_id,
+          metadata: {
+            order_id: order.id,
+            source: "stripe_checkout_completed",
+          },
+          order_item_id: item.id,
+          ownership_summary: "Ownership pending AWO fulfillment completion.",
+          recipient_person_id: item.person_id ?? null,
+          status: "pending",
+        })),
+      ),
+      headers: {
+        ...supabaseHeaders(config),
+        Prefer: "resolution=merge-duplicates,return=minimal",
+      },
+      method: "POST",
+    },
+  );
+
+  if (!ownershipResponse.ok) {
+    throw new Error("Pending ownership records could not be created.");
+  }
+
   const custodyResponse = await fetch(`${config.supabaseUrl}/rest/v1/custody_events`, {
     body: JSON.stringify(
       reservedItems.map((item) => ({
         card_id: item.card_id,
         event_payload: {
-          order_id: orderId,
+          order_id: order.id,
           source: "stripe_checkout_completed",
         },
         event_type: "order_paid",
@@ -431,7 +468,7 @@ async function markCheckoutSessionPaid(session: Stripe.Checkout.Session) {
     payment_status: "paid",
     status: "paid",
   });
-  await markOrderItemsPurchased(config, order.id);
+  await markOrderItemsPurchased(config, order);
 }
 
 export async function handleStripeCheckoutEvent(event: Stripe.Event) {

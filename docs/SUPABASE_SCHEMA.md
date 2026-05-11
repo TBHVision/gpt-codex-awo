@@ -195,6 +195,20 @@ The RPC:
 The admin UI still does not expose fulfillment write buttons. This RPC is the
 foundation those controls must use later.
 
+## AWO-71 Ownership Lifecycle Wiring
+
+Stripe checkout completion now creates or updates a pending `ownership_records`
+row for every paid order item. The record is tied to the item, card, buyer
+profile when available, and recipient person when available.
+
+When `admin_transition_fulfillment_item(...)` moves an item to `completed`, the
+matching ownership record becomes `active`, gets an `activated_at` timestamp,
+and emits an `ownership_recorded` custody event.
+
+Ownership transfer, revocation, refund correction, and recipient-claim flows are
+still separate future workflows. They should use audited server-side state
+transitions rather than direct browser writes.
+
 ## Role Model
 
 `profiles.role` is intentionally simple for V0.1:
