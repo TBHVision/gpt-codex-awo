@@ -21,6 +21,12 @@ export default function BuildDashboardClient() {
           <div className="flex flex-wrap gap-3">
             <a
               className="inline-flex h-11 items-center justify-center rounded-md border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-800 shadow-sm hover:border-slate-400 hover:bg-slate-50"
+              href="/admin/ops"
+            >
+              Admin Ops
+            </a>
+            <a
+              className="inline-flex h-11 items-center justify-center rounded-md border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-800 shadow-sm hover:border-slate-400 hover:bg-slate-50"
               href="/admin/logout"
             >
               Log out
@@ -42,13 +48,13 @@ export default function BuildDashboardClient() {
               <div>
                 <h2 className="text-xl font-semibold">Current Phase</h2>
                 <p className="mt-1 text-sm leading-6 text-slate-600">
-                  V0.1 Security + Data/Auth is active. The immediate work is
-                  production dashboard protection, Vercel env setup, and the
-                  HatchVision-owned Supabase foundation.
+                  Linear owns the live phase state. This protected home stays
+                  intentionally lightweight so it does not drift from current
+                  issues, milestones, or gate decisions.
                 </p>
               </div>
               <span className="inline-flex rounded-md border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-900">
-                In Progress
+                Linear Driven
               </span>
             </div>
           </div>
