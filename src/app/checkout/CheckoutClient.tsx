@@ -7,6 +7,7 @@ import {
   clearCartStorage,
   countCartItems,
   readCartFromStorage,
+  writeCartToStorage,
 } from "@/lib/cart-types";
 import type { CartItem } from "@/lib/cart-types";
 import {
@@ -17,6 +18,7 @@ import {
 } from "@/lib/checkout-draft";
 import { readBuyerSession } from "@/lib/buyer-auth";
 import type { BuyerSession } from "@/lib/buyer-auth";
+import { clearBuyerCart, syncBuyerCart } from "@/lib/buyer-cart";
 
 function cartTotal(items: CartItem[]) {
   return items.reduce(
@@ -40,8 +42,22 @@ export default function CheckoutClient() {
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      setItems(readCartFromStorage());
-      setBuyerSession(readBuyerSession());
+      const localItems = readCartFromStorage();
+      const savedSession = readBuyerSession();
+
+      setItems(localItems);
+      setBuyerSession(savedSession);
+
+      if (savedSession) {
+        syncBuyerCart(savedSession, localItems)
+          .then((mergedItems) => {
+            writeCartToStorage(mergedItems);
+            setItems(mergedItems);
+          })
+          .catch(() => {
+            setError("Checkout is using the browser cart until account sync works.");
+          });
+      }
     }, 0);
 
     return () => window.clearTimeout(timer);
@@ -102,6 +118,9 @@ export default function CheckoutClient() {
         return;
       }
 
+      if (buyerSession) {
+        await clearBuyerCart(buyerSession);
+      }
       clearCartStorage();
       setItems([]);
       setDraft(result.draft);

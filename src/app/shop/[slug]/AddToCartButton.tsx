@@ -4,11 +4,14 @@ import Link from "next/link";
 import { useState } from "react";
 import { readCartFromStorage, writeCartToStorage } from "@/lib/cart-types";
 import type { CartItem } from "@/lib/cart-types";
+import { readBuyerSession } from "@/lib/buyer-auth";
+import { syncBuyerCart } from "@/lib/buyer-cart";
 
 export default function AddToCartButton({ item }: { item: CartItem }) {
   const [added, setAdded] = useState(false);
+  const [syncStatus, setSyncStatus] = useState("");
 
-  function addToCart() {
+  async function addToCart() {
     const cart = readCartFromStorage();
     const existing = cart.find((cartItem) => cartItem.slug === item.slug);
     const nextCart = existing
@@ -21,6 +24,22 @@ export default function AddToCartButton({ item }: { item: CartItem }) {
 
     writeCartToStorage(nextCart);
     setAdded(true);
+
+    const savedSession = readBuyerSession();
+
+    if (!savedSession) {
+      setSyncStatus("Saved on this browser.");
+      return;
+    }
+
+    setSyncStatus("Syncing to your account...");
+    try {
+      const mergedCart = await syncBuyerCart(savedSession, nextCart);
+      writeCartToStorage(mergedCart);
+      setSyncStatus("Synced to your account.");
+    } catch {
+      setSyncStatus("Saved on this browser. Account sync will retry in cart.");
+    }
   }
 
   return (
@@ -39,6 +58,11 @@ export default function AddToCartButton({ item }: { item: CartItem }) {
         >
           View Cart
         </Link>
+      ) : null}
+      {syncStatus ? (
+        <p className="text-center text-xs font-bold text-slate-500">
+          {syncStatus}
+        </p>
       ) : null}
     </div>
   );

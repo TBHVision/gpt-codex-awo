@@ -7,8 +7,11 @@ import {
   clearCartStorage,
   countCartItems,
   readCartFromStorage,
+  writeCartToStorage,
 } from "@/lib/cart-types";
 import type { CartItem } from "@/lib/cart-types";
+import { readBuyerSession } from "@/lib/buyer-auth";
+import { clearBuyerCart, syncBuyerCart } from "@/lib/buyer-cart";
 
 function formatPrice(cents: number, currency = "USD") {
   return new Intl.NumberFormat("en-US", {
@@ -33,6 +36,7 @@ function MiniArtwork({ title }: { title: string }) {
 
 export default function CartClient() {
   const [items, setItems] = useState<CartItem[]>([]);
+  const [syncStatus, setSyncStatus] = useState("");
 
   const itemCount = useMemo(() => countCartItems(items), [items]);
 
@@ -47,15 +51,45 @@ export default function CartClient() {
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      setItems(readCartFromStorage());
+      const localItems = readCartFromStorage();
+      const savedSession = readBuyerSession();
+
+      setItems(localItems);
+
+      if (!savedSession) {
+        setSyncStatus("Guest cart is saved on this browser.");
+        return;
+      }
+
+      setSyncStatus("Syncing signed-in cart...");
+      syncBuyerCart(savedSession, localItems)
+        .then((mergedItems) => {
+          writeCartToStorage(mergedItems);
+          setItems(mergedItems);
+          setSyncStatus("Signed-in cart is synced to your account.");
+        })
+        .catch(() => {
+          setSyncStatus("Cart is using this browser until account sync works.");
+        });
     }, 0);
 
     return () => window.clearTimeout(timer);
   }, []);
 
-  function clearCart() {
+  async function clearCart() {
+    const savedSession = readBuyerSession();
     clearCartStorage();
     setItems([]);
+
+    if (savedSession) {
+      setSyncStatus("Clearing signed-in cart...");
+      try {
+        await clearBuyerCart(savedSession);
+        setSyncStatus("Signed-in cart cleared.");
+      } catch {
+        setSyncStatus("Browser cart cleared. Account cart could not be cleared.");
+      }
+    }
   }
 
   return (
@@ -74,6 +108,11 @@ export default function CartClient() {
             Review selected cards before saving a real draft order. Payments
             stay disabled until the checkout lifecycle is approved.
           </p>
+          {syncStatus ? (
+            <p className="mt-4 inline-flex border border-[#e5ded6] bg-white px-3 py-2 text-xs font-bold text-[#6e6258]">
+              {syncStatus}
+            </p>
+          ) : null}
         </div>
       </section>
 

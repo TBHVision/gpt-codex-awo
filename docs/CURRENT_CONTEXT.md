@@ -10,9 +10,9 @@ GPT-Codex AWO lives at `C:\HatchVision\AWO\GPT-Codex`.
 
 Stripe-gated checkout plus storefront polish.
 
-Active Linear issues: AWO-46 is blocked on Stripe test secrets; AWO-53 is the active buyer account/order-history follow-up.
+Active Linear issues: AWO-46 is blocked on Stripe test secrets; AWO-54 is the active buyer cart persistence follow-up.
 
-Goal: keep payment wiring ready for Stripe test verification while making buyer-owned checkout/account state production-shaped.
+Goal: keep payment wiring ready for Stripe test verification while making buyer-owned cart/checkout/account state production-shaped.
 
 ## What Exists
 
@@ -151,6 +151,13 @@ Goal: keep payment wiring ready for Stripe test verification while making buyer-
   - `/api/buyer/session` verifies buyer sessions server-side
   - the server verifies buyer tokens before attaching `orders.buyer_profile_id`
   - `/account` shows buyer-owned order history through RLS
+- AWO-54 adds signed-in buyer cart persistence:
+  - guests continue using browser-local cart storage
+  - signed-in buyers sync cart contents to Supabase `carts` and `cart_items`
+    through RLS
+  - cart and checkout pages merge local and account cart state without doubling
+    quantities on reload
+  - clearing cart also clears the signed-in buyer cart when possible
 
 ## Next Work
 

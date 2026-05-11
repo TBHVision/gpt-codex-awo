@@ -77,10 +77,17 @@ New auth users are bootstrapped as buyers by:
 - function `public.create_buyer_profile_for_auth_user()`
 - trigger `create_buyer_profile_after_auth_signup` on `auth.users`
 
+Current account-backed paths:
+
+- Buyer profile reads through Supabase Auth and RLS.
+- People and Reminders read/write through buyer-owned Supabase tables with local guest fallback.
+- Signed-in buyer carts sync to `carts` and `cart_items` while guest carts stay browser-local.
+- Signed-in checkout drafts can attach orders to the buyer profile, and order history reads through RLS.
+
 Current limits:
 
 - Buyer sessions are stored client-side for now, not in server-side Supabase cookies.
-- Saved People, Reminders, and order history are account-aware through RLS. The checkout cart itself remains browser-local until a persistent cart model is justified.
+- Existing anonymous carts or draft orders do not retroactively attach to a buyer.
 - Email confirmation behavior is controlled by Supabase Auth settings.
 - Social login providers are not configured yet.
 
