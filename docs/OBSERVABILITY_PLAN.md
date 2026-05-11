@@ -36,6 +36,7 @@ Latest evidence:
 
 Available today:
 
+- GitHub Actions release readiness workflow
 - Vercel deployment status
 - Stripe sandbox webhook delivery logs
 - Supabase order, payment, reveal, and queue state through `/admin/ops`
@@ -47,7 +48,6 @@ Not yet configured:
 - application error tracking
 - product analytics
 - performance/web vital monitoring
-- CI-hosted release gate
 - authenticated end-to-end tests
 
 ## Recommended Production Stack
@@ -101,6 +101,7 @@ Production error capture should include:
 V0.7 can close when:
 
 - `npm run test:release` passes and evidence is attached to Linear.
+- The GitHub Actions release-readiness workflow has a passing run.
 - The team chooses the observability stack or explicitly defers it.
 - The production gap audit no longer lists stale blockers.
 - Tony reviews the remaining monitoring tradeoffs.

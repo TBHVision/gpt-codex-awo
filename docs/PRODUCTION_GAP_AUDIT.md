@@ -150,7 +150,9 @@ Completed:
 
 Remaining:
 
-- CI-hosted release gate is still future work.
+- CI-hosted release gate has been added, but the first remote GitHub Actions run
+  should be checked after push to confirm repository secrets and Chrome are
+  available in the runner.
 - Observability setup for production errors, analytics, and performance is still
   planned rather than configured.
 - Browser-based authenticated end-to-end tests are still parked until account

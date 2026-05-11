@@ -187,6 +187,8 @@ every small decision.
     reveal queues
 - AWO-62 adds `docs/OBSERVABILITY_PLAN.md` for error, analytics, performance,
   uptime, and release evidence posture
+- AWO-62 also adds `.github/workflows/ci.yml` so GitHub Actions runs
+  `npm run test:release` on pushes to `main` and pull requests
 - `docs/GATE_EVIDENCE.md` records current gate evidence for V0.2 through V0.7.
 
 ## Next Work
@@ -194,6 +196,7 @@ every small decision.
 - Use the new Linear runway:
   - have Tony review AWO-57 through AWO-60 when convenient
   - have Tony review AWO-61 `/admin/ops` when convenient
+  - check the first GitHub Actions release-readiness run after push
   - finish AWO-62 by deciding the observability stack or explicitly deferring it
   - Real card photography/art direction can replace the managed demo assets when
     Tony provides final production artwork

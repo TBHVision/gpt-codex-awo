@@ -7,6 +7,10 @@ const baseUrl = process.env.AWO_QA_BASE_URL ?? "http://127.0.0.1:3000";
 const outputDir = path.join(process.cwd(), ".qa", "awo-44");
 const chromeCandidates = [
   process.env.CHROME_PATH,
+  "/usr/bin/google-chrome",
+  "/usr/bin/google-chrome-stable",
+  "/usr/bin/chromium",
+  "/usr/bin/chromium-browser",
   "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
   "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
   path.join(process.env.LOCALAPPDATA ?? "", "Google\\Chrome\\Application\\chrome.exe"),

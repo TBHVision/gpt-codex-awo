@@ -109,7 +109,17 @@ Still needs Tony before Done:
 Codex evidence is attached to AWO-62. `docs/OBSERVABILITY_PLAN.md` defines the
 recommended stack and deferral options.
 
+Additional Codex evidence:
+
+- `.github/workflows/ci.yml` runs `npm run test:release` on pushes to `main`
+  and pull requests.
+- `scripts/visual-qa.mjs` now supports Linux Chrome paths used by GitHub-hosted
+  runners as well as the existing Windows Chrome paths.
+- Local `npm run test:release` passed after the CI workflow and visual QA runner
+  changes.
+
 Still needs Tony before Done:
 
 - Decide whether Sentry, PostHog, Vercel Web Analytics, Vercel Speed Insights,
   and hosted CI are required now or deliberately deferred.
+- Confirm the first GitHub Actions run passes after this push.
