@@ -80,6 +80,7 @@ function startServer() {
     ["run", "start", "--", "--hostname", "127.0.0.1", "--port", String(port)],
     {
       cwd: process.cwd(),
+      detached: process.platform !== "win32",
       env: process.env,
     },
   );
@@ -103,6 +104,15 @@ function stopServer(child) {
       return;
     } catch {
       // Fall back to the direct child kill below.
+    }
+  }
+
+  if (process.platform !== "win32") {
+    try {
+      process.kill(-child.pid, "SIGTERM");
+      return;
+    } catch {
+      // Fall back to killing the direct child below.
     }
   }
 
