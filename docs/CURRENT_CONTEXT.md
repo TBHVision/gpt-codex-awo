@@ -8,12 +8,22 @@ GPT-Codex AWO lives at `C:\HatchVision\AWO\GPT-Codex`.
 
 ## Current Phase
 
-V0.6 Admin + Ops is in review, and V0.7 QA + Observability is active.
+V0.2 through V0.7 have implementation evidence, but the phase gates should stay
+In Review until Tony completes the human checks listed in Linear.
 
-Active Linear issues:
+Active Linear gate issues:
 
+- AWO-57: V0.2 Public Shop gate, Codex evidence attached, waiting on Tony public
+  shop and signed-in buyer UX review.
+- AWO-58: V0.3 Honoree Reveal gate, Codex evidence attached, waiting on Tony
+  mobile recipient review.
+- AWO-59: V0.4 My People + Buyer Tools gate, Codex evidence attached, waiting on
+  Tony warmth/usefulness review.
+- AWO-60: V0.5 Artist Studio gate, Codex evidence attached, waiting on Tony
+  artist confidence/submission clarity review.
 - AWO-61: V0.6 Admin + Ops gate, waiting on Tony review of `/admin/ops`.
-- AWO-62: V0.7 QA + Observability gate, Codex evidence in progress.
+- AWO-62: V0.7 QA + Observability gate, Codex evidence attached, waiting on
+  Tony observability/CI deferral decisions.
 
 Goal: keep moving autonomously through Linear by attaching concrete release
 evidence to gate issues, then batching Tony review asks instead of stopping for
@@ -177,10 +187,12 @@ every small decision.
     reveal queues
 - AWO-62 adds `docs/OBSERVABILITY_PLAN.md` for error, analytics, performance,
   uptime, and release evidence posture
+- `docs/GATE_EVIDENCE.md` records current gate evidence for V0.2 through V0.7.
 
 ## Next Work
 
 - Use the new Linear runway:
+  - have Tony review AWO-57 through AWO-60 when convenient
   - have Tony review AWO-61 `/admin/ops` when convenient
   - finish AWO-62 by deciding the observability stack or explicitly deferring it
   - Real card photography/art direction can replace the managed demo assets when

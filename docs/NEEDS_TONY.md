@@ -2,6 +2,8 @@
 
 Current action:
 
+- Review Linear gate issues AWO-57 through AWO-60. Codex has attached evidence;
+  they should not be moved to Done until Tony confirms the human checks.
 - Review `/admin/ops` when convenient and decide whether the read-only admin ops
   model is trustworthy enough to close the V0.6 gate.
 - Review Linear issue AWO-61 for the V0.6 Admin + Ops gate evidence.
