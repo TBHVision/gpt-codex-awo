@@ -158,6 +158,10 @@ Goal: keep payment wiring ready for Stripe test verification while making buyer-
   - cart and checkout pages merge local and account cart state without doubling
     quantities on reload
   - clearing cart also clears the signed-in buyer cart when possible
+- AWO-55 adds one-command release readiness:
+  - `npm.cmd run test:release` runs lint, build, starts a fresh local production
+    server on port 3100, then runs smoke and visual QA
+  - report output is written to `.qa/release-readiness/latest.json`
 
 ## Next Work
 

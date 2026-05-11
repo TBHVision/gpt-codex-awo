@@ -21,3 +21,4 @@ This registry is the GPT-Codex source of truth for feature status. A feature is 
 | Admin approvals/ops | V0.6 | Ops | Read-only lifecycle visibility | AWO-40/AWO-48; protected page reads catalog health, lifecycle queues, stuck states, and sensitive metrics when service role is configured |
 | Lifecycle model | V0.6 | Backend/Ops | Schema foundation | AWO-43/AWO-45; order, reveal, custody, and ownership model plus first schema layer before payment/fulfillment implementation |
 | Visual QA | V0.7 | QA | Automated baseline | AWO-44/AWO-49/AWO-52; local desktop/mobile visual QA harness passes golden route sweep, mobile menu interaction, and mobile storefront density polish |
+| Release readiness | V0.7/V1.0 | QA | Automated baseline | AWO-55; `npm run test:release` runs lint, build, smoke, visual QA, and writes `.qa/release-readiness/latest.json` |
