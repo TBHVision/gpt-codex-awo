@@ -1,4 +1,5 @@
-import Link from "next/link";
+/* eslint-disable @next/next/no-html-link-for-pages */
+
 import StorefrontNav from "@/app/components/StorefrontNav";
 
 export default function Home() {
@@ -19,20 +20,18 @@ export default function Home() {
             provenance evidence into one trustable gifting experience.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <form action="/shop">
-              <button
-                className="inline-flex h-12 items-center justify-center bg-[#252525] px-6 text-sm font-black uppercase tracking-wide text-white hover:bg-[#3a3632]"
-                type="submit"
-              >
-                Shop Cards
-              </button>
-            </form>
-            <Link
+            <a
+              className="inline-flex h-12 items-center justify-center bg-[#252525] px-6 text-sm font-black uppercase tracking-wide text-white hover:bg-[#3a3632]"
+              href="/shop"
+            >
+              Shop Cards
+            </a>
+            <a
               className="inline-flex h-12 items-center justify-center border border-[#b7653a] bg-white px-6 text-sm font-black uppercase tracking-wide text-[#7a472e] hover:bg-[#fff8f3]"
               href="/reveal"
             >
               Preview Reveal
-            </Link>
+            </a>
           </div>
         </div>
       </section>

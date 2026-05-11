@@ -1,6 +1,7 @@
 "use client";
 
-import Link from "next/link";
+/* eslint-disable @next/next/no-html-link-for-pages */
+
 import { useEffect, useState } from "react";
 import {
   cartUpdatedEventName,
@@ -35,7 +36,7 @@ function LineIcon({ kind }: { kind: "cart" | "search" | "user" }) {
 
 function Logo() {
   return (
-    <Link
+    <a
       className="inline-flex items-center gap-1.5 font-black tracking-tight text-[#8b4f2c]"
       href="/"
     >
@@ -43,7 +44,7 @@ function Logo() {
       <span className="inline-flex size-8 items-center justify-center rounded-full bg-[radial-gradient(circle_at_center,#c98a55_0,#8b4f2c_45%,#5a311b_100%)] text-xs text-[#f8efe4] shadow-[inset_0_0_0_3px_rgba(255,255,255,.2)]">
         O
       </span>
-    </Link>
+    </a>
   );
 }
 
@@ -77,7 +78,7 @@ export default function StorefrontNav({ active }: StorefrontNavProps) {
     <div className="flex shrink-0 items-center gap-4 text-[#252525]">
       <LineIcon kind="search" />
       <LineIcon kind="user" />
-      <Link
+      <a
         aria-label={`Cart with ${itemCount} item${itemCount === 1 ? "" : "s"}`}
         className={`relative inline-flex size-9 items-center justify-center ${
           active === "cart" ? "text-[#a85f38]" : ""
@@ -88,7 +89,7 @@ export default function StorefrontNav({ active }: StorefrontNavProps) {
         <span className="absolute right-0 top-0 inline-flex size-5 items-center justify-center rounded-full bg-[#a85f38] text-xs font-bold text-white">
           {itemCount}
         </span>
-      </Link>
+      </a>
     </div>
   );
 
@@ -101,7 +102,7 @@ export default function StorefrontNav({ active }: StorefrontNavProps) {
         </div>
         <nav className="flex flex-wrap items-center gap-x-7 gap-y-2 border-t border-[#efe8df] pt-3 text-sm font-bold uppercase tracking-wide text-[#2b2927] md:justify-center md:gap-x-12">
           {navItems.map((item) => (
-            <Link
+            <a
               className={`border-b-2 pb-2 ${
                 item.value === active
                   ? "border-[#b7653a] text-[#a85f38]"
@@ -109,13 +110,9 @@ export default function StorefrontNav({ active }: StorefrontNavProps) {
               }`}
               href={item.href}
               key={item.label}
-              onClick={(event) => {
-                event.preventDefault();
-                window.location.assign(item.href);
-              }}
             >
               {item.label}
-            </Link>
+            </a>
           ))}
         </nav>
       </div>
