@@ -57,6 +57,10 @@ visible review trail.
 `/admin/fulfillment` now gives operators a protected read-only view of
 paid/pending fulfillment orders, item state, reveal credential readiness, and
 ownership posture without adding fulfillment write controls.
+AWO-69 adds the first fulfillment transition foundation: Stripe payment success
+moves reserved items into `purchased`, emits `order_paid` custody events, and a
+new admin RPC defines audited future item-state transitions without exposing UI
+write controls yet.
 
 ## Current Health
 
@@ -180,6 +184,9 @@ Remaining:
 - Fulfillment is visible but intentionally read-only; fulfillment, shipping,
   refunds, credential revocation, and ownership transfer still need separately
   audited workflows.
+- The fulfillment transition RPC exists in migrations, but the production
+  Supabase database must receive the migration before future write controls can
+  call it.
 - Observability setup for production errors, analytics, and performance is still
   planned rather than configured.
 - Browser-based authenticated end-to-end tests are still parked until account

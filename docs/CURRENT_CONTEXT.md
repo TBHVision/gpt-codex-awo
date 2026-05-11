@@ -224,6 +224,14 @@ every small decision.
   - links from Project Home, Admin Ops, Review Queues, Audit Log, and Launch
     Readiness
   - no fulfill, ship, refund, revoke, or ownership-transfer controls are exposed
+- AWO-69 starts the audited fulfillment transition foundation:
+  - Stripe checkout completion now moves reserved order items to `purchased`
+    and emits `order_paid` custody events
+  - `admin_transition_fulfillment_item(...)` defines a narrow allowlisted RPC
+    for future fulfillment item state changes
+  - the RPC requires a named admin actor, writes `admin_audit_events`, and emits
+    custody events for credential activation and item fulfillment
+  - `/admin/fulfillment` remains read-only until operator actions are designed
 - `docs/TONY_REVIEW_BATCH.md` is the current batched list of Tony reviews,
   external checks, and later decisions.
 

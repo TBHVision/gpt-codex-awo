@@ -173,6 +173,28 @@ Successful reveals:
 - preserve `completed` when already completed
 - emit a `custody_events` row with event type `recipient_revealed`
 
+## AWO-69 Fulfillment Transition Foundation
+
+Stripe checkout completion now moves matching reserved `order_items` into
+`purchased` and emits `order_paid` custody events. This keeps paid orders from
+staying invisible to item-level fulfillment queues.
+
+The migration also adds
+`public.admin_transition_fulfillment_item(order_item_id, next_status, actor_profile_id, note)`.
+The RPC:
+
+- requires `actor_profile_id` to belong to a `profiles.role = 'admin'` row
+- only allows explicit item-status transitions
+- blocks fulfillment progress unless the parent order payment state permits it
+- updates the parent order fulfillment rollup when items enter production or all
+  items complete
+- writes `admin_audit_events` for every actual transition
+- emits custody events for `order_paid`, `credential_activated`, and
+  `item_fulfilled` transitions
+
+The admin UI still does not expose fulfillment write buttons. This RPC is the
+foundation those controls must use later.
+
 ## Role Model
 
 `profiles.role` is intentionally simple for V0.1:

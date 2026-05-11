@@ -15,6 +15,7 @@ type OrderItemRow = {
   id: string;
   line_total_cents: number;
   quantity: number;
+  status?: string;
   unit_price_cents: number;
 };
 
@@ -326,19 +327,118 @@ async function patchOrderBySession(
   }
 }
 
+type StripeOrderRow = {
+  id: string;
+};
+
+async function fetchOrderBySession(config: SupabaseServerConfig, sessionId: string) {
+  const endpoint = new URL("/rest/v1/orders", config.supabaseUrl);
+  endpoint.searchParams.set("select", "id");
+  endpoint.searchParams.set("payment_session_id", `eq.${sessionId}`);
+  endpoint.searchParams.set("limit", "1");
+
+  const response = await fetch(endpoint, {
+    headers: supabaseHeaders(config),
+  });
+
+  if (!response.ok) {
+    throw new Error("Paid order could not be loaded for item lifecycle update.");
+  }
+
+  const rows = (await response.json()) as StripeOrderRow[];
+  return rows[0] ?? null;
+}
+
+async function markOrderItemsPurchased(config: SupabaseServerConfig, orderId: string) {
+  const itemsEndpoint = new URL("/rest/v1/order_items", config.supabaseUrl);
+  itemsEndpoint.searchParams.set("select", "id,card_id,status");
+  itemsEndpoint.searchParams.set("order_id", `eq.${orderId}`);
+
+  const itemsResponse = await fetch(itemsEndpoint, {
+    headers: supabaseHeaders(config),
+  });
+
+  if (!itemsResponse.ok) {
+    throw new Error("Paid order items could not be loaded.");
+  }
+
+  const items = (await itemsResponse.json()) as OrderItemRow[];
+  const reservedItems = items.filter((item) => item.status === "reserved");
+
+  if (reservedItems.length === 0) {
+    return;
+  }
+
+  const patchEndpoint = new URL("/rest/v1/order_items", config.supabaseUrl);
+  patchEndpoint.searchParams.set("order_id", `eq.${orderId}`);
+  patchEndpoint.searchParams.set("status", "eq.reserved");
+
+  const patchResponse = await fetch(patchEndpoint, {
+    body: JSON.stringify({ status: "purchased" }),
+    headers: {
+      ...supabaseHeaders(config),
+      Prefer: "return=minimal",
+    },
+    method: "PATCH",
+  });
+
+  if (!patchResponse.ok) {
+    throw new Error("Paid order items could not be moved into fulfillment.");
+  }
+
+  const custodyResponse = await fetch(`${config.supabaseUrl}/rest/v1/custody_events`, {
+    body: JSON.stringify(
+      reservedItems.map((item) => ({
+        card_id: item.card_id,
+        event_payload: {
+          order_id: orderId,
+          source: "stripe_checkout_completed",
+        },
+        event_type: "order_paid",
+        order_item_id: item.id,
+      })),
+    ),
+    headers: {
+      ...supabaseHeaders(config),
+      Prefer: "return=minimal",
+    },
+    method: "POST",
+  });
+
+  if (!custodyResponse.ok) {
+    throw new Error("Paid order item custody events could not be recorded.");
+  }
+}
+
+async function markCheckoutSessionPaid(session: Stripe.Checkout.Session) {
+  const config = getSupabaseServerConfig();
+
+  if (!config) {
+    throw new Error("Supabase service role is not configured.");
+  }
+
+  const sessionId = session.id;
+  const order = await fetchOrderBySession(config, sessionId);
+
+  if (!order) {
+    throw new Error("Paid checkout session did not match an AWO order.");
+  }
+
+  await patchOrderBySession(sessionId, {
+    paid_at: new Date().toISOString(),
+    payment_intent_id:
+      typeof session.payment_intent === "string" ? session.payment_intent : null,
+    payment_status: "paid",
+    status: "paid",
+  });
+  await markOrderItemsPurchased(config, order.id);
+}
+
 export async function handleStripeCheckoutEvent(event: Stripe.Event) {
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
 
-    await patchOrderBySession(session.id, {
-      paid_at: new Date().toISOString(),
-      payment_intent_id:
-        typeof session.payment_intent === "string"
-          ? session.payment_intent
-          : null,
-      payment_status: "paid",
-      status: "paid",
-    });
+    await markCheckoutSessionPaid(session);
     return;
   }
 
