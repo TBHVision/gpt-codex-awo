@@ -13,7 +13,7 @@ This registry is the GPT-Codex source of truth for feature status. A feature is 
 | Shop browse | V0.2 | Buyer | Polished real-catalog path | AWO-51; local and production smoke tests; production reads five-card `published_cards` catalog with real AWO logo |
 | Checkout/order draft | V0.2+ | Buyer | Complete | AWO-37; local and production API draft creation verified |
 | Stripe test checkout | V0.6/V0.7 | Buyer/Ops | Complete | AWO-46; Stripe test payment and webhook verified, `AWO-DRAFT-F2EC02824E` moved to paid in Supabase |
-| Honoree PIN reveal | V0.3 | Recipient | Supabase-backed demo record | AWO-41; `/api/reveal/verify` validates code/PIN through `verify_honoree_reveal` |
+| Honoree PIN reveal | V0.3 | Recipient | Supabase-backed playback path | AWO-41/AWO-76; `/api/reveal/verify` validates code/PIN through `verify_honoree_reveal`, then `/reveal` presents recipient playback, evidence, custody, and ownership context |
 | Reveal credential lifecycle | V0.3/V0.6 | Recipient/Ops | Hardened state checks | AWO-47; blocked credential states are safe, invalid attempts lock credentials, successful reveals emit custody events |
 | My People | V0.4 | Buyer | Account-aware path | AWO-39; signed-in buyers use Supabase `people` and `occasions`, guests use local fallback |
 | Artist submission | V0.5 | Artist | Supabase-backed draft path | AWO-42; approved artist profiles load publicly and signed-in artist/admin drafts persist on `cards` |
