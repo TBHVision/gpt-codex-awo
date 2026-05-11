@@ -95,6 +95,28 @@ access tokens. Artists can only manage draft cards tied to their own artist
 record. Admins can inspect draft cards for operational review. Guests keep local
 browser storage and do not write studio drafts to Supabase.
 
+## AWO-43 Lifecycle Model
+
+The production lifecycle model is documented in `docs/LIFECYCLE_MODEL.md`.
+
+Current schema already has coarse status enums:
+
+- `order_status`: `draft`, `pending_payment`, `paid`, `fulfilled`, `canceled`,
+  `refunded`
+- `reveal_status`: `not_started`, `opened`, `completed`, `locked`
+
+These are enough for the current draft checkout and demo reveal path, but they
+are not enough for production payment, fulfillment, custody, and ownership.
+
+Required follow-up schema work:
+
+- expand or split order/payment/fulfillment states
+- add item-level lifecycle state to `order_items`
+- expand reveal credential states for active, expired, revoked, and generation
+  failure cases
+- add append-only `custody_events`
+- add durable `ownership_records`
+
 ## Role Model
 
 `profiles.role` is intentionally simple for V0.1:

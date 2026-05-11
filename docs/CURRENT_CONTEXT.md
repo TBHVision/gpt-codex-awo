@@ -8,11 +8,11 @@ GPT-Codex AWO lives at `C:\HatchVision\AWO\GPT-Codex`.
 
 ## Current Phase
 
-Artist studio persistence.
+Lifecycle modeling.
 
-Active Linear issue: AWO-42.
+Active Linear issue: AWO-43.
 
-Goal: persist approved artist profiles and studio draft provenance checklists in Supabase while preserving a guest/local preview fallback.
+Goal: define explicit order, reveal, custody, and ownership lifecycle states before payment, fulfillment, and production provenance claims are implemented.
 
 ## What Exists
 
@@ -82,9 +82,13 @@ Goal: persist approved artist profiles and studio draft provenance checklists in
   - signed-in artist/admin accounts read and write draft cards through Supabase RLS
   - provenance checklist state is stored on draft `cards`
   - guests keep a local browser fallback for studio exploration
+- AWO-43 lifecycle model lives in `docs/LIFECYCLE_MODEL.md`:
+  - order status should not be overloaded for payment, fulfillment, reveal,
+    custody, and ownership
+  - production follow-ups need item-level state, reveal credential states,
+    custody events, and ownership records
 
 ## Next Work
 
 - Use the new Linear runway:
-  - AWO-43 define order/reveal/custody/ownership lifecycle states
   - AWO-44 mobile and visual QA across golden paths

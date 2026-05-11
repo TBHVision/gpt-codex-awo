@@ -96,9 +96,11 @@ Reviewed on production with smoke coverage at `https://gpt-codex-awo-dashboard.v
    - People and reminders are local/demo only.
    - Next issue: AWO-39.
 
-2. Order/reveal lifecycle needs a real state model.
-   - Draft order, purchased order, physical card, QR/PIN reveal, custody, and ownership should have explicit state transitions.
-   - Recommended next issue: define lifecycle states before wiring payment or fulfillment.
+2. Order/reveal lifecycle needs implementation after AWO-43.
+   - AWO-43 documents explicit order, item, reveal credential, custody, and
+     ownership states in `docs/LIFECYCLE_MODEL.md`.
+   - Remaining work is schema/API implementation before wiring payment or
+     fulfillment.
 
 3. Service boundaries need to stay strict.
    - Public catalog can use anon key.
