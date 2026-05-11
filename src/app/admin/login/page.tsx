@@ -1,5 +1,9 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import {
+  canUseSupabaseAdminLogin,
+  verifySupabaseAdminLogin,
+} from "@/lib/admin-auth";
 import LoginForm from "./LoginForm";
 
 const adminCookieName = "awo_admin_session";
@@ -22,16 +26,32 @@ async function login(formData: FormData) {
 
   const adminPassword = process.env.AWO_ADMIN_PASSWORD;
   const sessionToken = process.env.AWO_ADMIN_SESSION_TOKEN ?? adminPassword;
+  const mode = String(formData.get("mode") ?? "password");
+  const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
   const next = String(formData.get("next") ?? "/admin/build");
   const safeNext = next.startsWith("/admin") ? next : "/admin/build";
 
-  if (!adminPassword || !sessionToken) {
+  if (!sessionToken) {
     redirect("/admin/login?setup=1");
   }
 
-  if (password !== adminPassword) {
-    redirect(`/admin/login?error=1&next=${encodeURIComponent(safeNext)}`);
+  if (mode === "supabase") {
+    const result = await verifySupabaseAdminLogin({ email, password });
+
+    if (!result.ok) {
+      redirect(
+        `/admin/login?error=${result.reason}&next=${encodeURIComponent(safeNext)}`,
+      );
+    }
+  } else {
+    if (!adminPassword) {
+      redirect("/admin/login?setup=1");
+    }
+
+    if (password !== adminPassword) {
+      redirect(`/admin/login?error=1&next=${encodeURIComponent(safeNext)}`);
+    }
   }
 
   const cookieStore = await cookies();
@@ -52,8 +72,20 @@ export default async function AdminLoginPage({
 }: LoginPageProps) {
   const params = searchParams ? await searchParams : {};
   const setupMissing = getParam(params, "setup") === "1";
-  const hasError = getParam(params, "error") === "1";
+  const error = getParam(params, "error");
   const next = getParam(params, "next") ?? "/admin/build";
+  const supabaseAdminLoginEnabled = canUseSupabaseAdminLogin();
+
+  const errorMessage =
+    error === "1"
+      ? "That dashboard password did not match."
+      : error === "bad_credentials"
+        ? "That Supabase email/password did not match."
+        : error === "not_admin"
+          ? "That Supabase user is not marked as an AWO admin."
+          : error === "missing_config"
+            ? "Supabase admin login is not configured yet."
+            : null;
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#f6f4ef] px-5 py-10 text-slate-950">
@@ -63,7 +95,9 @@ export default async function AdminLoginPage({
         </p>
         <h1 className="mt-2 text-2xl font-semibold">Admin Access</h1>
         <p className="mt-2 text-sm leading-6 text-slate-600">
-          Enter the HatchVision dashboard password to continue.
+          Use a Supabase admin account when available, or the temporary
+          HatchVision dashboard password while the named-admin flow is being
+          phased in.
         </p>
 
         {setupMissing ? (
@@ -73,13 +107,17 @@ export default async function AdminLoginPage({
           </div>
         ) : null}
 
-        {hasError ? (
+        {errorMessage ? (
           <div className="mt-4 rounded-md border border-red-200 bg-red-50 p-3 text-sm font-medium text-red-800">
-            That password did not match.
+            {errorMessage}
           </div>
         ) : null}
 
-        <LoginForm action={login} next={next} />
+        <LoginForm
+          action={login}
+          next={next}
+          supabaseAdminLoginEnabled={supabaseAdminLoginEnabled}
+        />
       </section>
     </main>
   );

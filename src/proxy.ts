@@ -18,15 +18,20 @@ export function proxy(request: NextRequest) {
   if (isAdminRoute && !isPublicAdminRoute) {
     const adminPassword = process.env.AWO_ADMIN_PASSWORD;
     const sessionToken = process.env.AWO_ADMIN_SESSION_TOKEN ?? adminPassword;
+    const canUseSupabaseAdminLogin = Boolean(
+      process.env.NEXT_PUBLIC_SUPABASE_URL &&
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY &&
+        sessionToken,
+    );
     const sessionCookie = request.cookies.get(adminCookieName)?.value;
 
-    if (!adminPassword || sessionCookie !== sessionToken) {
+    if (!sessionToken || sessionCookie !== sessionToken) {
       const loginUrl = request.nextUrl.clone();
 
       loginUrl.pathname = "/admin/login";
       loginUrl.search = "";
 
-      if (!adminPassword) {
+      if (!adminPassword && !canUseSupabaseAdminLogin) {
         loginUrl.searchParams.set("setup", "1");
       } else {
         loginUrl.searchParams.set("next", `${pathname}${search}`);

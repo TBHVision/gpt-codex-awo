@@ -5,14 +5,36 @@ import { useState } from "react";
 type LoginFormProps = {
   action: (formData: FormData) => void;
   next: string;
+  supabaseAdminLoginEnabled: boolean;
 };
 
-export default function LoginForm({ action, next }: LoginFormProps) {
+export default function LoginForm({
+  action,
+  next,
+  supabaseAdminLoginEnabled,
+}: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
     <form action={action} className="mt-5 space-y-4">
       <input name="next" type="hidden" value={next} />
+      {supabaseAdminLoginEnabled ? (
+        <div>
+          <label
+            className="block text-sm font-semibold text-slate-700"
+            htmlFor="admin-email"
+          >
+            Admin email
+          </label>
+          <input
+            autoComplete="email"
+            className="mt-2 h-11 w-full rounded-md border border-slate-300 bg-white px-3 text-base outline-none focus:border-slate-950"
+            id="admin-email"
+            name="email"
+            type="email"
+          />
+        </div>
+      ) : null}
       <label
         className="block text-sm font-semibold text-slate-700"
         htmlFor="admin-password"
@@ -45,12 +67,26 @@ export default function LoginForm({ action, next }: LoginFormProps) {
           )}
         </button>
       </div>
-      <button
-        className="h-11 w-full rounded-md bg-slate-950 px-4 text-sm font-semibold text-white shadow-sm hover:bg-slate-800"
-        type="submit"
-      >
-        Unlock Dashboard
-      </button>
+      <div className="space-y-3">
+        {supabaseAdminLoginEnabled ? (
+          <button
+            className="h-11 w-full rounded-md bg-slate-950 px-4 text-sm font-semibold text-white shadow-sm hover:bg-slate-800"
+            name="mode"
+            type="submit"
+            value="supabase"
+          >
+            Sign in as Admin
+          </button>
+        ) : null}
+        <button
+          className="h-11 w-full rounded-md border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 shadow-sm hover:border-slate-400 hover:bg-slate-50"
+          name="mode"
+          type="submit"
+          value="password"
+        >
+          Use Temporary Password
+        </button>
+      </div>
     </form>
   );
 }

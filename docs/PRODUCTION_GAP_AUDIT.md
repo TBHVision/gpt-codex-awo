@@ -58,6 +58,8 @@ artist, order, and reveal queues without adding risky write actions.
 - Public Vercel environment has Supabase and Stripe test variables configured.
 - Admin routes redirect unauthenticated users to login.
 - Temporary admin password gate remains in place for `/admin/*`.
+- Admin login also supports Supabase Auth email/password for users whose
+  `profiles.role` is `admin`, while keeping the temporary password fallback.
 - Linear is the project source of truth.
 - Root app and `apps/web` mirror are kept in sync for Vercel deployment safety.
 
@@ -124,8 +126,8 @@ Completed:
 
 Remaining:
 
-- Temporary admin password gate should eventually become Supabase Auth admin
-  sessions with per-user role checks and audit trail.
+- Temporary admin password fallback should eventually be removed after named
+  Supabase admin users and audit-backed write actions are ready.
 - Real approval tools for users, artists, cards, fraud review, and fulfillment
   still need to be built.
 

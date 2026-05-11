@@ -203,6 +203,12 @@ every small decision.
   - reveal credential status and failed-attempt visibility
   - intentionally no approve/refund/destructive controls until admin auth roles
     and audit flows are built
+- Admin login now has a production-path option:
+  - Supabase Auth email/password can unlock admin routes only when the user's
+    `profiles.role` is `admin`
+  - the existing `AWO_ADMIN_PASSWORD` fallback still works while named admin
+    users are being phased in
+  - Supabase access tokens are not stored after the login verification step
 
 ## Next Work
 

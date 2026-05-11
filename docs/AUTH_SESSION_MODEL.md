@@ -6,7 +6,15 @@ This document explains the current V0.1 admin access model and the intended Supa
 
 ## Current Temporary Admin Gate
 
-The protected internal project homepage at `/admin/build` is guarded by a temporary app-level password gate.
+The protected internal admin routes are guarded by an app-level admin session
+cookie. The login page supports two paths:
+
+- Supabase Auth email/password for users whose `profiles.role` is `admin`.
+- Temporary HatchVision dashboard password fallback through `AWO_ADMIN_PASSWORD`.
+
+The temporary password fallback stays available while Tony creates or confirms
+named admin users. Supabase access tokens are used only during login verification
+and are not stored in browser-visible admin pages.
 
 This is intentionally simple. It exists to protect the internal dashboard while the real Supabase account model is being built.
 
@@ -113,7 +121,8 @@ This template must be edited with the confirmed HatchVision admin email before i
 
 ## What Gets Replaced Later
 
-The temporary password gate should be replaced when Supabase Auth-backed admin sessions are ready.
+The temporary password fallback should be removed after named Supabase admin
+users and audit-backed admin actions are fully ready.
 
 Replace:
 
