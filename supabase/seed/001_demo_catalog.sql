@@ -79,7 +79,7 @@ values
     array['friend', 'family'],
     599,
     'USD',
-    null,
+    '/cards/birthday-light.svg',
     now()
   ),
   (
@@ -93,7 +93,7 @@ values
     array['coworker', 'friend'],
     599,
     'USD',
-    null,
+    '/cards/keep-going.svg',
     now()
   ),
   (
@@ -107,7 +107,7 @@ values
     array['family', 'friend'],
     699,
     'USD',
-    null,
+    '/cards/with-you.svg',
     now()
   )
 on conflict (id) do update

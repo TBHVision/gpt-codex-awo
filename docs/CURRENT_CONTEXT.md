@@ -8,11 +8,11 @@ GPT-Codex AWO lives at `C:\HatchVision\AWO\GPT-Codex`.
 
 ## Current Phase
 
-Mobile navigation refinement.
+Catalog asset pipeline.
 
-Active Linear issue: AWO-49.
+Active Linear issue: AWO-50.
 
-Goal: reduce mobile navigation crowding while preserving desktop navigation and quick access to cart/account.
+Goal: replace inline generated card placeholders with managed catalog artwork assets and keep fallbacks for missing images.
 
 ## What Exists
 
@@ -121,9 +121,17 @@ Goal: reduce mobile navigation crowding while preserving desktop navigation and 
   - section links collapse behind a menu with an active-section label
   - desktop navigation stays centered and visible
   - visual QA now also verifies the mobile menu opens and exposes section links
+- AWO-50 adds managed demo card artwork assets:
+  - static artwork lives under `public/cards/` and is mirrored to
+    `apps/web/public/cards/`
+  - Supabase demo catalog rows now point at `/cards/birthday-light.svg`,
+    `/cards/keep-going.svg`, and `/cards/with-you.svg`
+  - `cover_media_url` remains optional, so the shop and card detail fallback art
+    still protects missing-image cases
 
 ## Next Work
 
 - Use the new Linear runway:
   - AWO-46 Stripe test-mode payment lifecycle
-  - AWO-50 production card artwork assets
+  - Real card photography/art direction can replace the managed demo assets when
+    Tony provides final production artwork
