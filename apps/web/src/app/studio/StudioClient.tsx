@@ -2,28 +2,22 @@
 
 import { useEffect, useMemo, useState } from "react";
 import StorefrontNav from "@/app/components/StorefrontNav";
+import { readBuyerSession } from "@/lib/buyer-auth";
+import {
+  createStudioDraft,
+  fetchArtistStudioProfile,
+  fetchStudioDrafts,
+  updateStudioDraftChecklist,
+} from "@/lib/artist-studio";
+import type { ArtistStudioProfile, StudioDraftRecord } from "@/lib/artist-studio";
 
-type Draft = {
-  id: string;
-  capture: "Draft" | "Ready";
+type LocalDraft = {
   category: string;
+  id: string;
+  provenanceChecklist: string[];
+  status: string;
   title: string;
 };
-
-const initialDrafts: Draft[] = [
-  {
-    id: "draft-wildflower",
-    capture: "Ready",
-    category: "Birthday",
-    title: "Wildflower Notes",
-  },
-  {
-    id: "draft-coastal",
-    capture: "Draft",
-    category: "Sympathy",
-    title: "Coastal Morning",
-  },
-];
 
 const captureChecklist = [
   "Artwork title and story",
@@ -33,9 +27,40 @@ const captureChecklist = [
   "Ownership terms review",
 ];
 
+const initialDrafts: LocalDraft[] = [
+  {
+    category: "Birthday",
+    id: "draft-wildflower",
+    provenanceChecklist: [captureChecklist[0], captureChecklist[2]],
+    status: "draft",
+    title: "Wildflower Notes",
+  },
+  {
+    category: "Sympathy",
+    id: "draft-coastal",
+    provenanceChecklist: [captureChecklist[0]],
+    status: "draft",
+    title: "Coastal Morning",
+  },
+];
+
 const STUDIO_DRAFTS_STORAGE_KEY = "awo-studio-drafts";
-const STUDIO_EVIDENCE_STORAGE_KEY = "awo-studio-evidence";
-const initialCapturedEvidence = [captureChecklist[0], captureChecklist[2]];
+
+function normalizeDraft(draft: Partial<LocalDraft> & { capture?: string }) {
+  const provenanceChecklist = Array.isArray(draft.provenanceChecklist)
+    ? draft.provenanceChecklist.filter((item) => captureChecklist.includes(item))
+    : draft.capture === "Ready"
+      ? [...captureChecklist]
+      : [];
+
+  return {
+    category: typeof draft.category === "string" ? draft.category : "Originals",
+    id: typeof draft.id === "string" ? draft.id : `draft-${Date.now()}`,
+    provenanceChecklist,
+    status: typeof draft.status === "string" ? draft.status : "draft",
+    title: typeof draft.title === "string" ? draft.title : "Untitled artwork",
+  };
+}
 
 function loadInitialDrafts() {
   try {
@@ -45,10 +70,10 @@ function loadInitialDrafts() {
       return initialDrafts;
     }
 
-    const parsedDrafts = JSON.parse(savedDrafts) as Draft[];
+    const parsedDrafts = JSON.parse(savedDrafts) as Array<Partial<LocalDraft> & { capture?: string }>;
 
     if (Array.isArray(parsedDrafts) && parsedDrafts.length > 0) {
-      return parsedDrafts;
+      return parsedDrafts.map(normalizeDraft);
     }
   } catch {
     return initialDrafts;
@@ -57,113 +82,170 @@ function loadInitialDrafts() {
   return initialDrafts;
 }
 
-function loadInitialEvidence() {
-  try {
-    const savedEvidence = window.localStorage.getItem(STUDIO_EVIDENCE_STORAGE_KEY);
-
-    if (!savedEvidence) {
-      return initialCapturedEvidence;
-    }
-
-    const parsedEvidence = JSON.parse(savedEvidence) as string[];
-
-    if (Array.isArray(parsedEvidence)) {
-      return parsedEvidence.filter((item) => captureChecklist.includes(item));
-    }
-  } catch {
-    return initialCapturedEvidence;
-  }
-
-  return initialCapturedEvidence;
+function isReady(draft: LocalDraft | StudioDraftRecord) {
+  return (draft.provenanceChecklist ?? []).length === captureChecklist.length;
 }
 
 export default function StudioClient() {
-  const [drafts, setDrafts] = useState<Draft[]>(initialDrafts);
-  const [capturedEvidence, setCapturedEvidence] = useState<string[]>(
-    initialCapturedEvidence,
-  );
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [title, setTitle] = useState("");
+  const [accountMode, setAccountMode] = useState(false);
+  const [artistProfile, setArtistProfile] = useState<ArtistStudioProfile | null>(null);
   const [category, setCategory] = useState("Originals");
+  const [drafts, setDrafts] = useState<Array<LocalDraft | StudioDraftRecord>>(initialDrafts);
+  const [error, setError] = useState("");
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [status, setStatus] = useState("");
+  const [title, setTitle] = useState("");
 
   useEffect(() => {
-    queueMicrotask(() => {
-      setDrafts(loadInitialDrafts());
-      setCapturedEvidence(loadInitialEvidence());
-      setIsLoaded(true);
-    });
+    const timer = window.setTimeout(() => {
+      const session = readBuyerSession();
+
+      if (!session) {
+        setAccountMode(false);
+        setDrafts(loadInitialDrafts());
+        setStatus("Using local studio storage. Sign in as an artist/admin to save drafts to Supabase.");
+        setIsLoaded(true);
+        return;
+      }
+
+      fetchArtistStudioProfile(session)
+        .then(async (profile) => {
+          setArtistProfile(profile);
+
+          if (!profile.artistId) {
+            setAccountMode(false);
+            setDrafts(loadInitialDrafts());
+            setStatus("Signed in account is not connected to an artist workspace yet.");
+            return;
+          }
+
+          setAccountMode(true);
+          setDrafts(await fetchStudioDrafts(session, profile.artistId));
+          setStatus(`Using Supabase studio storage for ${profile.artistName}.`);
+        })
+        .catch((loadError: unknown) => {
+          setError(
+            loadError instanceof Error
+              ? loadError.message
+              : "Could not load artist studio.",
+          );
+          setAccountMode(false);
+          setDrafts(loadInitialDrafts());
+        })
+        .finally(() => setIsLoaded(true));
+    }, 0);
+
+    return () => window.clearTimeout(timer);
   }, []);
 
   useEffect(() => {
-    if (!isLoaded) {
+    if (!isLoaded || accountMode) {
       return;
     }
 
-    window.localStorage.setItem(
-      STUDIO_DRAFTS_STORAGE_KEY,
-      JSON.stringify(drafts),
-    );
-  }, [drafts, isLoaded]);
+    window.localStorage.setItem(STUDIO_DRAFTS_STORAGE_KEY, JSON.stringify(drafts));
+  }, [accountMode, drafts, isLoaded]);
 
-  useEffect(() => {
-    if (!isLoaded) {
-      return;
-    }
+  const readyCount = useMemo(() => drafts.filter(isReady).length, [drafts]);
+  const evidenceReady = readyCount === drafts.length && drafts.length > 0;
 
-    window.localStorage.setItem(
-      STUDIO_EVIDENCE_STORAGE_KEY,
-      JSON.stringify(capturedEvidence),
-    );
-  }, [capturedEvidence, isLoaded]);
-
-  const readyCount = useMemo(
-    () => drafts.filter((draft) => draft.capture === "Ready").length,
-    [drafts],
-  );
-  const evidenceReady = capturedEvidence.length === captureChecklist.length;
-
-  function addDraft() {
+  async function addDraft() {
     if (!title.trim()) {
       return;
     }
 
-    setDrafts((current) => [
-      ...current,
-      {
-        id: `${title}-${Date.now()}`,
-        capture: "Draft",
-        category,
-        title: title.trim(),
-      },
-    ]);
-    setTitle("");
-    setCategory("Originals");
+    setError("");
+    setStatus("");
+    setIsSaving(true);
+
+    try {
+      const session = readBuyerSession();
+
+      if (accountMode && session && artistProfile?.artistId) {
+        const draft = await createStudioDraft(session, {
+          artistId: artistProfile.artistId,
+          category,
+          checklist: [],
+          title: title.trim(),
+        });
+        setDrafts((current) => [...current, draft]);
+        setStatus("Saved studio draft to Supabase.");
+      } else {
+        setDrafts((current) => [
+          ...current,
+          {
+            category,
+            id: `${title}-${Date.now()}`,
+            provenanceChecklist: [],
+            status: "draft",
+            title: title.trim(),
+          },
+        ]);
+        setStatus("Saved studio draft locally in this browser.");
+      }
+
+      setTitle("");
+      setCategory("Originals");
+    } catch (saveError) {
+      setError(
+        saveError instanceof Error
+          ? saveError.message
+          : "Could not save studio draft.",
+      );
+    } finally {
+      setIsSaving(false);
+    }
   }
 
-  function toggleCapture(id: string) {
+  async function toggleEvidence(draftId: string, item: string) {
+    setError("");
+    const target = drafts.find((draft) => draft.id === draftId);
+
+    if (!target) {
+      return;
+    }
+
+    const currentChecklist = target.provenanceChecklist ?? [];
+    const nextChecklist = currentChecklist.includes(item)
+      ? currentChecklist.filter((capturedItem) => capturedItem !== item)
+      : [...currentChecklist, item];
+
     setDrafts((current) =>
       current.map((draft) =>
-        draft.id === id
-          ? { ...draft, capture: draft.capture === "Ready" ? "Draft" : "Ready" }
+        draft.id === draftId
+          ? { ...draft, provenanceChecklist: nextChecklist }
           : draft,
       ),
     );
-  }
 
-  function toggleEvidence(item: string) {
-    setCapturedEvidence((current) =>
-      current.includes(item)
-        ? current.filter((capturedItem) => capturedItem !== item)
-        : [...current, item],
-    );
+    const session = readBuyerSession();
+    if (accountMode && session) {
+      try {
+        await updateStudioDraftChecklist(session, {
+          checklist: nextChecklist,
+          draftId,
+        });
+        setStatus("Updated provenance checklist in Supabase.");
+      } catch (updateError) {
+        setError(
+          updateError instanceof Error
+            ? updateError.message
+            : "Could not update provenance checklist.",
+        );
+      }
+    }
   }
 
   function resetStudio() {
+    if (accountMode) {
+      setError("Supabase-backed studio drafts cannot be reset from this local demo control.");
+      return;
+    }
+
     setDrafts(initialDrafts);
-    setCapturedEvidence(initialCapturedEvidence);
     setIsLoaded(true);
     window.localStorage.removeItem(STUDIO_DRAFTS_STORAGE_KEY);
-    window.localStorage.removeItem(STUDIO_EVIDENCE_STORAGE_KEY);
   }
 
   return (
@@ -179,9 +261,8 @@ export default function StudioClient() {
             Prepare artwork with provenance from the start.
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-7 text-[#4b4743]">
-            This shell is not authenticated artist storage yet. It frames the
-            workspace artists will use to draft card products, collect evidence,
-            and know when a piece is ready to publish.
+            Signed-in artist/admin accounts save studio drafts and provenance
+            checklists to Supabase. Guests can still explore the workflow locally.
           </p>
         </div>
       </section>
@@ -189,6 +270,16 @@ export default function StudioClient() {
       <section className="mx-auto grid max-w-7xl gap-6 px-6 py-10 lg:grid-cols-[380px_1fr] lg:px-10">
         <aside className="h-fit border border-[#e5ded6] bg-white p-6 shadow-[0_18px_45px_rgba(45,38,32,.08)]">
           <h2 className="text-2xl font-black">Add Draft</h2>
+          {status ? (
+            <p className="mt-3 border border-[#cfe8d8] bg-[#f2fbf5] p-3 text-sm font-bold text-[#256b3d]">
+              {status}
+            </p>
+          ) : null}
+          {error ? (
+            <p className="mt-3 border border-[#f0c7c7] bg-[#fff5f5] p-3 text-sm font-bold text-[#9d1c1c]">
+              {error}
+            </p>
+          ) : null}
           <div className="mt-5 grid gap-4">
             <label className="block text-sm font-black uppercase tracking-wide text-[#373431]">
               Artwork title
@@ -221,19 +312,21 @@ export default function StudioClient() {
                 ? "bg-[#252525] text-white hover:bg-[#3a3632]"
                 : "bg-[#e5ded6] text-[#8a8178]"
             }`}
-            disabled={!title.trim()}
+            disabled={!title.trim() || isSaving}
             onClick={addDraft}
             type="button"
           >
-            Add Draft
+            {isSaving ? "Saving..." : "Add Draft"}
           </button>
-          <button
-            className="mt-3 h-11 w-full border border-[#d8c8bb] px-4 text-sm font-black uppercase tracking-wide text-[#7a472e] hover:border-[#b7653a] hover:bg-[#fff8f3]"
-            onClick={resetStudio}
-            type="button"
-          >
-            Reset Studio Demo
-          </button>
+          {!accountMode ? (
+            <button
+              className="mt-3 h-11 w-full border border-[#d8c8bb] px-4 text-sm font-black uppercase tracking-wide text-[#7a472e] hover:border-[#b7653a] hover:bg-[#fff8f3]"
+              onClick={resetStudio}
+              type="button"
+            >
+              Reset Local Studio
+            </button>
+          ) : null}
 
           <div className="mt-6 border border-[#e5ded6] bg-[#fbfaf8] p-4">
             <p className="text-xs font-black uppercase tracking-[0.16em] text-[#b7653a]">
@@ -244,7 +337,7 @@ export default function StudioClient() {
             </p>
             <p className="mt-2 text-sm leading-6 text-[#4b4743]">
               {evidenceReady
-                ? "All baseline evidence is checked. Studio drafts can move toward publish review."
+                ? "All draft evidence is complete for baseline review."
                 : "Drafts need full provenance evidence before publish review."}
             </p>
           </div>
@@ -260,66 +353,46 @@ export default function StudioClient() {
                     {draft.category}
                   </p>
                   <h3 className="mt-2 text-2xl font-black">{draft.title}</h3>
-                  <div className="mt-5 flex items-center justify-between gap-3">
-                    <span className="text-sm font-bold">
-                      Evidence: {draft.capture}
-                    </span>
-                    <button
-                      className="border border-[#d8c8bb] bg-white px-3 py-2 text-xs font-black uppercase tracking-wide text-[#7a472e] hover:border-[#b7653a]"
-                      onClick={() => toggleCapture(draft.id)}
-                      type="button"
-                    >
-                      Toggle Ready
-                    </button>
+                  <p className="mt-3 text-sm font-bold text-[#4b4743]">
+                    Status: {isReady(draft) ? "Ready" : draft.status}
+                  </p>
+                  <p className="mt-2 text-xs font-black uppercase tracking-wide text-[#8a8178]">
+                    {accountMode ? "Supabase" : "Local"} studio storage
+                  </p>
+                  <div className="mt-5 space-y-2">
+                    {captureChecklist.map((item) => (
+                      <label
+                        className="flex cursor-pointer items-center gap-3 border border-[#e5ded6] bg-white p-3 text-sm font-bold"
+                        key={`${draft.id}-${item}`}
+                      >
+                        <input
+                          checked={(draft.provenanceChecklist ?? []).includes(item)}
+                          className="size-5 accent-[#252525]"
+                          onChange={() => toggleEvidence(draft.id, item)}
+                          type="checkbox"
+                        />
+                        {item}
+                      </label>
+                    ))}
                   </div>
                 </article>
               ))}
             </div>
           </section>
 
-          <section className="grid gap-6 lg:grid-cols-2">
-            <div className="border border-[#e5ded6] bg-white p-6 shadow-[0_18px_45px_rgba(45,38,32,.06)]">
-              <div className="flex items-start justify-between gap-4">
-                <h2 className="text-2xl font-black">Provenance Checklist</h2>
-                <span className="border border-[#dfd5ca] bg-[#fbfaf8] px-3 py-2 text-xs font-black uppercase tracking-wide text-[#7a472e]">
-                  {capturedEvidence.length}/{captureChecklist.length}
-                </span>
-              </div>
-              <div className="mt-5 space-y-3">
-                {captureChecklist.map((item) => (
-                  <label
-                    className="flex cursor-pointer items-center gap-3 border border-[#e5ded6] bg-[#fbfaf8] p-4 text-sm font-bold"
-                    key={item}
-                  >
-                    <input
-                      checked={capturedEvidence.includes(item)}
-                      className="size-5 accent-[#252525]"
-                      onChange={() => toggleEvidence(item)}
-                      type="checkbox"
-                    />
-                    {item}
-                  </label>
-                ))}
-              </div>
-              <p className="mt-4 border border-[#e5ded6] bg-[#fff8f3] p-4 text-sm leading-6 text-[#4b4743]">
-                {evidenceReady
-                  ? "Evidence capture is complete for this demo workspace."
-                  : "Keep collecting evidence before the studio marks work ready for production review."}
+          <section className="border border-[#e5ded6] bg-white p-6 shadow-[0_18px_45px_rgba(45,38,32,.06)]">
+            <h2 className="text-2xl font-black">Studio Roadmap</h2>
+            <div className="mt-5 space-y-3 text-sm leading-6 text-[#4b4743]">
+              <p className="border border-[#e5ded6] bg-[#fbfaf8] p-4">
+                Draft records now live on `cards` for authenticated artist/admin
+                workspaces, with provenance checklist state stored alongside the
+                draft.
               </p>
-            </div>
-
-            <div className="border border-[#e5ded6] bg-white p-6 shadow-[0_18px_45px_rgba(45,38,32,.06)]">
-              <h2 className="text-2xl font-black">Studio Roadmap</h2>
-              <div className="mt-5 space-y-3 text-sm leading-6 text-[#4b4743]">
-                <p className="border border-[#e5ded6] bg-[#fbfaf8] p-4">
-                  Real artist accounts, uploads, moderation, and publishing
-                  approval come after the admin and storage model is hardened.
-                </p>
-                <p className="border border-[#e5ded6] bg-[#fbfaf8] p-4">
-                  V0.5 focuses on the workspace shape: drafts, evidence,
-                  readiness, and the provenance steps artists understand.
-                </p>
-              </div>
+              <p className="border border-[#e5ded6] bg-[#fbfaf8] p-4">
+                Uploads, media storage, review queues, and publishing controls
+                remain future scoped so this screen stays read/write but not
+                destructive.
+              </p>
             </div>
           </section>
         </div>

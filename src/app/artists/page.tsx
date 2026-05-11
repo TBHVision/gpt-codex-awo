@@ -1,26 +1,14 @@
 import Link from "next/link";
 import StorefrontNav from "@/app/components/StorefrontNav";
+import { fetchPublicArtists } from "@/lib/public-artists";
 
-const artists = [
+const fallbackArtists = [
   {
-    bio: "Alicia works in layered botanical studies, turning small gestures of care into cards that feel hand-kept and personal.",
-    focus: "Botanical originals",
-    name: "Alicia Rowe",
-  },
-  {
-    bio: "Michael paints quiet coastal scenes built from memory, weather, and the feeling of sending calm to someone far away.",
-    focus: "Landscape studies",
-    name: "Michael Chen",
-  },
-  {
-    bio: "Jenna uses circular motion and expressive marks to turn emotion into abstract keepsakes for birthdays, love, and support.",
-    focus: "Expressive abstracts",
-    name: "Jenna Elise",
-  },
-  {
-    bio: "Daniel blends bright illustration with playful narrative, creating cards that carry joy, humor, and unmistakable human touch.",
-    focus: "Illustrated moments",
-    name: "Daniel Fields",
+    bio: "Verified artist profiles will appear from Supabase when approved artists exist.",
+    focus: "Artist onboarding",
+    name: "AWO Studio",
+    slug: "awo-studio",
+    websiteUrl: null,
   },
 ];
 
@@ -28,7 +16,8 @@ function ArtistMark({ name }: { name: string }) {
   const initials = name
     .split(" ")
     .map((part) => part[0])
-    .join("");
+    .join("")
+    .slice(0, 2);
 
   return (
     <div className="flex size-24 shrink-0 items-center justify-center rounded-full bg-[radial-gradient(circle_at_center,#d9a16f_0,#9a5f38_45%,#5a311b_100%)] text-2xl font-black text-white shadow-[inset_0_0_0_4px_rgba(255,255,255,.22)]">
@@ -37,7 +26,10 @@ function ArtistMark({ name }: { name: string }) {
   );
 }
 
-export default function ArtistsPage() {
+export default async function ArtistsPage() {
+  const artists = await fetchPublicArtists();
+  const visibleArtists = artists.length > 0 ? artists : fallbackArtists;
+
   return (
     <main className="min-h-screen bg-[#fbfaf8] text-[#252525]">
       <StorefrontNav active="artists" />
@@ -51,9 +43,8 @@ export default function ArtistsPage() {
             Human creation is the point.
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-7 text-[#4b4743]">
-            This shell frames how AWO will introduce creators, origin stories,
-            and evidence trails. These demo profiles are placeholders until the
-            artist onboarding workflow is built.
+            Approved artist profiles now load from Supabase. AWO uses these
+            records as the public face of origin, story, and studio trust.
           </p>
           <Link
             className="mt-7 inline-flex h-12 items-center justify-center bg-[#252525] px-6 text-sm font-black uppercase tracking-wide text-white hover:bg-[#3a3632]"
@@ -66,10 +57,10 @@ export default function ArtistsPage() {
 
       <section className="mx-auto max-w-7xl px-6 py-10 lg:px-10">
         <div className="grid gap-5 md:grid-cols-2">
-          {artists.map((artist) => (
+          {visibleArtists.map((artist) => (
             <article
               className="border border-[#e5ded6] bg-white p-6 shadow-[0_18px_45px_rgba(45,38,32,.06)]"
-              key={artist.name}
+              key={artist.slug}
             >
               <div className="flex flex-col gap-5 sm:flex-row">
                 <ArtistMark name={artist.name} />
@@ -81,6 +72,14 @@ export default function ArtistsPage() {
                   <p className="mt-3 text-sm leading-6 text-[#4b4743]">
                     {artist.bio}
                   </p>
+                  {artist.websiteUrl ? (
+                    <a
+                      className="mt-4 inline-flex text-sm font-black uppercase tracking-wide text-[#7a472e]"
+                      href={artist.websiteUrl}
+                    >
+                      Artist Website
+                    </a>
+                  ) : null}
                 </div>
               </div>
             </article>

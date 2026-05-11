@@ -80,6 +80,21 @@ Current demo seed:
 
 Raw PINs are not returned to browser code.
 
+## AWO-42 Artist Studio Drafts
+
+Approved artist profiles are public storefront data. The `/artists` page reads
+approved rows from `artists` through the browser-safe Supabase anon key and RLS.
+
+Studio drafts use the existing `cards` table with these added draft fields:
+
+- `provenance_checklist text[]`
+- `studio_notes text`
+
+Signed-in artist/admin sessions read and write drafts through Supabase Auth
+access tokens. Artists can only manage draft cards tied to their own artist
+record. Admins can inspect draft cards for operational review. Guests keep local
+browser storage and do not write studio drafts to Supabase.
+
 ## Role Model
 
 `profiles.role` is intentionally simple for V0.1:

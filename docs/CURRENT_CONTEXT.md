@@ -8,11 +8,11 @@ GPT-Codex AWO lives at `C:\HatchVision\AWO\GPT-Codex`.
 
 ## Current Phase
 
-Buyer account auth path.
+Artist studio persistence.
 
-Active Linear issue: AWO-41.
+Active Linear issue: AWO-42.
 
-Goal: replace any-code reveal preview with server-mediated QR/PIN validation against Supabase records.
+Goal: persist approved artist profiles and studio draft provenance checklists in Supabase while preserving a guest/local preview fallback.
 
 ## What Exists
 
@@ -77,10 +77,14 @@ Goal: replace any-code reveal preview with server-mediated QR/PIN validation aga
   - invalid code/PIN responses return safe messages without card/artist payloads
   - successful reveal returns card, artist, evidence, chain-of-custody, and
     ownership summary
+- AWO-42 adds the first artist studio persistence path:
+  - public `/artists` reads approved artist profiles from Supabase
+  - signed-in artist/admin accounts read and write draft cards through Supabase RLS
+  - provenance checklist state is stored on draft `cards`
+  - guests keep a local browser fallback for studio exploration
 
 ## Next Work
 
 - Use the new Linear runway:
-  - AWO-42 persist artist profiles and studio drafts
   - AWO-43 define order/reveal/custody/ownership lifecycle states
   - AWO-44 mobile and visual QA across golden paths
