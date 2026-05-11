@@ -1,22 +1,30 @@
 # Production Gap Audit
 
-Linear issue: AWO-36
+Linear issue: AWO-36, refreshed by AWO-56
 
-Date: 2026-05-10
+Last updated: 2026-05-11
 
 ## Executive Summary
 
-The first full shell pass is complete and the app is navigable locally and on Vercel. Production Supabase public catalog wiring is working: `/shop` reads seeded `published_cards` from Supabase and no longer renders missing-environment warnings.
+The AWO build is no longer just a shell. The public storefront reads the
+Supabase catalog, checkout creates durable draft orders, buyer accounts exist,
+people/reminders persist for signed-in buyers, signed-in carts sync to Supabase,
+order history is account-owned, reveal validation is server-mediated, artist
+drafts persist for signed-in creators, and admin ops shows read-only lifecycle
+queues.
 
-The site is not launch-ready yet. The strongest next move is to replace demo-only buyer flows with real Supabase-backed account and order flows, then wire recipient reveal and admin operations to those records.
+The primary blocker before a real payment review is Stripe test configuration.
+AWO-46 already has server-side Stripe test Checkout Session and webhook code;
+Tony still needs to provide/verify the Stripe test secrets and webhook endpoint
+in Vercel.
 
 ## Verified Surfaces
 
-Reviewed locally at `http://127.0.0.1:3000`:
+Current local golden routes:
 
 - `/`
 - `/shop`
-- `/shop/birthday-light`
+- `/shop/wildflower-notes`
 - `/cart`
 - `/checkout`
 - `/reveal`
@@ -24,119 +32,150 @@ Reviewed locally at `http://127.0.0.1:3000`:
 - `/people`
 - `/reminders`
 - `/studio`
+- `/account`
 - `/admin/build`
 - `/admin/ops`
 
-Reviewed on production with smoke coverage at `https://gpt-codex-awo-dashboard.vercel.app`.
+Current automated evidence:
+
+- `npm.cmd run lint`
+- `npm.cmd run build`
+- `npm.cmd run test:smoke`
+- `npm.cmd run test:visual`
+- `npm.cmd run test:release`
+
+`test:release` now runs lint, build, a fresh production server, route smoke, and
+desktop/mobile visual QA, then writes `.qa/release-readiness/latest.json`.
 
 ## Current Health
 
-- Local route smoke test passes.
-- Production route smoke test passes.
-- Production `/shop` returns seeded Supabase cards.
-- Admin routes redirect to login when unauthenticated.
-- Admin login works locally with the configured temporary password.
-- Storefront navigation works after the Codex browser reset and native-link hardening.
+- Local route smoke tests pass.
+- Desktop/mobile visual QA passes across golden routes.
+- Public Vercel environment has Supabase catalog variables configured.
+- Admin routes redirect unauthenticated users to login.
+- Temporary admin password gate remains in place for `/admin/*`.
+- Linear is the project source of truth.
+- Root app and `apps/web` mirror are kept in sync for Vercel deployment safety.
 
-## Buyer Gaps
+## Buyer Status
 
-1. Checkout is still a shell.
-   - Current state: recipient, occasion, and note fields exist, but no order draft is written.
-   - Risk: a user can believe they completed a meaningful action when nothing durable exists.
-   - Next issue: AWO-37.
+Completed:
 
-2. Cart is browser-local only.
-   - Current state: cart lives in localStorage.
-   - Risk: cart disappears across devices/browsers and cannot be recovered after account creation.
-   - Next issue: tie into AWO-37 and AWO-38.
+- AWO-37: Checkout draft creation writes durable Supabase orders through the
+  narrow `create_anonymous_order_draft` RPC and `/api/checkout/draft`.
+- AWO-38: Buyer sign-in/sign-up uses Supabase Auth and profile bootstrap.
+- AWO-39: Signed-in buyers persist People and Reminders through RLS; guests keep
+  local fallback.
+- AWO-53: Signed-in checkout can attach orders to buyer profiles, and `/account`
+  shows buyer-owned order history through RLS.
+- AWO-54: Signed-in carts sync to Supabase `carts` and `cart_items`; guests keep
+  browser-local cart fallback.
 
-3. Buyer identity does not exist yet.
-   - Current state: public browsing works, but no buyer auth/session path exists.
-   - Risk: people, reminders, cart, and order history cannot become real without identity.
-   - Next issue: AWO-38.
+Remaining:
 
-## Recipient Reveal Gaps
+- Stripe test payment verification is open in AWO-46.
+- Server-side Supabase auth cookies are still future work; the current buyer
+  session is stored in browser localStorage.
+- Existing anonymous draft orders and carts are not retroactively attached unless
+  the buyer revisits cart/checkout while signed in.
 
-1. Reveal accepts any demo code and PIN.
-   - Current state: route frames the future experience but does not validate real secrets.
-   - Risk: the core AWO trust story is still a prototype.
-   - Recommended next issue: create real QR/PIN reveal validation after order draft records exist.
+## Recipient Reveal Status
 
-2. Reveal evidence is static.
-   - Current state: artist story, capture evidence, chain of custody, and ownership preview are demo content.
-   - Risk: recipient experience does not prove actual provenance yet.
-   - Recommended next issue: wire reveal page to Supabase order/card/evidence records.
+Completed:
 
-## Artist Gaps
+- AWO-41: QR/PIN reveal validation goes through `/api/reveal/verify` and the
+  `verify_honoree_reveal` RPC.
+- AWO-47: Reveal credential states are hardened for locked, expired, revoked,
+  generation-failed, pending-generation, and invalid PIN cases.
+- Successful reveals emit or prepare custody-event records.
 
-1. Artists page uses demo profiles.
-   - Current state: content explains the intended creator story surface but is not real onboarding.
-   - Risk: no trustworthy creator directory or artist-managed profile yet.
+Remaining:
 
-2. Studio is local demo storage.
-   - Current state: drafts and evidence checklist persist in localStorage.
-   - Risk: artist work cannot become shared, approved, or published.
-   - Recommended next issue: Supabase-backed artist profile and draft submission flow.
+- Production card-specific QR/PIN generation is not fully automated yet.
+- Final recipient copy/art direction still needs human review when real product
+  cards exist.
 
-## Admin And Ops Gaps
+## Artist Status
 
-1. `/admin/ops` is still placeholder operational visibility.
-   - Current state: order queue, reveal events, and system health are static.
-   - Risk: admin cannot monitor actual orders/reveals.
-   - Next issue: AWO-40.
+Completed:
 
-2. Admin auth is temporary.
-   - Current state: app-level password protects `/admin/*`.
-   - Risk: no per-user admin identity, audit trail, or role enforcement.
-   - Recommended next issue: replace admin password gate with Supabase Auth admin role after buyer auth path is stable.
+- AWO-42: Public artists read approved Supabase artist profiles.
+- Signed-in artist/admin paths can persist studio draft cards and provenance
+  checklist state through RLS.
 
-## Data/Auth Gaps
+Remaining:
 
-1. Buyer-owned records are not persisted.
-   - People and reminders are local/demo only.
-   - Next issue: AWO-39.
+- Full approval workflow and artist onboarding UX are not production-complete.
+- Real artist verification and payout/commercial workflows are future scope.
 
-2. Order/reveal lifecycle needs implementation after AWO-43.
-   - AWO-43 documents explicit order, item, reveal credential, custody, and
-     ownership states in `docs/LIFECYCLE_MODEL.md`.
-   - Remaining work is schema/API implementation before wiring payment or
-     fulfillment.
+## Admin And Ops Status
 
-3. Service boundaries need to stay strict.
-   - Public catalog can use anon key.
-   - Writes that create orders, reveal credentials, or admin views should use server-mediated routes/actions and RLS-safe policies.
+Completed:
 
-## QA And UX Gaps
+- AWO-40: `/admin/ops` reads real Supabase operational data.
+- AWO-48: Admin ops shows lifecycle queues, stale drafts, failed payments,
+  credential generation failures, locked reveals, and recent order states.
+- Admin ops remains read-only; no destructive controls are exposed.
 
-1. Mobile visual QA is not yet deep enough.
-   - Smoke tests prove routes respond, not that layouts are polished.
-   - Recommended next issue: desktop/mobile screenshot review for key flows.
+Remaining:
 
-2. Shell copy is intentionally visible but should shrink as features become real.
-   - Checkout, reveal, artists, people, reminders, studio, and admin ops all still use explicit shell/demo language.
-   - This is good for honesty now, but it must be removed as flows become real.
+- Temporary admin password gate should eventually become Supabase Auth admin
+  sessions with per-user role checks and audit trail.
+- Real approval tools for users, artists, cards, fraud review, and fulfillment
+  still need to be built.
 
-3. Vercel deployment preview may show 403.
-   - Current behavior: deployment preview card can show Vercel Authentication/protection behavior.
-   - Real route testing should use direct URLs and smoke tests, not the preview thumbnail.
+## Data And Lifecycle Status
 
-## Recommended Build Order
+Completed:
 
-1. AWO-37: Supabase-backed checkout/order draft.
-2. AWO-38: Buyer Supabase Auth path.
-3. AWO-39: Persist People and Reminders to Supabase.
-4. New issue: real QR/PIN reveal validation and dynamic evidence.
-5. New issue: artist profile and draft submission persistence.
-6. AWO-40: Admin ops reads real operational data.
-7. New issue: mobile/visual QA pass across the golden paths.
+- AWO-43: Lifecycle model documented.
+- AWO-45: Lifecycle schema foundations added for payments, fulfillment, item
+  status, reveal credential status, custody events, and ownership records.
+- AWO-46 partial: Stripe test-mode session and webhook code exists.
 
-## Verification Evidence
+Remaining:
 
-Commands run:
+- Stripe test env/webhook verification.
+- Fulfillment automation and ownership transfer workflows.
+- Production reporting/analytics beyond the current read-only ops snapshot.
 
-```powershell
-npm run test:smoke
-$env:SMOKE_BASE_URL='https://gpt-codex-awo-dashboard.vercel.app'; npm run test:smoke
-```
+## QA And Release Status
 
-Both local and production smoke suites passed.
+Completed:
+
+- AWO-44: Desktop/mobile visual QA harness.
+- AWO-49: Mobile nav compactness.
+- AWO-52: Mobile storefront density polish.
+- AWO-55: One-command release readiness gate.
+
+Remaining:
+
+- CI-hosted release gate is still future work.
+- Browser-based authenticated end-to-end tests are still parked until account
+  flows stabilize further.
+- Production smoke/visual checks should be run after every Vercel deploy when
+  nearing launch.
+
+## Primary Open Blocker
+
+AWO-46: Stripe test-mode payment lifecycle.
+
+Tony action still needed:
+
+1. Add `STRIPE_SECRET_KEY` with a Stripe test secret key in Vercel.
+2. Add the Vercel `/api/stripe/webhook` endpoint in Stripe test mode.
+3. Add `STRIPE_WEBHOOK_SECRET` in Vercel.
+4. Redeploy.
+5. Run a Stripe test card payment and confirm order lifecycle moves through
+   pending/paid states.
+
+## Recommended Next Build Order
+
+1. Finish AWO-46 with Stripe test secrets and webhook verification.
+2. Add production-style payment success/failure UI around the checkout return
+   path.
+3. Build admin approval tools for cards/artists/orders after payment state is
+   verified.
+4. Add fulfillment and ownership workflows.
+5. Add CI-hosted release readiness checks.
+6. Add analytics/observability and authenticated E2E tests.
