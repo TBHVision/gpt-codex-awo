@@ -129,6 +129,8 @@ Additional Codex evidence:
   is covered by smoke and visual QA.
 - `/admin/custody` adds protected read-only custody event visibility and is
   covered by smoke and visual QA.
+- `/admin/reconciliation` adds protected read-only lifecycle mismatch
+  visibility and is covered by smoke and visual QA.
 
 Still needs Tony before Done:
 

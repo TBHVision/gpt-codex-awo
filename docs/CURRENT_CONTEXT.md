@@ -258,6 +258,13 @@ every small decision.
   - links from Project Home, Admin Ops, Fulfillment, Ownership, Audit Log, and
     Launch Readiness
   - replay, mutation, and event editing remain out of scope
+- AWO-74 adds `/admin/reconciliation`:
+  - read-only mismatch visibility across order items, ownership records, and
+    custody events
+  - flags paid items missing ownership, fulfilled items without active
+    ownership, active ownership without `ownership_recorded`, and paid items
+    without `order_paid`
+  - repair, replay, fulfillment, and ownership mutations remain out of scope
 - `docs/TONY_REVIEW_BATCH.md` is the current batched list of Tony reviews,
   external checks, and later decisions.
 

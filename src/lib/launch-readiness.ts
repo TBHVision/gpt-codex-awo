@@ -130,6 +130,11 @@ export async function loadLaunchReadinessSnapshot(): Promise<LaunchReadinessSnap
           label: "Custody event QA coverage",
           state: "ready",
         },
+        {
+          detail: "Protected admin lifecycle reconciliation page is included in smoke and visual QA.",
+          label: "Reconciliation QA coverage",
+          state: "ready",
+        },
       ],
     },
     {

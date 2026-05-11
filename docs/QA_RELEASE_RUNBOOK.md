@@ -68,6 +68,7 @@ admin session cookie:
 - `/admin/fulfillment`
 - `/admin/ownership`
 - `/admin/custody`
+- `/admin/reconciliation`
 
 The smoke test assumes the local server is running at `http://127.0.0.1:3000`.
 Use another target with:
@@ -99,6 +100,7 @@ Admin routes are protected by the existing app-level password gate:
 - `/admin/fulfillment`
 - `/admin/ownership`
 - `/admin/custody`
+- `/admin/reconciliation`
 
 For local manual admin testing, `AWO_ADMIN_PASSWORD` and
 `AWO_ADMIN_SESSION_TOKEN` must be available to the running Next process. Tony

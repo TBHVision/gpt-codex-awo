@@ -74,6 +74,9 @@ AWO-73 adds `/admin/custody` so operators can inspect provenance lifecycle
 events such as `order_paid`, `credential_activated`, `item_fulfilled`, and
 `ownership_recorded`. It is read-only and does not replay, mutate, or edit
 events.
+AWO-74 adds `/admin/reconciliation` so operators can see lifecycle drift across
+order items, payment state, custody events, and ownership records. It is
+read-only; repair and replay workflows remain future audited scopes.
 
 ## Current Health
 
