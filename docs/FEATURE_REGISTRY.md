@@ -16,4 +16,4 @@ This registry is the GPT-Codex source of truth for feature status. A feature is 
 | Artist submission | V0.5 | Artist | Supabase-backed draft path | AWO-42; approved artist profiles load publicly and signed-in artist/admin drafts persist on `cards` |
 | Admin approvals/ops | V0.6 | Ops | Read-only lifecycle visibility | AWO-40/AWO-48; protected page reads catalog health, lifecycle queues, stuck states, and sensitive metrics when service role is configured |
 | Lifecycle model | V0.6 | Backend/Ops | Schema foundation | AWO-43/AWO-45; order, reveal, custody, and ownership model plus first schema layer before payment/fulfillment implementation |
-| Visual QA | V0.7 | QA | Automated baseline | AWO-44; local desktop/mobile visual QA harness passes golden route sweep, with AWO-49/AWO-50 follow-ups logged |
+| Visual QA | V0.7 | QA | Automated baseline | AWO-44/AWO-49; local desktop/mobile visual QA harness passes golden route sweep and mobile menu interaction, with AWO-50 production asset follow-up logged |

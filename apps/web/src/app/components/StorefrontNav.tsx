@@ -21,9 +21,10 @@ type StorefrontNavProps = {
     | "shop";
 };
 
-function LineIcon({ kind }: { kind: "cart" | "search" | "user" }) {
+function LineIcon({ kind }: { kind: "cart" | "menu" | "search" | "user" }) {
   const paths = {
     cart: "M6 6h15l-2 8H8L6 3H3 M9 20h.1 M18 20h.1",
+    menu: "M4 7h16 M4 12h16 M4 17h16",
     search: "m21 21-4.4-4.4M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z",
     user: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8z M4 21a8 8 0 0 1 16 0",
   } as const;
@@ -66,6 +67,7 @@ const navItems = [
 
 export default function StorefrontNav({ active }: StorefrontNavProps) {
   const [itemCount, setItemCount] = useState(0);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     function syncCartCount() {
@@ -82,9 +84,13 @@ export default function StorefrontNav({ active }: StorefrontNavProps) {
     };
   }, []);
 
+  const activeLabel = navItems.find((item) => item.value === active)?.label ?? "Menu";
+
   const utilityActions = (
-    <div className="flex shrink-0 items-center gap-4 text-[#252525]">
-      <LineIcon kind="search" />
+    <div className="flex shrink-0 items-center gap-2 text-[#252525] sm:gap-4">
+      <span className="hidden sm:inline-flex">
+        <LineIcon kind="search" />
+      </span>
       <a
         aria-label="Buyer account"
         className={`inline-flex size-9 items-center justify-center ${
@@ -106,6 +112,15 @@ export default function StorefrontNav({ active }: StorefrontNavProps) {
           {itemCount}
         </span>
       </a>
+      <button
+        aria-expanded={isMenuOpen}
+        aria-label="Open navigation menu"
+        className="inline-flex size-9 items-center justify-center md:hidden"
+        onClick={() => setIsMenuOpen((current) => !current)}
+        type="button"
+      >
+        <LineIcon kind="menu" />
+      </button>
     </div>
   );
 
@@ -116,16 +131,32 @@ export default function StorefrontNav({ active }: StorefrontNavProps) {
           <Logo />
           {utilityActions}
         </div>
-        <nav className="flex flex-wrap items-center gap-x-7 gap-y-2 border-t border-[#efe8df] pt-3 text-sm font-bold uppercase tracking-wide text-[#2b2927] md:justify-center md:gap-x-12">
+        <div className="flex items-center justify-between border-t border-[#efe8df] pt-3 text-xs font-black uppercase tracking-[0.14em] text-[#8a8178] md:hidden">
+          <span>{active === "home" ? "Home" : activeLabel}</span>
+          <button
+            aria-expanded={isMenuOpen}
+            className="text-[#a85f38]"
+            onClick={() => setIsMenuOpen((current) => !current)}
+            type="button"
+          >
+            {isMenuOpen ? "Close" : "Sections"}
+          </button>
+        </div>
+        <nav
+          className={`${
+            isMenuOpen ? "grid" : "hidden"
+          } gap-2 border-t border-[#efe8df] pt-3 text-sm font-bold uppercase tracking-wide text-[#2b2927] md:flex md:flex-wrap md:items-center md:justify-center md:gap-x-12 md:gap-y-2`}
+        >
           {navItems.map((item) => (
             <a
-              className={`border-b-2 pb-2 ${
+              className={`border-b-2 px-1 py-2 md:pb-2 ${
                 item.value === active
                   ? "border-[#b7653a] text-[#a85f38]"
                   : "border-transparent hover:text-[#a85f38]"
               }`}
               href={item.href}
               key={item.label}
+              onClick={() => setIsMenuOpen(false)}
             >
               {item.label}
             </a>

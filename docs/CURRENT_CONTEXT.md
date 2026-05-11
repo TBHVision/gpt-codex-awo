@@ -8,11 +8,11 @@ GPT-Codex AWO lives at `C:\HatchVision\AWO\GPT-Codex`.
 
 ## Current Phase
 
-Visual QA baseline.
+Mobile navigation refinement.
 
-Active Linear issue: AWO-44.
+Active Linear issue: AWO-49.
 
-Goal: verify desktop and mobile golden paths, fix small layout defects, and log larger design follow-ups in Linear.
+Goal: reduce mobile navigation crowding while preserving desktop navigation and quick access to cart/account.
 
 ## What Exists
 
@@ -116,10 +116,14 @@ Goal: verify desktop and mobile golden paths, fix small layout defects, and log 
   - mobile hero typography was tightened after screenshot review
   - larger visual follow-ups are AWO-49 mobile navigation and AWO-50 production
     card artwork assets
+- AWO-49 compacts storefront navigation on mobile:
+  - mobile shows account, cart, and menu controls in the top row
+  - section links collapse behind a menu with an active-section label
+  - desktop navigation stays centered and visible
+  - visual QA now also verifies the mobile menu opens and exposes section links
 
 ## Next Work
 
 - Use the new Linear runway:
   - AWO-46 Stripe test-mode payment lifecycle
-  - AWO-49 compact mobile storefront navigation
   - AWO-50 production card artwork assets

@@ -233,7 +233,42 @@ async function inspectRoute(client, route, viewport) {
   const screenshotPath = path.join(outputDir, `${viewport.name}-${safeName(route)}.png`);
   await writeFile(screenshotPath, Buffer.from(screenshot.data, "base64"));
 
-  return { route, screenshot: screenshotPath, viewport: viewport.name, ...result };
+  const interactions = [];
+
+  if (viewport.mobile && route === "/shop") {
+    const menuResult = await evaluate(
+      client,
+      `(async () => {
+        const button = Array.from(document.querySelectorAll('button')).find((item) =>
+          item.textContent?.includes('Sections')
+        );
+        if (!button) {
+          return { ok: false, reason: 'Sections button not found' };
+        }
+        button.click();
+        await new Promise((resolve) => setTimeout(resolve, 250));
+        const text = document.body.innerText;
+        const normalized = text.toLowerCase();
+        return {
+          ok: normalized.includes('artists') && normalized.includes('reveal') && normalized.includes('reminders'),
+          text: text.slice(0, 400)
+        };
+      })()`,
+    );
+    const menuScreenshot = await client.send("Page.captureScreenshot", {
+      captureBeyondViewport: false,
+      format: "png",
+    });
+    const menuScreenshotPath = path.join(outputDir, `${viewport.name}-${safeName(route)}-menu.png`);
+    await writeFile(menuScreenshotPath, Buffer.from(menuScreenshot.data, "base64"));
+    interactions.push({
+      name: "mobile menu opens",
+      screenshot: menuScreenshotPath,
+      ...menuResult,
+    });
+  }
+
+  return { interactions, route, screenshot: screenshotPath, viewport: viewport.name, ...result };
 }
 
 async function main() {
@@ -289,7 +324,10 @@ async function main() {
   }
 
   const failures = results.filter(
-    (result) => result.overflow.length > 0 || result.docWidth > result.viewportWidth + 2,
+    (result) =>
+      result.overflow.length > 0 ||
+      result.docWidth > result.viewportWidth + 2 ||
+      result.interactions.some((interaction) => !interaction.ok),
   );
   const reportPath = path.join(outputDir, "report.json");
   await writeFile(reportPath, JSON.stringify({ baseUrl, failures, results }, null, 2));
