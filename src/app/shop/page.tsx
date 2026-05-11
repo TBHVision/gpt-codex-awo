@@ -119,11 +119,11 @@ function TrustRow() {
   ];
 
   return (
-    <div className="mx-auto mt-10 grid max-w-4xl gap-4 text-[#b7653a] sm:grid-cols-2 lg:grid-cols-4">
+    <div className="mx-auto mt-8 grid max-w-4xl grid-cols-2 gap-x-4 gap-y-5 text-[#b7653a] sm:mt-10 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4 [&_svg]:size-6 sm:[&_svg]:size-8">
       {items.map((item) => (
-        <div className="flex items-center justify-center gap-3" key={item.label}>
+        <div className="flex items-center justify-start gap-3 sm:justify-center" key={item.label}>
           {item.icon}
-          <span className="text-xs font-black uppercase tracking-wide text-[#373431]">
+          <span className="text-[10px] font-black uppercase leading-4 tracking-wide text-[#373431] sm:text-xs">
             {item.label}
           </span>
         </div>
@@ -135,7 +135,7 @@ function TrustRow() {
 function CategoryTabs({ active }: { active: string }) {
   return (
     <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-      <div className="flex flex-wrap gap-x-12 gap-y-4">
+      <div className="grid grid-cols-2 gap-x-6 gap-y-4 sm:flex sm:flex-wrap sm:gap-x-12">
         {categories.map((category) => {
           const selected = category.value === active;
 
@@ -155,7 +155,7 @@ function CategoryTabs({ active }: { active: string }) {
         })}
       </div>
       <button
-        className="inline-flex items-center gap-2 self-start text-xs font-black uppercase tracking-wide text-[#2f2d2b]"
+        className="inline-flex items-center gap-2 self-start text-xs font-black uppercase tracking-wide text-[#2f2d2b] md:self-auto"
         type="button"
       >
         Sort: Newest
@@ -314,9 +314,9 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
     <main className="min-h-screen bg-[#fbfaf8] text-[#252525]">
       <StorefrontNav active="shop" />
 
-      <section className="bg-[radial-gradient(circle_at_center,#ffffff_0,#ffffff_45%,#f4f0ea_100%)] px-6 pb-12 pt-12 lg:px-10">
+      <section className="bg-[radial-gradient(circle_at_center,#ffffff_0,#ffffff_45%,#f4f0ea_100%)] px-6 pb-8 pt-8 sm:pb-12 sm:pt-12 lg:px-10">
         <div className="mx-auto max-w-7xl text-center">
-          <div className="mx-auto max-w-[440px]">
+          <div className="mx-auto max-w-[290px] sm:max-w-[440px]">
             <BrandLogo />
           </div>
           <TrustRow />
@@ -327,7 +327,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
         <CategoryTabs active={filters.occasion} />
 
         {catalog.status === "ready" && cards.length > 0 ? (
-          <div className="mt-10 grid gap-x-12 gap-y-12 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="mt-8 grid gap-x-12 gap-y-12 sm:mt-10 sm:grid-cols-2 lg:grid-cols-5">
             {cards.map((card, index) => (
               <CardTile card={card} index={index} key={card.id} />
             ))}

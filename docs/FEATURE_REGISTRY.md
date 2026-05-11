@@ -18,4 +18,4 @@ This registry is the GPT-Codex source of truth for feature status. A feature is 
 | Catalog artwork assets | V0.6/V0.7 | Buyer | Managed demo assets | AWO-50/AWO-51; published demo catalog points to static card artwork under `/cards/*` with fallback rendering for missing images |
 | Admin approvals/ops | V0.6 | Ops | Read-only lifecycle visibility | AWO-40/AWO-48; protected page reads catalog health, lifecycle queues, stuck states, and sensitive metrics when service role is configured |
 | Lifecycle model | V0.6 | Backend/Ops | Schema foundation | AWO-43/AWO-45; order, reveal, custody, and ownership model plus first schema layer before payment/fulfillment implementation |
-| Visual QA | V0.7 | QA | Automated baseline | AWO-44/AWO-49; local desktop/mobile visual QA harness passes golden route sweep and mobile menu interaction, with AWO-50 production asset follow-up logged |
+| Visual QA | V0.7 | QA | Automated baseline | AWO-44/AWO-49/AWO-52; local desktop/mobile visual QA harness passes golden route sweep, mobile menu interaction, and mobile storefront density polish |

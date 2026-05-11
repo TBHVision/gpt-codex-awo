@@ -8,11 +8,11 @@ GPT-Codex AWO lives at `C:\HatchVision\AWO\GPT-Codex`.
 
 ## Current Phase
 
-Storefront polish pass.
+Stripe-gated checkout plus storefront polish.
 
-Active Linear issue: AWO-46.
+Active Linear issues: AWO-46 is blocked on Stripe test secrets; AWO-52 is the active polish follow-up.
 
-Goal: wire Stripe test-mode payment lifecycle while keeping live charges disabled.
+Goal: keep payment wiring ready for Stripe test verification while tightening mobile storefront density.
 
 ## What Exists
 
@@ -142,6 +142,10 @@ Goal: wire Stripe test-mode payment lifecycle while keeping live charges disable
     payment lifecycle state server-side
   - the app rejects live Stripe secret keys while AWO is in test-mode wiring
   - env and webhook setup are documented in `docs/STRIPE_TEST_MODE.md`
+- AWO-52 tightens mobile storefront density:
+  - mobile shop hero uses a smaller brand logo than desktop
+  - trust cues move to a compact two-column mobile grid
+  - category tabs become easier to scan before the first product card
 
 ## Next Work
 
