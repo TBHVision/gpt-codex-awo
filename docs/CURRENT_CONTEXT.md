@@ -10,9 +10,9 @@ GPT-Codex AWO lives at `C:\HatchVision\AWO\GPT-Codex`.
 
 Buyer account auth path.
 
-Active Linear issue: AWO-39.
+Active Linear issue: AWO-40.
 
-Goal: move People and Reminders from browser-only demo state to account-backed Supabase storage where a buyer session exists.
+Goal: replace placeholder Admin Ops content with protected read-only operational visibility.
 
 ## What Exists
 
@@ -67,11 +67,14 @@ Goal: move People and Reminders from browser-only demo state to account-backed S
   - guests keep local browser fallback
   - `occasions` are the current reminder records until a narrower reminders
     model is justified
+- AWO-40 makes `/admin/ops` dynamic and read-only:
+  - public catalog health reads from Supabase with public anon key
+  - sensitive order/reveal metrics require `SUPABASE_SERVICE_ROLE_KEY`
+  - no destructive admin controls are exposed
 
 ## Next Work
 
 - Use the new Linear runway:
-  - AWO-40 wire Admin Ops to real Supabase operational data
   - AWO-41 real QR/PIN reveal validation
   - AWO-42 persist artist profiles and studio drafts
   - AWO-43 define order/reveal/custody/ownership lifecycle states

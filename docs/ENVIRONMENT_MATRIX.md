@@ -21,6 +21,14 @@ Server-only:
 - `AWO_ADMIN_PASSWORD`
 - `AWO_ADMIN_SESSION_TOKEN`
 
+`SUPABASE_SERVICE_ROLE_KEY` is required for:
+
+- full `/admin/ops` order and reveal metrics
+- future server-only admin workflows
+
+When missing, `/admin/ops` intentionally runs in limited mode and only shows
+public catalog health plus a setup warning.
+
 ## Ownership
 
 Tony owns production secret creation and rotation in Supabase and Vercel.
