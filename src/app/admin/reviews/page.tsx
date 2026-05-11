@@ -35,14 +35,14 @@ function MetricGrid({ items, title }: { items: ReviewMetric[]; title: string }) 
     <div className="rounded-lg border border-slate-200 bg-white p-5">
       <h2 className="text-xl font-semibold">{title}</h2>
       {items.length > 0 ? (
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <div className="mt-4 grid min-w-0 gap-3 sm:grid-cols-2">
           {items.map((item) => (
             <div
-              className={`rounded-md border p-4 ${stateClass(item.state)}`}
+              className={`min-w-0 rounded-md border p-4 ${stateClass(item.state)}`}
               key={`${title}-${item.label}`}
             >
-              <p className="text-sm font-semibold capitalize">{item.label}</p>
-              <p className="mt-1 text-2xl font-semibold">{item.value}</p>
+              <p className="break-words text-sm font-semibold capitalize">{item.label}</p>
+              <p className="mt-1 break-all text-2xl font-semibold">{item.value}</p>
             </div>
           ))}
         </div>
