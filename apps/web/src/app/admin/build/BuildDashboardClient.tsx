@@ -1,3 +1,5 @@
+import { AdminSessionBanner } from "@/app/admin/AdminSessionBanner";
+
 const linearProjectUrl =
   "https://linear.app/hatchvision/project/gpt-codex-awo-build-7e22f4e31cd8";
 
@@ -19,6 +21,7 @@ export default function BuildDashboardClient() {
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
+            <AdminSessionBanner />
             <a
               className="inline-flex h-11 items-center justify-center rounded-md border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-800 shadow-sm hover:border-slate-400 hover:bg-slate-50"
               href="/admin/fulfillment"
@@ -66,12 +69,6 @@ export default function BuildDashboardClient() {
               href="/admin/launch"
             >
               Launch Readiness
-            </a>
-            <a
-              className="inline-flex h-11 items-center justify-center rounded-md border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-800 shadow-sm hover:border-slate-400 hover:bg-slate-50"
-              href="/admin/logout"
-            >
-              Log out
             </a>
             <a
               className="inline-flex h-11 items-center justify-center rounded-md bg-slate-950 px-5 text-sm font-semibold text-white shadow-sm hover:bg-slate-800"

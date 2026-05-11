@@ -1,6 +1,7 @@
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import Link from "next/link";
+import { AdminSessionBanner } from "@/app/admin/AdminSessionBanner";
 import { reviewCard, type CardReviewAction } from "@/lib/admin-card-review";
 import {
   type ReviewMetric,
@@ -110,6 +111,7 @@ export default async function AdminReviewsPage() {
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
+            <AdminSessionBanner />
             <Link
               className="inline-flex h-11 items-center justify-center rounded-md border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-800 shadow-sm hover:border-slate-400 hover:bg-slate-50"
               href="/admin/fulfillment"

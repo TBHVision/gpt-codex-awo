@@ -19,6 +19,7 @@ This registry is the GPT-Codex source of truth for feature status. A feature is 
 | Artist submission | V0.5 | Artist | Supabase-backed draft path | AWO-42; approved artist profiles load publicly and signed-in artist/admin drafts persist on `cards` |
 | Catalog artwork assets | V0.6/V0.7 | Buyer | Managed demo assets | AWO-50/AWO-51; published demo catalog points to static card artwork under `/cards/*` with fallback rendering for missing images |
 | Admin approvals/ops | V0.6 | Ops | Read-only lifecycle visibility | AWO-40/AWO-48; protected page reads catalog health, lifecycle queues, stuck states, and sensitive metrics when service role is configured |
+| Admin session visibility | V0.6/V1.0 | Ops/Security | Working path | AWO-75; protected admin pages show temporary-password versus named-admin session mode and include a visible logout |
 | Lifecycle model | V0.6 | Backend/Ops | Schema foundation | AWO-43/AWO-45; order, reveal, custody, and ownership model plus first schema layer before payment/fulfillment implementation |
 | Ownership records | V0.6/V1.0 | Backend/Ops | Working path | AWO-71/AWO-72; paid items create pending ownership records, fulfilled items activate them, and `/admin/ownership` provides read-only operator visibility |
 | Custody events | V0.6/V1.0 | Backend/Ops | Working path | AWO-73; `/admin/custody` provides read-only provenance event visibility for payment, credential, fulfillment, reveal, and ownership lifecycle evidence |

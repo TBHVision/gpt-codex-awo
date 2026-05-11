@@ -265,6 +265,11 @@ every small decision.
     ownership, active ownership without `ownership_recorded`, and paid items
     without `order_paid`
   - repair, replay, fulfillment, and ownership mutations remain out of scope
+- AWO-75 adds admin session visibility:
+  - protected admin pages show whether the current browser is using a temporary
+    password session or named Supabase admin session
+  - protected admin pages include a consistent visible Log out action
+  - route protection behavior and cookie lifetime are unchanged
 - `docs/TONY_REVIEW_BATCH.md` is the current batched list of Tony reviews,
   external checks, and later decisions.
 

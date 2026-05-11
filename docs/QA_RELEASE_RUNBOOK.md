@@ -111,6 +111,16 @@ Temporary password sessions are intentionally read-only for write-capable admin
 flows. Card review and fulfillment transitions require a Supabase-backed named
 admin login so audit events can identify the actor.
 
+Protected admin pages show the active session mode near the top of the page:
+
+- `Temporary password session` means the browser passed the temporary dashboard
+  password gate and write actions should remain disabled.
+- `Named admin session` means the browser passed Supabase admin login and
+  eligible audited write controls may be enabled.
+
+Use the visible `Log out` action in the session badge to clear the current admin
+cookie before testing login behavior.
+
 ## Vercel Supabase Public Env
 
 AWO-18 is closed. Vercel has the browser-safe Supabase public variables set for
