@@ -9,6 +9,7 @@ export type ReviewMetric = {
 export type ReviewCard = {
   artist: string;
   createdAt: string;
+  id: string;
   price: string;
   slug: string;
   status: string;
@@ -58,6 +59,7 @@ export type AdminReviewQueuesSnapshot = {
 type SupabaseCardRow = {
   artists?: { public_name?: string } | null;
   created_at: string;
+  id: string;
   price_cents: number;
   slug: string;
   status: string;
@@ -253,7 +255,7 @@ export async function loadAdminReviewQueues(): Promise<AdminReviewQueuesSnapshot
     fetchRows<SupabaseCardRow>({
       key: serviceRoleKey,
       path:
-        "/rest/v1/cards?select=title,slug,status,price_cents,created_at,updated_at,artists(public_name)&order=updated_at.desc&limit=12",
+        "/rest/v1/cards?select=id,title,slug,status,price_cents,created_at,updated_at,artists(public_name)&order=updated_at.desc&limit=12",
       supabaseUrl,
     }),
     fetchRows<SupabaseArtistRow>({
@@ -308,6 +310,7 @@ export async function loadAdminReviewQueues(): Promise<AdminReviewQueuesSnapshot
     cards: cards.map((card) => ({
       artist: card.artists?.public_name ?? "Unknown artist",
       createdAt: card.created_at,
+      id: card.id,
       price: formatMoney(card.price_cents),
       slug: card.slug,
       status: card.status,

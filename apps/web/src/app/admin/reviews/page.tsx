@@ -1,10 +1,15 @@
+import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 import Link from "next/link";
+import { reviewCard, type CardReviewAction } from "@/lib/admin-card-review";
 import {
   type ReviewMetric,
   loadAdminReviewQueues,
 } from "@/lib/admin-review-queues";
 
 export const dynamic = "force-dynamic";
+
+const adminUserCookieName = "awo_admin_user_id";
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("en-US", {
@@ -58,8 +63,27 @@ function StatusPill({ value }: { value: string }) {
   );
 }
 
+async function submitCardReview(formData: FormData) {
+  "use server";
+
+  const cookieStore = await cookies();
+  const adminUserId = cookieStore.get(adminUserCookieName)?.value;
+  const action = String(formData.get("action") ?? "") as CardReviewAction;
+  const cardId = String(formData.get("cardId") ?? "");
+
+  if ((action !== "approve" && action !== "reject") || !cardId) {
+    throw new Error("Invalid card review action.");
+  }
+
+  await reviewCard({ action, adminUserId, cardId });
+  revalidatePath("/admin/reviews");
+  revalidatePath("/admin/ops");
+}
+
 export default async function AdminReviewsPage() {
   const snapshot = await loadAdminReviewQueues();
+  const cookieStore = await cookies();
+  const hasNamedAdmin = Boolean(cookieStore.get(adminUserCookieName)?.value);
 
   return (
     <main className="min-h-screen bg-[#f6f4ef] text-slate-950">
@@ -80,6 +104,9 @@ export default async function AdminReviewsPage() {
             <p className="mt-2 text-sm font-semibold text-slate-500">
               Snapshot: {formatDate(snapshot.generatedAt)} -{" "}
               {snapshot.mode === "full" ? "Full review mode" : "Limited review mode"}
+            </p>
+            <p className="mt-2 text-sm font-semibold text-slate-500">
+              Review actions: {hasNamedAdmin ? "Named admin enabled" : "Read-only until Supabase admin login"}
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
@@ -116,7 +143,32 @@ export default async function AdminReviewsPage() {
                         Updated {formatDate(card.updatedAt)}
                       </p>
                     </div>
-                    <StatusPill value={card.status} />
+                    <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+                      <StatusPill value={card.status} />
+                      {card.status === "pending_review" ? (
+                        <form action={submitCardReview} className="flex flex-wrap gap-2">
+                          <input name="cardId" type="hidden" value={card.id} />
+                          <button
+                            className="h-9 rounded-md border border-emerald-300 bg-emerald-50 px-3 text-xs font-semibold text-emerald-900 hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
+                            disabled={!hasNamedAdmin}
+                            name="action"
+                            type="submit"
+                            value="approve"
+                          >
+                            Approve
+                          </button>
+                          <button
+                            className="h-9 rounded-md border border-rose-300 bg-rose-50 px-3 text-xs font-semibold text-rose-900 hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-50"
+                            disabled={!hasNamedAdmin}
+                            name="action"
+                            type="submit"
+                            value="reject"
+                          >
+                            Reject
+                          </button>
+                        </form>
+                      ) : null}
+                    </div>
                   </article>
                 ))
               ) : (
@@ -230,9 +282,9 @@ export default async function AdminReviewsPage() {
               Read-Only Rule
             </h2>
             <p className="mt-2 text-sm leading-6 text-amber-900">
-              This page is evidence and triage only. The production approval
-              workflow still needs Supabase Auth admin roles and audit logging
-              before it can change data.
+              Card approve/reject actions require Supabase-backed named admin
+              login and write an audit event. Temporary password sessions stay
+              read-only.
             </p>
           </div>
         </aside>

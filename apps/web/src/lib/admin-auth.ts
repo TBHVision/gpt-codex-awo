@@ -10,7 +10,7 @@ type SupabaseProfileRow = {
 };
 
 export type AdminAuthResult =
-  | { ok: true }
+  | { ok: true; userId: string }
   | { ok: false; reason: "bad_credentials" | "missing_config" | "not_admin" };
 
 function getSupabaseAuthConfig() {
@@ -83,6 +83,6 @@ export async function verifySupabaseAdminLogin(input: {
   const profile = profiles[0];
 
   return profile?.role === "admin"
-    ? { ok: true }
+    ? { ok: true, userId }
     : { ok: false, reason: "not_admin" };
 }

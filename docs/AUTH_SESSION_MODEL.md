@@ -16,6 +16,11 @@ The temporary password fallback stays available while Tony creates or confirms
 named admin users. Supabase access tokens are used only during login verification
 and are not stored in browser-visible admin pages.
 
+When Supabase admin login succeeds, the app stores a minimal httpOnly
+`awo_admin_user_id` marker scoped to `/admin`. Write-capable admin actions use
+that marker only as a profile identifier, then re-check `profiles.role = admin`
+server-side with the Supabase service-role key before changing data.
+
 This is intentionally simple. It exists to protect the internal dashboard while the real Supabase account model is being built.
 
 Current flow:
@@ -123,6 +128,9 @@ This template must be edited with the confirmed HatchVision admin email before i
 
 The temporary password fallback should be removed after named Supabase admin
 users and audit-backed admin actions are fully ready.
+
+Temporary-password sessions are intentionally read-only for the first audited
+card review actions.
 
 Replace:
 

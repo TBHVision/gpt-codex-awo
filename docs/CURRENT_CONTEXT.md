@@ -209,6 +209,11 @@ every small decision.
   - the existing `AWO_ADMIN_PASSWORD` fallback still works while named admin
     users are being phased in
   - Supabase access tokens are not stored after the login verification step
+- AWO-66 adds the first audited admin write path:
+  - `/admin/reviews` can approve or reject `pending_review` cards
+  - actions require Supabase-backed named admin login, not temporary password
+  - the server re-checks `profiles.role = admin` before writing
+  - each action writes an `admin_audit_events` row
 - `docs/TONY_REVIEW_BATCH.md` is the current batched list of Tony reviews,
   external checks, and later decisions.
 

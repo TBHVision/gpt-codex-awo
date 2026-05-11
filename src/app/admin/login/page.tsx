@@ -7,6 +7,7 @@ import {
 import LoginForm from "./LoginForm";
 
 const adminCookieName = "awo_admin_session";
+const adminUserCookieName = "awo_admin_user_id";
 
 type LoginPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
@@ -44,6 +45,26 @@ async function login(formData: FormData) {
         `/admin/login?error=${result.reason}&next=${encodeURIComponent(safeNext)}`,
       );
     }
+
+    const cookieStore = await cookies();
+
+    cookieStore.set(adminCookieName, sessionToken, {
+      httpOnly: true,
+      maxAge: 60 * 60 * 8,
+      path: "/admin",
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+    });
+
+    cookieStore.set(adminUserCookieName, result.userId, {
+      httpOnly: true,
+      maxAge: 60 * 60 * 8,
+      path: "/admin",
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+    });
+
+    redirect(safeNext);
   } else {
     if (!adminPassword) {
       redirect("/admin/login?setup=1");
@@ -63,6 +84,7 @@ async function login(formData: FormData) {
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
   });
+  cookieStore.delete(adminUserCookieName);
 
   redirect(safeNext);
 }

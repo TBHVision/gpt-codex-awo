@@ -50,6 +50,8 @@ desktop/mobile visual QA, then writes `.qa/release-readiness/latest.json`.
 environment posture, release evidence, required docs, and Tony review blockers.
 `/admin/reviews` now gives operators a protected read-only view of card,
 artist, order, and reveal queues without adding risky write actions.
+The first write-capable admin action is now scoped to card approve/reject and
+requires Supabase-backed named admin login plus an audit event.
 
 ## Current Health
 
@@ -157,14 +159,15 @@ Completed:
   in smoke and visual QA.
 - AWO-64: protected `/admin/reviews` read-only review queues included in smoke
   and visual QA.
+- AWO-66: audited card approve/reject actions for named Supabase admins.
 
 Remaining:
 
 - CI-hosted release gate has been added, but the first remote GitHub Actions run
   should be checked after push to confirm repository secrets and Chrome are
   available in the runner.
-- Write-capable approval tools are still deferred until admin auth roles and
-  audit events are implemented.
+- Broader write-capable approval tools are still deferred. Current admin writes
+  are limited to audited card approve/reject actions for named Supabase admins.
 - Observability setup for production errors, analytics, and performance is still
   planned rather than configured.
 - Browser-based authenticated end-to-end tests are still parked until account
