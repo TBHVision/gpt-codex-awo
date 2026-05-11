@@ -19,6 +19,7 @@ const protectedRoutes = [
   "/admin/launch",
   "/admin/reviews",
   "/admin/audit",
+  "/admin/fulfillment",
 ];
 
 function urlFor(route) {

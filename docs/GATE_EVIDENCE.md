@@ -121,6 +121,10 @@ Additional Codex evidence:
   by smoke and visual QA.
 - `/admin/reviews` adds a protected read-only review queue for launch readiness
   and is covered by smoke and visual QA.
+- `/admin/audit` adds protected audit-log visibility and is covered by smoke
+  and visual QA.
+- `/admin/fulfillment` adds protected read-only fulfillment queue visibility and
+  is covered by smoke and visual QA.
 
 Still needs Tony before Done:
 

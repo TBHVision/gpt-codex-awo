@@ -54,6 +54,9 @@ The first write-capable admin action is now scoped to card approve/reject and
 requires Supabase-backed named admin login plus an audit event.
 `/admin/audit` now shows recent `admin_audit_events` so write actions have a
 visible review trail.
+`/admin/fulfillment` now gives operators a protected read-only view of
+paid/pending fulfillment orders, item state, reveal credential readiness, and
+ownership posture without adding fulfillment write controls.
 
 ## Current Health
 
@@ -164,6 +167,8 @@ Completed:
 - AWO-66: audited card approve/reject actions for named Supabase admins.
 - AWO-67: protected `/admin/audit` audit log visibility included in smoke and
   visual QA.
+- AWO-68: protected `/admin/fulfillment` fulfillment queue visibility included
+  in smoke and visual QA.
 
 Remaining:
 
@@ -172,6 +177,9 @@ Remaining:
   available in the runner.
 - Broader write-capable approval tools are still deferred. Current admin writes
   are limited to audited card approve/reject actions for named Supabase admins.
+- Fulfillment is visible but intentionally read-only; fulfillment, shipping,
+  refunds, credential revocation, and ownership transfer still need separately
+  audited workflows.
 - Observability setup for production errors, analytics, and performance is still
   planned rather than configured.
 - Browser-based authenticated end-to-end tests are still parked until account
@@ -200,5 +208,5 @@ Evidence captured on 2026-05-11:
 2. Add the V0.7 observability and CI posture.
 3. Build admin approval tools for cards/artists/orders after payment state is
    verified.
-4. Add fulfillment and ownership workflows.
+4. Add fulfillment and ownership write workflows with audit and rollback rules.
 5. Add authenticated E2E tests once account/session mechanics stabilize.

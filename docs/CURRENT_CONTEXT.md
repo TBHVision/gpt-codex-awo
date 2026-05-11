@@ -218,6 +218,12 @@ every small decision.
   - read-only recent `admin_audit_events` visibility
   - links from Project Home, Admin Ops, Review Queues, and Launch Readiness
   - covered by smoke and visual QA
+- AWO-68 adds `/admin/fulfillment`:
+  - read-only paid/pending order fulfillment visibility
+  - item state, reveal credential state, and ownership record posture
+  - links from Project Home, Admin Ops, Review Queues, Audit Log, and Launch
+    Readiness
+  - no fulfill, ship, refund, revoke, or ownership-transfer controls are exposed
 - `docs/TONY_REVIEW_BATCH.md` is the current batched list of Tony reviews,
   external checks, and later decisions.
 
