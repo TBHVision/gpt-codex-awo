@@ -214,6 +214,10 @@ every small decision.
   - actions require Supabase-backed named admin login, not temporary password
   - the server re-checks `profiles.role = admin` before writing
   - each action writes an `admin_audit_events` row
+- AWO-67 adds `/admin/audit`:
+  - read-only recent `admin_audit_events` visibility
+  - links from Project Home, Admin Ops, Review Queues, and Launch Readiness
+  - covered by smoke and visual QA
 - `docs/TONY_REVIEW_BATCH.md` is the current batched list of Tony reviews,
   external checks, and later decisions.
 

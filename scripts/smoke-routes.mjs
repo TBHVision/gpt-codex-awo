@@ -13,7 +13,13 @@ const publicRoutes = [
   "/checkout",
 ];
 
-const protectedRoutes = ["/admin/build", "/admin/ops", "/admin/launch", "/admin/reviews"];
+const protectedRoutes = [
+  "/admin/build",
+  "/admin/ops",
+  "/admin/launch",
+  "/admin/reviews",
+  "/admin/audit",
+];
 
 function urlFor(route) {
   return new URL(route, baseUrl).toString();

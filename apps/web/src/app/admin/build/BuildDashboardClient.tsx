@@ -21,6 +21,12 @@ export default function BuildDashboardClient() {
           <div className="flex flex-wrap gap-3">
             <a
               className="inline-flex h-11 items-center justify-center rounded-md border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-800 shadow-sm hover:border-slate-400 hover:bg-slate-50"
+              href="/admin/audit"
+            >
+              Audit Log
+            </a>
+            <a
+              className="inline-flex h-11 items-center justify-center rounded-md border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-800 shadow-sm hover:border-slate-400 hover:bg-slate-50"
               href="/admin/ops"
             >
               Admin Ops

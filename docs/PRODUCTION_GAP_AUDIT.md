@@ -52,6 +52,8 @@ environment posture, release evidence, required docs, and Tony review blockers.
 artist, order, and reveal queues without adding risky write actions.
 The first write-capable admin action is now scoped to card approve/reject and
 requires Supabase-backed named admin login plus an audit event.
+`/admin/audit` now shows recent `admin_audit_events` so write actions have a
+visible review trail.
 
 ## Current Health
 
@@ -160,6 +162,8 @@ Completed:
 - AWO-64: protected `/admin/reviews` read-only review queues included in smoke
   and visual QA.
 - AWO-66: audited card approve/reject actions for named Supabase admins.
+- AWO-67: protected `/admin/audit` audit log visibility included in smoke and
+  visual QA.
 
 Remaining:
 
