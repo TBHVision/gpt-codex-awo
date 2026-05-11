@@ -16,6 +16,7 @@ type OrderItemRow = {
   line_total_cents: number;
   person_id?: string | null;
   quantity: number;
+  reveal_public_id?: string;
   status?: string;
   unit_price_cents: number;
 };
@@ -161,7 +162,7 @@ async function fetchOrderItems(config: SupabaseServerConfig, orderId: string) {
   const endpoint = new URL("/rest/v1/order_items", config.supabaseUrl);
   endpoint.searchParams.set(
     "select",
-    "id,card_id,quantity,unit_price_cents,line_total_cents",
+    "id,card_id,quantity,unit_price_cents,line_total_cents,reveal_public_id",
   );
   endpoint.searchParams.set("order_id", `eq.${orderId}`);
   endpoint.searchParams.set("order", "created_at.asc");
@@ -253,8 +254,20 @@ export async function createCheckoutSession(
     throw new Error("Checkout draft has no payable items.");
   }
 
+  const revealCode = orderItems[0]?.reveal_public_id;
+  const successUrl = new URL("/checkout", requestOrigin);
+  successUrl.searchParams.set("payment", "success");
+  successUrl.searchParams.set("order", draft.checkout_reference);
+  if (revealCode) {
+    successUrl.searchParams.set("reveal", revealCode);
+  }
+
+  const cancelUrl = new URL("/checkout", requestOrigin);
+  cancelUrl.searchParams.set("payment", "cancelled");
+  cancelUrl.searchParams.set("order", draft.checkout_reference);
+
   const session = await stripe.checkout.sessions.create({
-    cancel_url: `${requestOrigin}/checkout?payment=cancelled&order=${draft.checkout_reference}`,
+    cancel_url: cancelUrl.toString(),
     line_items: orderItems.map((item) => {
       const card = cardsById.get(item.card_id);
 
@@ -284,7 +297,7 @@ export async function createCheckoutSession(
         order_id: draft.order_id,
       },
     },
-    success_url: `${requestOrigin}/checkout?payment=success&order=${draft.checkout_reference}`,
+    success_url: successUrl.toString(),
   });
 
   if (!session.url) {

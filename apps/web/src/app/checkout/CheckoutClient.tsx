@@ -43,6 +43,7 @@ export default function CheckoutClient() {
   const totalCents = useMemo(() => cartTotal(items), [items]);
   const paymentState = searchParams.get("payment");
   const orderReference = searchParams.get("order");
+  const revealCode = searchParams.get("reveal");
   const paymentSucceeded = paymentState === "success";
   const paymentCancelled = paymentState === "cancelled";
 
@@ -203,7 +204,7 @@ export default function CheckoutClient() {
                 </Link>
                 <Link
                   className="inline-flex h-10 items-center justify-center border border-emerald-300 bg-white px-4 text-xs font-black uppercase tracking-wide text-emerald-800 hover:border-emerald-500"
-                  href="/reveal"
+                  href={revealCode ? `/reveal?code=${encodeURIComponent(revealCode)}` : "/reveal"}
                 >
                   Preview Reveal
                 </Link>

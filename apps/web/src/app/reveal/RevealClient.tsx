@@ -134,7 +134,13 @@ function formatValue(value: string | null | undefined, fallback: string) {
 }
 
 export default function RevealClient() {
-  const [cardCode, setCardCode] = useState("AWO-DEMO-001");
+  const [cardCode, setCardCode] = useState(() => {
+    if (typeof window === "undefined") {
+      return "AWO-DEMO-001";
+    }
+
+    return new URLSearchParams(window.location.search).get("code") ?? "AWO-DEMO-001";
+  });
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [pin, setPin] = useState("");
