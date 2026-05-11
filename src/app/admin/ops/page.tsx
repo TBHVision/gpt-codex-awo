@@ -31,7 +31,7 @@ const systemHealth = [
   },
   {
     label: "Vercel public env vars",
-    state: "Blocked by AWO-18",
+    state: "Healthy in production",
   },
   {
     label: "Fulfillment automation",

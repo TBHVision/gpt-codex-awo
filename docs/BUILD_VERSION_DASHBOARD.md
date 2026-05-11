@@ -28,4 +28,6 @@ https://linear.app/hatchvision/project/gpt-codex-awo-build-7e22f4e31cd8
 
 ## Current Phase
 
-V0.1 is active. The first security deliverable is an app-level admin password gate for `/admin/*`.
+Linear is the live phase source of truth. Current active work is AWO-36: production gap audit after the first full shell pass.
+
+The V0.1 Supabase/Vercel public catalog blocker is closed. The next build runway is tracked in AWO-37 through AWO-44.

@@ -1,6 +1,6 @@
 # Current Context
 
-Last updated: 2026-05-08
+Last updated: 2026-05-10
 
 ## Project
 
@@ -8,9 +8,11 @@ GPT-Codex AWO lives at `C:\HatchVision\AWO\GPT-Codex`.
 
 ## Current Phase
 
-V0.1 Security + Data/Auth
+Production gap audit after the first full shell pass.
 
-Gate state: Open. First deliverable is dashboard admin authentication.
+Active Linear issue: AWO-36.
+
+Goal: turn the shell/demo site into a prioritized real-product build plan after Vercel/Supabase production wiring was verified.
 
 ## What Exists
 
@@ -47,8 +49,19 @@ Gate state: Open. First deliverable is dashboard admin authentication.
 - Vercel must define `AWO_ADMIN_PASSWORD` and `AWO_ADMIN_SESSION_TOKEN` before production dashboard login works.
 - The old editable build dashboard is retired to avoid two sources of truth. `/admin/build` is now a lightweight Linear launch page.
 - Supabase CLI is installed as a project dev dependency and runs with `npx supabase`.
+- Production `/shop` reads seeded Supabase `published_cards`.
+- AWO-18 is done. Vercel public Supabase env vars are healthy in production.
+- Production gap audit lives in `docs/PRODUCTION_GAP_AUDIT.md`.
 
 ## Next Work
 
-- Document auth session model and admin bootstrap path
-- Apply/review V0.1 demo seed data when needed for V0.2 shop work
+- Complete AWO-36 production gap audit.
+- Use the new Linear runway:
+  - AWO-37 Supabase-backed order draft flow
+  - AWO-38 buyer Supabase Auth path
+  - AWO-39 persist People and Reminders to Supabase
+  - AWO-40 wire Admin Ops to real Supabase operational data
+  - AWO-41 real QR/PIN reveal validation
+  - AWO-42 persist artist profiles and studio drafts
+  - AWO-43 define order/reveal/custody/ownership lifecycle states
+  - AWO-44 mobile and visual QA across golden paths

@@ -78,23 +78,23 @@ For local manual admin testing, `AWO_ADMIN_PASSWORD` and
 previously used a temporary local password of `test`; production should use a
 real secret in Vercel.
 
-## Vercel Blocker
+## Vercel Supabase Public Env
 
-AWO-18 remains the known production blocker. Vercel must have the browser-safe
-Supabase public variables set for the deployed shop:
+AWO-18 is closed. Vercel has the browser-safe Supabase public variables set for
+the deployed shop:
 
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 
 Do not use a Supabase service-role key in Vercel public variables.
 
-After setting or changing Vercel env vars:
+After setting or changing Vercel env vars in the future:
 
 1. Redeploy the Vercel project.
 2. Open `/shop` on the Vercel domain.
 3. Confirm seeded demo cards load.
 4. Run the smoke test against the Vercel URL if access policy allows it.
-5. Update AWO-18 in Linear with evidence.
+5. Update the active Linear issue with evidence.
 
 ## Release Evidence Pattern
 
