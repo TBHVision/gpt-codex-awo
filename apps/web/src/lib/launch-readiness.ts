@@ -125,6 +125,11 @@ export async function loadLaunchReadinessSnapshot(): Promise<LaunchReadinessSnap
           label: "Ownership records QA coverage",
           state: "ready",
         },
+        {
+          detail: "Protected admin custody event page is included in smoke and visual QA.",
+          label: "Custody event QA coverage",
+          state: "ready",
+        },
       ],
     },
     {

@@ -70,6 +70,10 @@ AWO-72 adds `/admin/ownership` so operators can see whether ownership records
 exist, remain pending, activate after fulfillment, or need investigation. It is
 read-only; transfer, revocation, refund, and edit workflows still need separate
 audited implementation.
+AWO-73 adds `/admin/custody` so operators can inspect provenance lifecycle
+events such as `order_paid`, `credential_activated`, `item_fulfilled`, and
+`ownership_recorded`. It is read-only and does not replay, mutate, or edit
+events.
 
 ## Current Health
 

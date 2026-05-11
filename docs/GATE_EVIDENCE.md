@@ -127,6 +127,8 @@ Additional Codex evidence:
   is covered by smoke and visual QA.
 - `/admin/ownership` adds protected read-only ownership records visibility and
   is covered by smoke and visual QA.
+- `/admin/custody` adds protected read-only custody event visibility and is
+  covered by smoke and visual QA.
 
 Still needs Tony before Done:
 

@@ -21,6 +21,7 @@ const protectedRoutes = [
   "/admin/audit",
   "/admin/fulfillment",
   "/admin/ownership",
+  "/admin/custody",
 ];
 
 function urlFor(route) {

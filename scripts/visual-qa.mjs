@@ -35,6 +35,7 @@ const routes = [
   "/admin/audit",
   "/admin/fulfillment",
   "/admin/ownership",
+  "/admin/custody",
 ];
 
 const viewports = [

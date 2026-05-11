@@ -251,6 +251,13 @@ every small decision.
   - links from Project Home, Admin Ops, Fulfillment, Audit Log, and Launch
     Readiness
   - transfer, revocation, refund, and ownership editing remain out of scope
+- AWO-73 adds `/admin/custody`:
+  - read-only custody event visibility for provenance and lifecycle evidence
+  - shows event type, payload summary, actor, card/order-item context, and key
+    custody health counts
+  - links from Project Home, Admin Ops, Fulfillment, Ownership, Audit Log, and
+    Launch Readiness
+  - replay, mutation, and event editing remain out of scope
 - `docs/TONY_REVIEW_BATCH.md` is the current batched list of Tony reviews,
   external checks, and later decisions.
 
