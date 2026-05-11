@@ -8,11 +8,11 @@ GPT-Codex AWO lives at `C:\HatchVision\AWO\GPT-Codex`.
 
 ## Current Phase
 
-Lifecycle modeling.
+Lifecycle schema implementation.
 
-Active Linear issue: AWO-43.
+Active Linear issue: AWO-45.
 
-Goal: define explicit order, reveal, custody, and ownership lifecycle states before payment, fulfillment, and production provenance claims are implemented.
+Goal: implement the first schema layer for explicit order, payment, fulfillment, reveal credential, custody, and ownership lifecycle state.
 
 ## What Exists
 
@@ -87,8 +87,19 @@ Goal: define explicit order, reveal, custody, and ownership lifecycle states bef
     custody, and ownership
   - production follow-ups need item-level state, reveal credential states,
     custody events, and ownership records
+- AWO-45 adds lifecycle schema foundations:
+  - `payment_lifecycle_status`, `fulfillment_lifecycle_status`,
+    `order_item_status`, `reveal_credential_status`, `custody_event_type`, and
+    `ownership_status`
+  - `orders` gets payment/fulfillment fields
+  - `order_items` gets item-level status
+  - `honoree_reveals` gets credential status and revocation/expiration fields
+  - `custody_events` and `ownership_records` are added with RLS
 
 ## Next Work
 
 - Use the new Linear runway:
+  - AWO-46 Stripe test-mode payment lifecycle
+  - AWO-47 reveal credential lifecycle and lock rules
+  - AWO-48 lifecycle queues in admin ops
   - AWO-44 mobile and visual QA across golden paths

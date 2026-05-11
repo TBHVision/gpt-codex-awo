@@ -14,5 +14,5 @@ This registry is the GPT-Codex source of truth for feature status. A feature is 
 | My People | V0.4 | Buyer | Account-aware path | AWO-39; signed-in buyers use Supabase `people` and `occasions`, guests use local fallback |
 | Artist submission | V0.5 | Artist | Supabase-backed draft path | AWO-42; approved artist profiles load publicly and signed-in artist/admin drafts persist on `cards` |
 | Admin approvals/ops | V0.6 | Ops | Read-only ops visibility | AWO-40; protected page reads catalog health now and sensitive metrics when service role is configured |
-| Lifecycle model | V0.6 | Backend/Ops | Documented model | AWO-43; order, reveal, custody, and ownership state model captured before payment/fulfillment implementation |
+| Lifecycle model | V0.6 | Backend/Ops | Schema foundation | AWO-43/AWO-45; order, reveal, custody, and ownership model plus first schema layer before payment/fulfillment implementation |
 | Visual QA | V0.7 | QA | Planned | AWO-44 |

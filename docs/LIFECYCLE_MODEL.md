@@ -189,7 +189,8 @@ RLS direction:
 
 ## Implementation Follow-Ups
 
-1. AWO-45: Add lifecycle schema migration:
+1. AWO-45: Add lifecycle schema migration: implemented in
+   `20260511084500_lifecycle_schema.sql`.
    - richer order/reveal enums
    - item status
    - payment provider fields

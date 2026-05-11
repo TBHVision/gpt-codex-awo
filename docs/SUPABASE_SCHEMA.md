@@ -110,12 +110,43 @@ are not enough for production payment, fulfillment, custody, and ownership.
 
 Required follow-up schema work:
 
-- expand or split order/payment/fulfillment states
-- add item-level lifecycle state to `order_items`
-- expand reveal credential states for active, expired, revoked, and generation
-  failure cases
-- add append-only `custody_events`
-- add durable `ownership_records`
+- AWO-45 implements the first schema layer for this model.
+
+## AWO-45 Lifecycle Schema
+
+AWO-45 adds lifecycle-specific state without forcing payment or fulfillment
+automation to exist yet.
+
+New enums:
+
+- `payment_lifecycle_status`
+- `fulfillment_lifecycle_status`
+- `order_item_status`
+- `reveal_credential_status`
+- `custody_event_type`
+- `ownership_status`
+
+Updated tables:
+
+- `orders` now has `payment_status`, `fulfillment_status`, payment provider
+  IDs, and transition timestamps.
+- `order_items` now has item-level `status`.
+- `honoree_reveals` now has `credential_status`, expiration/revocation fields,
+  and `max_failed_attempts`.
+
+New tables:
+
+- `custody_events`: append-only provenance event stream for cards and order
+  items.
+- `ownership_records`: durable ownership claims tied to purchased order items.
+
+RLS direction:
+
+- Admins can inspect and manage custody/ownership records.
+- Buyers can read ownership/custody records tied to their orders.
+- Artists can read custody/ownership context for their own cards.
+- Recipients still receive curated reveal/custody/ownership data through the
+  server-mediated reveal path, not direct table reads.
 
 ## Role Model
 
