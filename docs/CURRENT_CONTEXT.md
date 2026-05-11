@@ -197,6 +197,12 @@ every small decision.
   - it confirms critical docs exist
   - it keeps Tony review and live-payment approval as explicit human gates
   - it is covered by smoke and visual QA
+- `/admin/reviews` is the protected read-only launch review queue:
+  - card and artist status counts plus recent rows
+  - recent order state, payment state, and fulfillment state
+  - reveal credential status and failed-attempt visibility
+  - intentionally no approve/refund/destructive controls until admin auth roles
+    and audit flows are built
 
 ## Next Work
 
@@ -206,5 +212,7 @@ every small decision.
   - check the first GitHub Actions release-readiness run after push
   - finish AWO-62 by deciding the observability stack or explicitly deferring it
   - use `/admin/launch` plus AWO-63 for the final V1.0 gate review
+  - use AWO-64 and `/admin/reviews` to evaluate what production approval queues
+    need before write-capable admin tools
   - Real card photography/art direction can replace the managed demo assets when
     Tony provides final production artwork

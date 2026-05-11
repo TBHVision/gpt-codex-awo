@@ -31,6 +31,7 @@ const routes = [
   "/admin/build",
   "/admin/ops",
   "/admin/launch",
+  "/admin/reviews",
 ];
 
 const viewports = [

@@ -119,6 +119,8 @@ Additional Codex evidence:
   changes.
 - `/admin/launch` adds a protected V1.0 launch-readiness surface and is covered
   by smoke and visual QA.
+- `/admin/reviews` adds a protected read-only review queue for launch readiness
+  and is covered by smoke and visual QA.
 
 Still needs Tony before Done:
 
