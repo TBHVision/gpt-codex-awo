@@ -30,6 +30,7 @@ const routes = [
   "/artists",
   "/admin/build",
   "/admin/ops",
+  "/admin/launch",
 ];
 
 const viewports = [

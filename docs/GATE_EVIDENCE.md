@@ -117,6 +117,8 @@ Additional Codex evidence:
   runners as well as the existing Windows Chrome paths.
 - Local `npm run test:release` passed after the CI workflow and visual QA runner
   changes.
+- `/admin/launch` adds a protected V1.0 launch-readiness surface and is covered
+  by smoke and visual QA.
 
 Still needs Tony before Done:
 

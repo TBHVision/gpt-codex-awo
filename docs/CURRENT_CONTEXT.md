@@ -190,6 +190,13 @@ every small decision.
 - AWO-62 also adds `.github/workflows/ci.yml` so GitHub Actions runs
   `npm run test:release` on pushes to `main` and pull requests
 - `docs/GATE_EVIDENCE.md` records current gate evidence for V0.2 through V0.7.
+- `/admin/launch` is the protected V1.0 launch-readiness surface:
+  - it checks required server/browser environment variables without displaying
+    secret values
+  - it reads the latest local release-readiness JSON report
+  - it confirms critical docs exist
+  - it keeps Tony review and live-payment approval as explicit human gates
+  - it is covered by smoke and visual QA
 
 ## Next Work
 
@@ -198,5 +205,6 @@ every small decision.
   - have Tony review AWO-61 `/admin/ops` when convenient
   - check the first GitHub Actions release-readiness run after push
   - finish AWO-62 by deciding the observability stack or explicitly deferring it
+  - use `/admin/launch` plus AWO-63 for the final V1.0 gate review
   - Real card photography/art direction can replace the managed demo assets when
     Tony provides final production artwork

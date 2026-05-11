@@ -27,6 +27,12 @@ export default function BuildDashboardClient() {
             </a>
             <a
               className="inline-flex h-11 items-center justify-center rounded-md border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-800 shadow-sm hover:border-slate-400 hover:bg-slate-50"
+              href="/admin/launch"
+            >
+              Launch Readiness
+            </a>
+            <a
+              className="inline-flex h-11 items-center justify-center rounded-md border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-800 shadow-sm hover:border-slate-400 hover:bg-slate-50"
               href="/admin/logout"
             >
               Log out
@@ -65,12 +71,20 @@ export default function BuildDashboardClient() {
               Open Linear for the live issue list. This page avoids hardcoded
               ticket status so it cannot drift from the system of record.
             </p>
-            <a
-              className="mt-4 inline-flex h-10 items-center justify-center rounded-md bg-slate-950 px-4 text-sm font-semibold text-white shadow-sm hover:bg-slate-800"
-              href={linearProjectUrl}
-            >
-              View Current Issues
-            </a>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <a
+                className="inline-flex h-10 items-center justify-center rounded-md border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 shadow-sm hover:border-slate-400 hover:bg-slate-50"
+                href="/admin/launch"
+              >
+                Check Launch Readiness
+              </a>
+              <a
+                className="inline-flex h-10 items-center justify-center rounded-md bg-slate-950 px-4 text-sm font-semibold text-white shadow-sm hover:bg-slate-800"
+                href={linearProjectUrl}
+              >
+                View Current Issues
+              </a>
+            </div>
           </div>
         </section>
 

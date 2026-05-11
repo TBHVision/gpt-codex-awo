@@ -46,6 +46,8 @@ Current automated evidence:
 
 `test:release` now runs lint, build, a fresh production server, route smoke, and
 desktop/mobile visual QA, then writes `.qa/release-readiness/latest.json`.
+`/admin/launch` now gives the V1.0 gate a protected launch-readiness view for
+environment posture, release evidence, required docs, and Tony review blockers.
 
 ## Current Health
 
@@ -147,6 +149,8 @@ Completed:
 - AWO-49: Mobile nav compactness.
 - AWO-52: Mobile storefront density polish.
 - AWO-55: One-command release readiness gate.
+- AWO-63 support: protected `/admin/launch` launch-readiness surface included
+  in smoke and visual QA.
 
 Remaining:
 
