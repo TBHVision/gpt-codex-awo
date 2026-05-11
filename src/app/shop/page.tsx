@@ -95,7 +95,7 @@ function Logo({ compact = false }: { compact?: boolean }) {
   return (
     <Link
       className="group inline-flex items-center gap-1.5 font-black tracking-tight text-[#8b4f2c]"
-      href="/shop"
+      href="/"
     >
       <span className={compact ? "text-2xl" : "text-7xl sm:text-8xl"}>AW</span>
       <span

@@ -9,7 +9,7 @@ import {
 } from "@/lib/cart-types";
 
 type StorefrontNavProps = {
-  active?: "artists" | "cart" | "people" | "reminders" | "reveal" | "shop";
+  active?: "artists" | "cart" | "home" | "people" | "reminders" | "reveal" | "shop";
 };
 
 function LineIcon({ kind }: { kind: "cart" | "search" | "user" }) {
@@ -37,7 +37,7 @@ function Logo() {
   return (
     <Link
       className="inline-flex items-center gap-1.5 font-black tracking-tight text-[#8b4f2c]"
-      href="/shop"
+      href="/"
     >
       <span className="text-2xl">AW</span>
       <span className="inline-flex size-8 items-center justify-center rounded-full bg-[radial-gradient(circle_at_center,#c98a55_0,#8b4f2c_45%,#5a311b_100%)] text-xs text-[#f8efe4] shadow-[inset_0_0_0_3px_rgba(255,255,255,.2)]">
@@ -55,7 +55,7 @@ const navItems = [
   { href: "/reminders", label: "Reminders", value: "reminders" },
 ] as const;
 
-export default function StorefrontNav({ active = "shop" }: StorefrontNavProps) {
+export default function StorefrontNav({ active }: StorefrontNavProps) {
   const [itemCount, setItemCount] = useState(0);
 
   useEffect(() => {
@@ -99,10 +99,10 @@ export default function StorefrontNav({ active = "shop" }: StorefrontNavProps) {
           <Logo />
           {utilityActions}
         </div>
-        <nav className="flex items-center gap-7 overflow-x-auto whitespace-nowrap border-t border-[#efe8df] pt-3 text-sm font-bold uppercase tracking-wide text-[#2b2927] md:justify-center md:gap-12">
+        <nav className="flex flex-wrap items-center gap-x-7 gap-y-2 border-t border-[#efe8df] pt-3 text-sm font-bold uppercase tracking-wide text-[#2b2927] md:justify-center md:gap-x-12">
           {navItems.map((item) => (
             <Link
-              className={`shrink-0 border-b-2 pb-3 ${
+              className={`border-b-2 pb-2 ${
                 item.value === active
                   ? "border-[#b7653a] text-[#a85f38]"
                   : "border-transparent hover:text-[#a85f38]"

@@ -1,6 +1,7 @@
 const baseUrl = process.env.SMOKE_BASE_URL ?? "http://127.0.0.1:3000";
 
 const publicRoutes = [
+  "/",
   "/shop",
   "/artists",
   "/people",
@@ -43,25 +44,8 @@ async function checkProtectedRoute(route) {
   return `${route} -> ${response.status} ${location}`;
 }
 
-async function checkRootRoute() {
-  const response = await fetch(urlFor("/"), { redirect: "manual" });
-  const location = response.headers.get("location") ?? "";
-  const redirectedToShop =
-    [301, 302, 303, 307, 308].includes(response.status) &&
-    location.includes("/shop");
-
-  if (!redirectedToShop) {
-    throw new Error(
-      `/ expected storefront redirect, received ${response.status} ${location}`,
-    );
-  }
-
-  return `/ -> ${response.status} ${location}`;
-}
-
 async function main() {
   console.log(`AWO route smoke test: ${baseUrl}`);
-  console.log(`PASS ${await checkRootRoute()}`);
 
   for (const route of publicRoutes) {
     console.log(`PASS ${await checkPublicRoute(route)}`);
