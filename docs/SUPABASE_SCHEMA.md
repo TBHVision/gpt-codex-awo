@@ -58,6 +58,10 @@ The RPC:
 
 Future versions can split operational roles if needed.
 
+AWO-38 adds a Supabase Auth trigger that creates a `profiles` row with role
+`buyer` whenever a new auth user signs up. User-facing signup never chooses
+`artist` or `admin`.
+
 ## RLS Boundary
 
 The first migration enables RLS. AWO-6 adds the first policy layer before product routes read or write live data.

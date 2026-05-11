@@ -45,7 +45,7 @@ Never commit these values and never paste them into chat.
 
 ## Supabase Auth Direction
 
-The future production auth model should use Supabase Auth for real users and sessions.
+The production auth model should use Supabase Auth for real users and sessions.
 
 Expected user roles:
 
@@ -56,6 +56,33 @@ Expected user roles:
 Role is stored in `public.profiles.role`.
 
 Supabase owns identity and session issuance. The app should use Supabase session helpers or server-side clients to check the current user and then rely on RLS for data access.
+
+## Buyer Account Path
+
+AWO-38 adds `/account` as the first buyer-facing Supabase Auth path.
+
+Current buyer flow:
+
+1. Buyer opens `/account`.
+2. Buyer signs up or signs in with email and password through Supabase Auth REST endpoints.
+3. Supabase returns a buyer session when the account is allowed to sign in.
+4. The browser stores the session temporarily in `localStorage` under `awo_buyer_session`.
+5. The page uses the access token to read the buyer's own `public.profiles` row through RLS.
+
+Anonymous browsing, card detail pages, cart, and checkout draft creation still work without a buyer account.
+
+New auth users are bootstrapped as buyers by:
+
+- `supabase/migrations/20260511071000_buyer_auth_profile_bootstrap.sql`
+- function `public.create_buyer_profile_for_auth_user()`
+- trigger `create_buyer_profile_after_auth_signup` on `auth.users`
+
+Temporary limits:
+
+- Buyer sessions are stored client-side for now, not in server-side Supabase cookies.
+- Saved People, Reminders, carts, and order history are not yet attached to the buyer session.
+- Email confirmation behavior is controlled by Supabase Auth settings.
+- Social login providers are not configured yet.
 
 ## Admin Bootstrap Path
 

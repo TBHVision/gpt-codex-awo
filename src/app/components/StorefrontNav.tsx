@@ -10,7 +10,15 @@ import {
 } from "@/lib/cart-types";
 
 type StorefrontNavProps = {
-  active?: "artists" | "cart" | "home" | "people" | "reminders" | "reveal" | "shop";
+  active?:
+    | "account"
+    | "artists"
+    | "cart"
+    | "home"
+    | "people"
+    | "reminders"
+    | "reveal"
+    | "shop";
 };
 
 function LineIcon({ kind }: { kind: "cart" | "search" | "user" }) {
@@ -77,7 +85,15 @@ export default function StorefrontNav({ active }: StorefrontNavProps) {
   const utilityActions = (
     <div className="flex shrink-0 items-center gap-4 text-[#252525]">
       <LineIcon kind="search" />
-      <LineIcon kind="user" />
+      <a
+        aria-label="Buyer account"
+        className={`inline-flex size-9 items-center justify-center ${
+          active === "account" ? "text-[#a85f38]" : ""
+        }`}
+        href="/account"
+      >
+        <LineIcon kind="user" />
+      </a>
       <a
         aria-label={`Cart with ${itemCount} item${itemCount === 1 ? "" : "s"}`}
         className={`relative inline-flex size-9 items-center justify-center ${

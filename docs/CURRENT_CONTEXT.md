@@ -1,6 +1,6 @@
 # Current Context
 
-Last updated: 2026-05-10
+Last updated: 2026-05-11
 
 ## Project
 
@@ -8,11 +8,11 @@ GPT-Codex AWO lives at `C:\HatchVision\AWO\GPT-Codex`.
 
 ## Current Phase
 
-Production gap audit after the first full shell pass.
+Buyer account auth path.
 
-Active Linear issue: AWO-36.
+Active Linear issue: AWO-38.
 
-Goal: turn the shell/demo site into a prioritized real-product build plan after Vercel/Supabase production wiring was verified.
+Goal: add the first Supabase Auth buyer account path while keeping anonymous browsing and cart flows available.
 
 ## What Exists
 
@@ -52,20 +52,23 @@ Goal: turn the shell/demo site into a prioritized real-product build plan after 
 - Production `/shop` reads seeded Supabase `published_cards`.
 - AWO-18 is done. Vercel public Supabase env vars are healthy in production.
 - Production gap audit lives in `docs/PRODUCTION_GAP_AUDIT.md`.
+- AWO-37 is complete. Checkout drafts use the narrow
+  `create_anonymous_order_draft` Supabase RPC plus `/api/checkout/draft`. It
+  saves recipient, occasion, message, cart items, and totals without collecting
+  payment.
+- AWO-38 adds `/account` for buyer sign-in/sign-up through Supabase Auth.
+- New Supabase Auth users get a `public.profiles` row with role `buyer` through
+  `create_buyer_profile_for_auth_user`.
+- Buyer sessions are temporarily stored in browser localStorage. Server-side
+  Supabase session cookies come later when account-owned People, Reminders, and
+  order history are wired.
 
 ## Next Work
 
-- Complete AWO-36 production gap audit.
 - Use the new Linear runway:
-  - AWO-37 Supabase-backed order draft flow
-  - AWO-38 buyer Supabase Auth path
   - AWO-39 persist People and Reminders to Supabase
   - AWO-40 wire Admin Ops to real Supabase operational data
   - AWO-41 real QR/PIN reveal validation
   - AWO-42 persist artist profiles and studio drafts
   - AWO-43 define order/reveal/custody/ownership lifecycle states
   - AWO-44 mobile and visual QA across golden paths
-
-AWO-37 is complete. Checkout drafts use the narrow
-`create_anonymous_order_draft` Supabase RPC plus `/api/checkout/draft`. It saves
-recipient, occasion, message, cart items, and totals without collecting payment.

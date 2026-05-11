@@ -8,6 +8,7 @@ const publicRoutes = [
   "/reminders",
   "/reveal",
   "/studio",
+  "/account",
   "/cart",
   "/checkout",
 ];
