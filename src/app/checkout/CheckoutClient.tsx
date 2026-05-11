@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import StorefrontNav from "@/app/components/StorefrontNav";
 import {
@@ -28,6 +29,7 @@ function cartTotal(items: CartItem[]) {
 }
 
 export default function CheckoutClient() {
+  const searchParams = useSearchParams();
   const [items, setItems] = useState<CartItem[]>([]);
   const [recipientName, setRecipientName] = useState("");
   const [occasionLabel, setOccasionLabel] = useState("");
@@ -39,6 +41,10 @@ export default function CheckoutClient() {
 
   const itemCount = useMemo(() => countCartItems(items), [items]);
   const totalCents = useMemo(() => cartTotal(items), [items]);
+  const paymentState = searchParams.get("payment");
+  const orderReference = searchParams.get("order");
+  const paymentSucceeded = paymentState === "success";
+  const paymentCancelled = paymentState === "cancelled";
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -171,6 +177,51 @@ export default function CheckoutClient() {
                 {draft.buyerAttached
                   ? " It is attached to your buyer account."
                   : " Sign in before checkout to attach future orders to your account."}
+              </p>
+            </div>
+          ) : null}
+
+          {paymentSucceeded ? (
+            <div className="mb-6 border border-emerald-200 bg-emerald-50 p-5">
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-emerald-700">
+                Test payment complete
+              </p>
+              <h2 className="mt-2 text-2xl font-black text-emerald-950">
+                {orderReference ?? "Order paid"}
+              </h2>
+              <p className="mt-3 text-sm leading-6 text-emerald-900">
+                Stripe returned a successful sandbox payment. AWO has recorded
+                the payment and the order is ready for the next fulfillment
+                step.
+              </p>
+              <div className="mt-4 flex flex-wrap gap-3">
+                <Link
+                  className="inline-flex h-10 items-center justify-center bg-[#252525] px-4 text-xs font-black uppercase tracking-wide text-white hover:bg-[#3a3632]"
+                  href="/account"
+                >
+                  View Account
+                </Link>
+                <Link
+                  className="inline-flex h-10 items-center justify-center border border-emerald-300 bg-white px-4 text-xs font-black uppercase tracking-wide text-emerald-800 hover:border-emerald-500"
+                  href="/reveal"
+                >
+                  Preview Reveal
+                </Link>
+              </div>
+            </div>
+          ) : null}
+
+          {paymentCancelled ? (
+            <div className="mb-6 border border-amber-200 bg-amber-50 p-5">
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-amber-700">
+                Test payment cancelled
+              </p>
+              <h2 className="mt-2 text-2xl font-black text-amber-950">
+                {orderReference ?? "Checkout cancelled"}
+              </h2>
+              <p className="mt-3 text-sm leading-6 text-amber-900">
+                Stripe sent you back before payment was completed. You can
+                return to the cart and start checkout again.
               </p>
             </div>
           ) : null}
