@@ -1,5 +1,6 @@
 import Stripe from "stripe";
 import type { CartItem } from "@/lib/cart-types";
+import { verifyBuyerAccessToken } from "@/lib/buyer-session-server";
 
 type DraftRpcRow = {
   checkout_reference: string;
@@ -24,6 +25,7 @@ type CardRow = {
 };
 
 export type CheckoutSessionInput = {
+  buyerAccessToken?: string;
   items?: CartItem[];
   messageNotes?: string;
   occasionLabel?: string;
@@ -193,12 +195,14 @@ async function markOrderPendingPayment(
   config: SupabaseServerConfig,
   draft: DraftRpcRow,
   session: Stripe.Checkout.Session,
+  buyerProfileId?: string,
 ) {
   const endpoint = new URL("/rest/v1/orders", config.supabaseUrl);
   endpoint.searchParams.set("id", `eq.${draft.order_id}`);
 
   const response = await fetch(endpoint, {
     body: JSON.stringify({
+      buyer_profile_id: buyerProfileId,
       payment_intent_id:
         typeof session.payment_intent === "string"
           ? session.payment_intent
@@ -232,6 +236,10 @@ export async function createCheckoutSession(
   }
 
   const draft = await createDraft(config, input);
+  const verifiedBuyer = await verifyBuyerAccessToken(
+    config,
+    input.buyerAccessToken,
+  );
   const orderItems = await fetchOrderItems(config, draft.order_id);
   const cards = await fetchCards(
     config,
@@ -281,7 +289,7 @@ export async function createCheckoutSession(
     throw new Error("Stripe did not return a checkout URL.");
   }
 
-  await markOrderPendingPayment(config, draft, session);
+  await markOrderPendingPayment(config, draft, session, verifiedBuyer?.id);
 
   return {
     checkoutReference: draft.checkout_reference,

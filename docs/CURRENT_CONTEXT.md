@@ -10,9 +10,9 @@ GPT-Codex AWO lives at `C:\HatchVision\AWO\GPT-Codex`.
 
 Stripe-gated checkout plus storefront polish.
 
-Active Linear issues: AWO-46 is blocked on Stripe test secrets; AWO-52 is the active polish follow-up.
+Active Linear issues: AWO-46 is blocked on Stripe test secrets; AWO-53 is the active buyer account/order-history follow-up.
 
-Goal: keep payment wiring ready for Stripe test verification while tightening mobile storefront density.
+Goal: keep payment wiring ready for Stripe test verification while making buyer-owned checkout/account state production-shaped.
 
 ## What Exists
 
@@ -146,6 +146,11 @@ Goal: keep payment wiring ready for Stripe test verification while tightening mo
   - mobile shop hero uses a smaller brand logo than desktop
   - trust cues move to a compact two-column mobile grid
   - category tabs become easier to scan before the first product card
+- AWO-53 adds server-mediated buyer order ownership:
+  - checkout draft/session requests can include the buyer Supabase access token
+  - `/api/buyer/session` verifies buyer sessions server-side
+  - the server verifies buyer tokens before attaching `orders.buyer_profile_id`
+  - `/account` shows buyer-owned order history through RLS
 
 ## Next Work
 
@@ -154,3 +159,4 @@ Goal: keep payment wiring ready for Stripe test verification while tightening mo
     payment-success evidence
   - Real card photography/art direction can replace the managed demo assets when
     Tony provides final production artwork
+  - finish Stripe setup when Tony returns with Stripe test keys/webhook config

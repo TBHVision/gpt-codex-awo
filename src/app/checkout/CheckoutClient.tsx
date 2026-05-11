@@ -15,6 +15,8 @@ import {
   type CheckoutDraftResult,
   type CheckoutSessionResponse,
 } from "@/lib/checkout-draft";
+import { readBuyerSession } from "@/lib/buyer-auth";
+import type { BuyerSession } from "@/lib/buyer-auth";
 
 function cartTotal(items: CartItem[]) {
   return items.reduce(
@@ -30,6 +32,7 @@ export default function CheckoutClient() {
   const [messageNotes, setMessageNotes] = useState("");
   const [draft, setDraft] = useState<CheckoutDraftResult | null>(null);
   const [error, setError] = useState("");
+  const [buyerSession, setBuyerSession] = useState<BuyerSession | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
   const itemCount = useMemo(() => countCartItems(items), [items]);
@@ -38,6 +41,7 @@ export default function CheckoutClient() {
   useEffect(() => {
     const timer = window.setTimeout(() => {
       setItems(readCartFromStorage());
+      setBuyerSession(readBuyerSession());
     }, 0);
 
     return () => window.clearTimeout(timer);
@@ -70,6 +74,7 @@ export default function CheckoutClient() {
         mode === "payment" ? "/api/checkout/session" : "/api/checkout/draft",
         {
           body: JSON.stringify({
+            buyerAccessToken: buyerSession?.access_token,
             items,
             messageNotes,
             occasionLabel,
@@ -144,6 +149,9 @@ export default function CheckoutClient() {
                 item{draft.itemCount === 1 ? "" : "s"} totaling{" "}
                 {formatCheckoutPrice(draft.totalCents)}. No payment was
                 collected.
+                {draft.buyerAttached
+                  ? " It is attached to your buyer account."
+                  : " Sign in before checkout to attach future orders to your account."}
               </p>
             </div>
           ) : null}

@@ -1,6 +1,7 @@
 import type { CartItem } from "@/lib/cart-types";
 
 export type CheckoutDraftInput = {
+  buyerAccessToken?: string;
   items: CartItem[];
   messageNotes: string;
   occasionLabel: string;
@@ -8,6 +9,7 @@ export type CheckoutDraftInput = {
 };
 
 export type CheckoutDraftResult = {
+  buyerAttached?: boolean;
   checkoutReference: string;
   itemCount: number;
   orderId: string;

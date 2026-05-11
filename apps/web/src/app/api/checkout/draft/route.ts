@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
 import type { CartItem } from "@/lib/cart-types";
+import {
+  attachOrderToBuyer,
+  verifyBuyerAccessToken,
+} from "@/lib/buyer-session-server";
 
 type DraftRpcRow = {
   checkout_reference: string;
@@ -10,6 +14,7 @@ type DraftRpcRow = {
 };
 
 type DraftRequestBody = {
+  buyerAccessToken?: string;
   items?: CartItem[];
   messageNotes?: string;
   occasionLabel?: string;
@@ -118,8 +123,17 @@ export async function POST(request: Request) {
     );
   }
 
+  const verifiedBuyer = await verifyBuyerAccessToken(
+    config,
+    body.buyerAccessToken,
+  );
+  const buyerAttached = verifiedBuyer
+    ? await attachOrderToBuyer(config, draft.order_id, verifiedBuyer.id)
+    : false;
+
   return NextResponse.json({
     draft: {
+      buyerAttached,
       checkoutReference: draft.checkout_reference,
       itemCount: draft.item_count,
       orderId: draft.order_id,

@@ -11,6 +11,11 @@ import {
   signUpBuyer,
 } from "@/lib/buyer-auth";
 import type { BuyerProfile, BuyerSession } from "@/lib/buyer-auth";
+import {
+  fetchBuyerOrderHistory,
+  type BuyerOrderSummary,
+} from "@/lib/buyer-orders";
+import { formatCheckoutPrice } from "@/lib/checkout-draft";
 
 type Mode = "signin" | "signup";
 
@@ -28,12 +33,29 @@ function FieldLabel({
   );
 }
 
+function formatOrderDate(value: string) {
+  return new Intl.DateTimeFormat("en-US", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(new Date(value));
+}
+
+function StatusBadge({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="inline-flex border border-[#dfd5ca] bg-[#fbfaf8] px-2 py-1 text-[11px] font-black uppercase tracking-wide text-[#6e6258]">
+      {children}
+    </span>
+  );
+}
+
 export default function AccountClient() {
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [mode, setMode] = useState<Mode>("signin");
   const [password, setPassword] = useState("");
+  const [orders, setOrders] = useState<BuyerOrderSummary[]>([]);
+  const [ordersStatus, setOrdersStatus] = useState("");
   const [profile, setProfile] = useState<BuyerProfile | null>(null);
   const [session, setSession] = useState<BuyerSession | null>(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -49,19 +71,33 @@ export default function AccountClient() {
 
       setSession(savedSession);
       setStatus("Loaded saved buyer session from this browser.");
-      fetchBuyerProfile(savedSession)
-        .then(setProfile)
+      loadAccount(savedSession)
         .catch((loadError: unknown) => {
           setError(
             loadError instanceof Error
               ? loadError.message
-              : "Could not load the saved buyer profile.",
+              : "Could not load the saved buyer account.",
           );
         });
     }, 0);
 
     return () => window.clearTimeout(timer);
   }, []);
+
+  async function loadAccount(nextSession: BuyerSession) {
+    setOrdersStatus("Loading order history...");
+    const [nextProfile, nextOrders] = await Promise.all([
+      fetchBuyerProfile(nextSession),
+      fetchBuyerOrderHistory(nextSession),
+    ]);
+    setProfile(nextProfile);
+    setOrders(nextOrders);
+    setOrdersStatus(
+      nextOrders.length
+        ? `Loaded ${nextOrders.length} saved order${nextOrders.length === 1 ? "" : "s"}.`
+        : "No saved orders are attached to this buyer account yet.",
+    );
+  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -77,7 +113,7 @@ export default function AccountClient() {
 
       saveBuyerSession(nextSession);
       setSession(nextSession);
-      setProfile(await fetchBuyerProfile(nextSession));
+      await loadAccount(nextSession);
       setPassword("");
       setStatus(
         mode === "signup"
@@ -99,6 +135,8 @@ export default function AccountClient() {
     clearBuyerSession();
     setSession(null);
     setProfile(null);
+    setOrders([]);
+    setOrdersStatus("");
     setStatus("Signed out on this browser.");
   }
 
@@ -153,6 +191,61 @@ export default function AccountClient() {
               >
                 Sign Out
               </button>
+
+              <div className="mt-8 border-t border-[#e5ded6] pt-6">
+                <div className="flex flex-wrap items-end justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-black uppercase tracking-[0.16em] text-[#b7653a]">
+                      Order History
+                    </p>
+                    <h3 className="mt-1 text-2xl font-black">
+                      Saved Orders
+                    </h3>
+                  </div>
+                  <p className="text-xs font-bold text-[#6e6258]">
+                    {ordersStatus}
+                  </p>
+                </div>
+
+                {orders.length ? (
+                  <div className="mt-5 grid gap-3">
+                    {orders.map((order) => (
+                      <div
+                        className="border border-[#e5ded6] bg-[#fbfaf8] p-4"
+                        key={order.id}
+                      >
+                        <div className="flex flex-wrap items-start justify-between gap-3">
+                          <div>
+                            <p className="font-black">
+                              {order.checkoutReference}
+                            </p>
+                            <p className="mt-1 text-sm font-semibold text-[#5d554e]">
+                              {order.recipientName} -{" "}
+                              {formatOrderDate(order.createdAt)}
+                            </p>
+                          </div>
+                          <p className="text-sm font-black">
+                            {formatCheckoutPrice(
+                              order.totalCents,
+                              order.currency,
+                            )}
+                          </p>
+                        </div>
+                        <div className="mt-4 flex flex-wrap gap-2">
+                          <StatusBadge>{order.status}</StatusBadge>
+                          <StatusBadge>{order.paymentStatus}</StatusBadge>
+                          <StatusBadge>{order.fulfillmentStatus}</StatusBadge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="mt-5 border border-dashed border-[#dfd5ca] bg-white p-4 text-sm leading-6 text-[#5d554e]">
+                    Sign in before checkout, save a draft, and it will appear
+                    here for this buyer account.
+                  </p>
+                )}
+              </div>
             </div>
           ) : (
             <form className="space-y-5" onSubmit={handleSubmit}>
@@ -259,8 +352,8 @@ export default function AccountClient() {
               admin password gate.
             </p>
             <p className="border border-[#e5ded6] bg-[#fbfaf8] p-4">
-              Buyer-owned tables remain protected by RLS; account-backed People
-              and Reminders come next.
+              Buyer order history now reads through RLS. People and Reminders
+              move to the same account-owned pattern next.
             </p>
             <p className="border border-[#e5ded6] bg-[#fbfaf8] p-4">
               Anonymous shopping still works. The cart stays browser-local until

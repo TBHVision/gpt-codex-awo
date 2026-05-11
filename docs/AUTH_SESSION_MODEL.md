@@ -69,7 +69,7 @@ Current buyer flow:
 4. The browser stores the session temporarily in `localStorage` under `awo_buyer_session`.
 5. The page uses the access token to read the buyer's own `public.profiles` row through RLS.
 
-Anonymous browsing, card detail pages, cart, and checkout draft creation still work without a buyer account.
+Anonymous browsing, card detail pages, cart, and checkout draft creation still work without a buyer account. When a buyer is signed in, checkout sends the Supabase access token to the server, the server verifies it with Supabase Auth, and the created order is attached to that buyer profile without exposing the service role key to the browser.
 
 New auth users are bootstrapped as buyers by:
 
@@ -77,10 +77,10 @@ New auth users are bootstrapped as buyers by:
 - function `public.create_buyer_profile_for_auth_user()`
 - trigger `create_buyer_profile_after_auth_signup` on `auth.users`
 
-Temporary limits:
+Current limits:
 
 - Buyer sessions are stored client-side for now, not in server-side Supabase cookies.
-- Saved People and Reminders are account-aware in AWO-39, but carts and order history are not yet attached to the buyer session.
+- Saved People, Reminders, and order history are account-aware through RLS. The checkout cart itself remains browser-local until a persistent cart model is justified.
 - Email confirmation behavior is controlled by Supabase Auth settings.
 - Social login providers are not configured yet.
 
