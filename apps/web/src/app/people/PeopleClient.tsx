@@ -29,10 +29,6 @@ const initialPeople: Person[] = [
 const PEOPLE_STORAGE_KEY = "awo-demo-people";
 
 function loadInitialPeople() {
-  if (typeof window === "undefined") {
-    return initialPeople;
-  }
-
   try {
     const savedPeople = window.localStorage.getItem(PEOPLE_STORAGE_KEY);
 
@@ -53,14 +49,26 @@ function loadInitialPeople() {
 }
 
 export default function PeopleClient() {
-  const [people, setPeople] = useState<Person[]>(loadInitialPeople);
+  const [people, setPeople] = useState<Person[]>(initialPeople);
+  const [isLoaded, setIsLoaded] = useState(false);
   const [name, setName] = useState("");
   const [relationship, setRelationship] = useState("");
   const [occasion, setOccasion] = useState("");
 
   useEffect(() => {
+    queueMicrotask(() => {
+      setPeople(loadInitialPeople());
+      setIsLoaded(true);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!isLoaded) {
+      return;
+    }
+
     window.localStorage.setItem(PEOPLE_STORAGE_KEY, JSON.stringify(people));
-  }, [people]);
+  }, [isLoaded, people]);
 
   const upcomingOccasions = useMemo(
     () =>
@@ -92,6 +100,7 @@ export default function PeopleClient() {
 
   function resetPeople() {
     setPeople(initialPeople);
+    setIsLoaded(true);
     window.localStorage.removeItem(PEOPLE_STORAGE_KEY);
   }
 

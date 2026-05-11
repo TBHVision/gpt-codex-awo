@@ -38,10 +38,6 @@ const STUDIO_EVIDENCE_STORAGE_KEY = "awo-studio-evidence";
 const initialCapturedEvidence = [captureChecklist[0], captureChecklist[2]];
 
 function loadInitialDrafts() {
-  if (typeof window === "undefined") {
-    return initialDrafts;
-  }
-
   try {
     const savedDrafts = window.localStorage.getItem(STUDIO_DRAFTS_STORAGE_KEY);
 
@@ -62,10 +58,6 @@ function loadInitialDrafts() {
 }
 
 function loadInitialEvidence() {
-  if (typeof window === "undefined") {
-    return initialCapturedEvidence;
-  }
-
   try {
     const savedEvidence = window.localStorage.getItem(STUDIO_EVIDENCE_STORAGE_KEY);
 
@@ -86,26 +78,43 @@ function loadInitialEvidence() {
 }
 
 export default function StudioClient() {
-  const [drafts, setDrafts] = useState<Draft[]>(loadInitialDrafts);
+  const [drafts, setDrafts] = useState<Draft[]>(initialDrafts);
   const [capturedEvidence, setCapturedEvidence] = useState<string[]>(
-    loadInitialEvidence,
+    initialCapturedEvidence,
   );
+  const [isLoaded, setIsLoaded] = useState(false);
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("Originals");
 
   useEffect(() => {
+    queueMicrotask(() => {
+      setDrafts(loadInitialDrafts());
+      setCapturedEvidence(loadInitialEvidence());
+      setIsLoaded(true);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!isLoaded) {
+      return;
+    }
+
     window.localStorage.setItem(
       STUDIO_DRAFTS_STORAGE_KEY,
       JSON.stringify(drafts),
     );
-  }, [drafts]);
+  }, [drafts, isLoaded]);
 
   useEffect(() => {
+    if (!isLoaded) {
+      return;
+    }
+
     window.localStorage.setItem(
       STUDIO_EVIDENCE_STORAGE_KEY,
       JSON.stringify(capturedEvidence),
     );
-  }, [capturedEvidence]);
+  }, [capturedEvidence, isLoaded]);
 
   const readyCount = useMemo(
     () => drafts.filter((draft) => draft.capture === "Ready").length,
@@ -152,6 +161,7 @@ export default function StudioClient() {
   function resetStudio() {
     setDrafts(initialDrafts);
     setCapturedEvidence(initialCapturedEvidence);
+    setIsLoaded(true);
     window.localStorage.removeItem(STUDIO_DRAFTS_STORAGE_KEY);
     window.localStorage.removeItem(STUDIO_EVIDENCE_STORAGE_KEY);
   }

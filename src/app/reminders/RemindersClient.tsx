@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import StorefrontNav from "@/app/components/StorefrontNav";
 
 type Reminder = {
@@ -36,10 +36,6 @@ const demoReminders: Reminder[] = [
 ];
 
 function loadReminderSeed() {
-  if (typeof window === "undefined") {
-    return demoReminders;
-  }
-
   try {
     const savedPeople = window.localStorage.getItem(PEOPLE_STORAGE_KEY);
 
@@ -66,10 +62,16 @@ function loadReminderSeed() {
 }
 
 export default function RemindersClient() {
-  const [reminders, setReminders] = useState<Reminder[]>(loadReminderSeed);
+  const [reminders, setReminders] = useState<Reminder[]>(demoReminders);
   const [person, setPerson] = useState("");
   const [occasion, setOccasion] = useState("");
   const [cadence, setCadence] = useState("30 days before");
+
+  useEffect(() => {
+    queueMicrotask(() => {
+      setReminders(loadReminderSeed());
+    });
+  }, []);
 
   const sortedReminders = useMemo(
     () =>
