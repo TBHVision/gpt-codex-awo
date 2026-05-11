@@ -70,6 +70,12 @@ export default async function AdminAuditPage() {
             </Link>
             <Link
               className="inline-flex h-11 items-center justify-center rounded-md border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-800 shadow-sm hover:border-slate-400 hover:bg-slate-50"
+              href="/admin/ownership"
+            >
+              Ownership Records
+            </Link>
+            <Link
+              className="inline-flex h-11 items-center justify-center rounded-md border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-800 shadow-sm hover:border-slate-400 hover:bg-slate-50"
               href="/admin/reviews"
             >
               Review Queues

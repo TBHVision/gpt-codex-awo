@@ -66,6 +66,10 @@ named admin sessions. Temporary password admin sessions remain read-only.
 AWO-71 connects ownership records to lifecycle state: paid items create pending
 ownership records, and completed fulfillment activates the record and emits an
 `ownership_recorded` custody event.
+AWO-72 adds `/admin/ownership` so operators can see whether ownership records
+exist, remain pending, activate after fulfillment, or need investigation. It is
+read-only; transfer, revocation, refund, and edit workflows still need separate
+audited implementation.
 
 ## Current Health
 

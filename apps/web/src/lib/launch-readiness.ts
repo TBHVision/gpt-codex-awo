@@ -120,6 +120,11 @@ export async function loadLaunchReadinessSnapshot(): Promise<LaunchReadinessSnap
           label: "Launch page QA coverage",
           state: "ready",
         },
+        {
+          detail: "Protected admin ownership records page is included in smoke and visual QA.",
+          label: "Ownership records QA coverage",
+          state: "ready",
+        },
       ],
     },
     {

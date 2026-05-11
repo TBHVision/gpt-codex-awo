@@ -244,6 +244,13 @@ every small decision.
     ownership record and emits an `ownership_recorded` custody event
   - transfer, revocation, and refund ownership workflows remain future audited
     scopes
+- AWO-72 adds `/admin/ownership`:
+  - read-only ownership record visibility for paid/fulfilled lifecycle evidence
+  - shows buyer/recipient context, card/order context, activation state, and
+    ownership health counts
+  - links from Project Home, Admin Ops, Fulfillment, Audit Log, and Launch
+    Readiness
+  - transfer, revocation, refund, and ownership editing remain out of scope
 - `docs/TONY_REVIEW_BATCH.md` is the current batched list of Tony reviews,
   external checks, and later decisions.
 

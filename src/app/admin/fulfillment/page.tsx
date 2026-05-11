@@ -85,6 +85,7 @@ async function submitFulfillmentTransition(formData: FormData) {
 
   await transitionFulfillmentItem({ adminUserId, itemId, nextStatus });
   revalidatePath("/admin/fulfillment");
+  revalidatePath("/admin/ownership");
   revalidatePath("/admin/audit");
   revalidatePath("/admin/ops");
   revalidatePath("/admin/launch");
@@ -125,6 +126,12 @@ export default async function AdminFulfillmentPage() {
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
+            <Link
+              className="inline-flex h-11 items-center justify-center rounded-md border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-800 shadow-sm hover:border-slate-400 hover:bg-slate-50"
+              href="/admin/ownership"
+            >
+              Ownership Records
+            </Link>
             <Link
               className="inline-flex h-11 items-center justify-center rounded-md border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-800 shadow-sm hover:border-slate-400 hover:bg-slate-50"
               href="/admin/audit"
