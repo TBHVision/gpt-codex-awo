@@ -35,6 +35,10 @@ const captureChecklist = [
 
 export default function StudioClient() {
   const [drafts, setDrafts] = useState<Draft[]>(initialDrafts);
+  const [capturedEvidence, setCapturedEvidence] = useState<string[]>([
+    captureChecklist[0],
+    captureChecklist[2],
+  ]);
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("Originals");
 
@@ -42,6 +46,7 @@ export default function StudioClient() {
     () => drafts.filter((draft) => draft.capture === "Ready").length,
     [drafts],
   );
+  const evidenceReady = capturedEvidence.length === captureChecklist.length;
 
   function addDraft() {
     if (!title.trim()) {
@@ -68,6 +73,14 @@ export default function StudioClient() {
           ? { ...draft, capture: draft.capture === "Ready" ? "Draft" : "Ready" }
           : draft,
       ),
+    );
+  }
+
+  function toggleEvidence(item: string) {
+    setCapturedEvidence((current) =>
+      current.includes(item)
+        ? current.filter((capturedItem) => capturedItem !== item)
+        : [...current, item],
     );
   }
 
@@ -141,8 +154,9 @@ export default function StudioClient() {
               {readyCount}/{drafts.length}
             </p>
             <p className="mt-2 text-sm leading-6 text-[#4b4743]">
-              Drafts marked ready have baseline provenance evidence attached in
-              this shell.
+              {evidenceReady
+                ? "All baseline evidence is checked. Studio drafts can move toward publish review."
+                : "Drafts need full provenance evidence before publish review."}
             </p>
           </div>
         </aside>
@@ -176,14 +190,33 @@ export default function StudioClient() {
 
           <section className="grid gap-6 lg:grid-cols-2">
             <div className="border border-[#e5ded6] bg-white p-6 shadow-[0_18px_45px_rgba(45,38,32,.06)]">
-              <h2 className="text-2xl font-black">Provenance Checklist</h2>
+              <div className="flex items-start justify-between gap-4">
+                <h2 className="text-2xl font-black">Provenance Checklist</h2>
+                <span className="border border-[#dfd5ca] bg-[#fbfaf8] px-3 py-2 text-xs font-black uppercase tracking-wide text-[#7a472e]">
+                  {capturedEvidence.length}/{captureChecklist.length}
+                </span>
+              </div>
               <div className="mt-5 space-y-3">
                 {captureChecklist.map((item) => (
-                  <div className="border border-[#e5ded6] bg-[#fbfaf8] p-4 text-sm font-bold" key={item}>
+                  <label
+                    className="flex cursor-pointer items-center gap-3 border border-[#e5ded6] bg-[#fbfaf8] p-4 text-sm font-bold"
+                    key={item}
+                  >
+                    <input
+                      checked={capturedEvidence.includes(item)}
+                      className="size-5 accent-[#252525]"
+                      onChange={() => toggleEvidence(item)}
+                      type="checkbox"
+                    />
                     {item}
-                  </div>
+                  </label>
                 ))}
               </div>
+              <p className="mt-4 border border-[#e5ded6] bg-[#fff8f3] p-4 text-sm leading-6 text-[#4b4743]">
+                {evidenceReady
+                  ? "Evidence capture is complete for this demo workspace."
+                  : "Keep collecting evidence before the studio marks work ready for production review."}
+              </p>
             </div>
 
             <div className="border border-[#e5ded6] bg-white p-6 shadow-[0_18px_45px_rgba(45,38,32,.06)]">
