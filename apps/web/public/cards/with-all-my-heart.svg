@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1200" viewBox="0 0 900 1200" role="img" aria-labelledby="title desc">
+  <title id="title">With All My Heart greeting card artwork</title>
+  <desc id="desc">Abstract circular heart energy drawing with colorful hand-drawn lines.</desc>
+  <defs><filter id="shadow"><feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#6d5b45" flood-opacity=".16"/></filter></defs>
+  <rect width="900" height="1200" fill="#f7f2ea"/>
+  <rect x="86" y="74" width="728" height="1042" rx="8" fill="#fffaf0" filter="url(#shadow)"/>
+  <rect x="132" y="122" width="636" height="946" fill="none" stroke="#efe6d4" stroke-width="4"/>
+  <g transform="translate(450 560)" fill="none" stroke-linecap="round">
+    <circle r="210" stroke="#2f6f91" stroke-width="8"/>
+    <circle r="165" stroke="#b7653a" stroke-width="7"/>
+    <circle r="120" stroke="#d7a233" stroke-width="8"/>
+    <circle r="75" stroke="#445f9e" stroke-width="7"/>
+    <path d="M-285 0H285M0-285V285M-205-205 205 205M205-205-205 205" stroke="#d9b46b" stroke-width="4" opacity=".82"/>
+    <path d="M-238-60c80-84 150-78 211-1 65-82 150-74 214 0 51 59 38 156-39 229L0 306-148 168c-77-73-90-170-90-228Z" stroke="#c85535" stroke-width="11"/>
+    <path d="M-316-230c120 74 220 103 306 86 115-23 219 6 324 88" stroke="#f0a629" stroke-width="9"/>
+    <path d="M-300 248c104-71 202-91 294-58 100 35 205 14 318-62" stroke="#337d9e" stroke-width="9"/>
+  </g>
+  <g fill="#d66d32">
+    <circle cx="192" cy="280" r="7"/><circle cx="718" cy="316" r="7"/><circle cx="238" cy="892" r="7"/><circle cx="668" cy="850" r="7"/>
+  </g>
+  <text x="450" y="1014" text-anchor="middle" fill="#7b5236" font-family="Arial, sans-serif" font-size="34" font-weight="800" letter-spacing="8">AWO</text>
+</svg>

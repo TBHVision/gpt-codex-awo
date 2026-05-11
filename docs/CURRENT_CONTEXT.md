@@ -8,11 +8,11 @@ GPT-Codex AWO lives at `C:\HatchVision\AWO\GPT-Codex`.
 
 ## Current Phase
 
-Catalog asset pipeline.
+Storefront polish pass.
 
-Active Linear issue: AWO-50.
+Active Linear issue: AWO-51.
 
-Goal: replace inline generated card placeholders with managed catalog artwork assets and keep fallbacks for missing images.
+Goal: align the shop with the AWO pre-visualization using the real logo and the five-card demo catalog.
 
 ## What Exists
 
@@ -128,6 +128,13 @@ Goal: replace inline generated card placeholders with managed catalog artwork as
     `/cards/keep-going.svg`, and `/cards/with-you.svg`
   - `cover_media_url` remains optional, so the shop and card detail fallback art
     still protects missing-image cases
+- AWO-51 adds the storefront polish pass:
+  - the real AWO logo lives at `/awo-logo.png` and is mirrored to both public
+    roots
+  - the demo catalog is aligned to the five-card pre-visualization:
+    Wildflower Notes, Coastal Morning, With All My Heart, Morning Song, and
+    Misty Pines
+  - matching public card artwork lives under `/cards/*.svg`
 
 ## Next Work
 

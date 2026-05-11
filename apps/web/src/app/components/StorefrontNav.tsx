@@ -3,6 +3,7 @@
 /* eslint-disable @next/next/no-html-link-for-pages */
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import {
   cartUpdatedEventName,
   countCartItems,
@@ -46,13 +47,17 @@ function LineIcon({ kind }: { kind: "cart" | "menu" | "search" | "user" }) {
 function Logo() {
   return (
     <a
-      className="inline-flex items-center gap-1.5 font-black tracking-tight text-[#8b4f2c]"
+      className="inline-flex items-center"
       href="/"
     >
-      <span className="text-2xl">AW</span>
-      <span className="inline-flex size-8 items-center justify-center rounded-full bg-[radial-gradient(circle_at_center,#c98a55_0,#8b4f2c_45%,#5a311b_100%)] text-xs text-[#f8efe4] shadow-[inset_0_0_0_3px_rgba(255,255,255,.2)]">
-        O
-      </span>
+      <Image
+        alt="ArtWithOrigin home"
+        className="h-10 w-auto object-contain"
+        height={48}
+        priority
+        src="/awo-logo.png"
+        width={92}
+      />
     </a>
   );
 }

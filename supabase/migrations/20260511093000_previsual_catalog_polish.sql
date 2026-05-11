@@ -1,57 +1,4 @@
--- AWO-8: demo catalog seed.
--- This is fake demo data for local/preview development. Do not use real
--- customer, artist, or payment data here.
-
-insert into auth.users (id, aud, role, email, email_confirmed_at)
-values (
-  '90000000-0000-0000-0000-000000000001',
-  'authenticated',
-  'authenticated',
-  'demo.artist@example.test',
-  now()
-)
-on conflict (id) do nothing;
-
-insert into public.profiles (id, role, display_name, email)
-values (
-  '90000000-0000-0000-0000-000000000001',
-  'artist',
-  'HatchVision Studio',
-  'demo.artist@example.test'
-)
-on conflict (id) do update
-set
-  role = excluded.role,
-  display_name = excluded.display_name,
-  email = excluded.email,
-  updated_at = now();
-
-insert into public.artists (
-  id,
-  profile_id,
-  status,
-  public_name,
-  slug,
-  bio,
-  website_url
-)
-values (
-  '91000000-0000-0000-0000-000000000001',
-  '90000000-0000-0000-0000-000000000001',
-  'approved',
-  'HatchVision Studio',
-  'hatchvision-studio',
-  'Demo artist profile for GPT-Codex AWO development.',
-  'https://hatchvision.com'
-)
-on conflict (id) do update
-set
-  status = excluded.status,
-  public_name = excluded.public_name,
-  slug = excluded.slug,
-  bio = excluded.bio,
-  website_url = excluded.website_url,
-  updated_at = now();
+-- AWO-51: align the demo catalog with the five-card storefront pre-visualization.
 
 insert into public.cards (
   id,
@@ -74,7 +21,7 @@ values
     'published',
     'Wildflower Notes',
     'wildflower-notes',
-    'Hand-painted wildflower notes with verified human creation evidence.',
+    'A gentle floral note card inspired by hand-painted wildflowers.',
     array['originals', 'thanks'],
     array['friend', 'family'],
     550,
@@ -88,9 +35,9 @@ values
     'published',
     'Coastal Morning',
     'coastal-morning',
-    'A calm coastal landscape card with recorded artist process metadata.',
+    'A calm coastal landscape card for meaningful everyday connection.',
     array['sympathy', 'support'],
-    array['family', 'friend'],
+    array['friend', 'family'],
     650,
     'USD',
     '/cards/coastal-morning.svg',
@@ -102,9 +49,9 @@ values
     'published',
     'With All My Heart',
     'with-all-my-heart',
-    'An energetic original card with provenance and ownership reveal support.',
+    'An expressive abstract card for love, gratitude, and close connection.',
     array['love', 'thanks', 'originals'],
-    array['partner', 'friend'],
+    array['partner', 'friend', 'family'],
     550,
     'USD',
     '/cards/with-all-my-heart.svg',
@@ -116,7 +63,7 @@ values
     'published',
     'Morning Song',
     'morning-song',
-    'A pop-art birthday card for celebrations with scan-to-reveal support.',
+    'A bright comic-inspired birthday card with joyful color and motion.',
     array['birthday', 'celebration'],
     array['friend', 'family'],
     550,
@@ -130,9 +77,9 @@ values
     'published',
     'Misty Pines',
     'misty-pines',
-    'A colorful original card with verified chain-of-custody storytelling.',
+    'A vivid original card with swirling forest color and playful detail.',
     array['birthday', 'originals'],
-    array['friend', 'collector'],
+    array['friend', 'artist'],
     650,
     'USD',
     '/cards/misty-pines.svg',

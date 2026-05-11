@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import StorefrontNav from "@/app/components/StorefrontNav";
 import { getPublishedCards, type PublishedCard } from "@/lib/public-catalog";
 
@@ -91,20 +92,20 @@ function LineIcon({ kind }: { kind: "image" | "link" | "lock" | "qr" | "user" })
   );
 }
 
-function Logo({ compact = false }: { compact?: boolean }) {
+function BrandLogo({ compact = false }: { compact?: boolean }) {
   return (
     <Link
-      className="group inline-flex items-center gap-1.5 font-black tracking-tight text-[#8b4f2c]"
+      className="inline-flex items-center justify-center"
       href="/"
     >
-      <span className={compact ? "text-2xl" : "text-7xl sm:text-8xl"}>AW</span>
-      <span
-        className={`inline-flex items-center justify-center rounded-full bg-[radial-gradient(circle_at_center,#c98a55_0,#8b4f2c_45%,#5a311b_100%)] text-[#f8efe4] shadow-[inset_0_0_0_3px_rgba(255,255,255,.2)] ${
-          compact ? "size-8 text-xs" : "size-20 text-lg sm:size-24"
-        }`}
-      >
-        O
-      </span>
+      <Image
+        alt="ArtWithOrigin"
+        className={compact ? "h-12 w-auto object-contain" : "h-auto w-full object-contain"}
+        height={compact ? 64 : 232}
+        priority
+        src="/awo-logo.png"
+        width={compact ? 122 : 440}
+      />
     </Link>
   );
 }
@@ -315,10 +316,9 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
 
       <section className="bg-[radial-gradient(circle_at_center,#ffffff_0,#ffffff_45%,#f4f0ea_100%)] px-6 pb-12 pt-12 lg:px-10">
         <div className="mx-auto max-w-7xl text-center">
-          <Logo />
-          <h1 className="mt-2 text-4xl font-medium tracking-tight text-[#333333] sm:text-5xl">
-            ArtWithOrigin
-          </h1>
+          <div className="mx-auto max-w-[440px]">
+            <BrandLogo />
+          </div>
           <TrustRow />
         </div>
       </section>

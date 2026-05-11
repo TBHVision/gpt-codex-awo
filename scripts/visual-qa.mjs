@@ -15,7 +15,7 @@ const chromeCandidates = [
 const routes = [
   "/",
   "/shop",
-  "/shop/birthday-light",
+  "/shop/wildflower-notes",
   "/cart",
   "/checkout",
   "/reveal",

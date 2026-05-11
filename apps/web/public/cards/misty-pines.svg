@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1200" viewBox="0 0 900 1200" role="img" aria-labelledby="title desc">
+  <title id="title">Misty Pines psychedelic card artwork</title>
+  <desc id="desc">Colorful swirling forest scene with mushrooms, suns, and rolling shapes.</desc>
+  <defs><filter id="shadow"><feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#3b2a1e" flood-opacity=".18"/></filter></defs>
+  <rect width="900" height="1200" fill="#f7f2ea"/>
+  <rect x="86" y="74" width="728" height="1042" rx="8" fill="#e18b5e" filter="url(#shadow)"/>
+  <rect x="132" y="122" width="636" height="946" fill="#d98258" stroke="#252525" stroke-width="9"/>
+  <g fill="none" stroke="#252525" stroke-width="7">
+    <path d="M94 345c152-98 274-105 366-21 91 83 207 78 348-22"/>
+    <path d="M108 522c159-112 286-116 381-11 87 95 197 94 330-1"/>
+    <path d="M100 694c153-85 278-76 376 27 91 96 199 99 322 7"/>
+    <path d="M132 890c168-98 300-100 396-6 80 79 162 96 240 51"/>
+  </g>
+  <g>
+    <path d="M132 122c90 180 172 254 246 222 78-34 58-170 178-180 85-7 151 47 212 133v771H132Z" fill="#5da398" opacity=".85"/>
+    <path d="M132 122c148 74 221 154 219 240-3 100-104 139-74 235 28 89 142 95 152 190 8 74-51 143-177 207H132Z" fill="#f0b64b" opacity=".82"/>
+    <path d="M768 122c-119 78-177 162-174 251 3 96 89 149 74 246-14 88-101 134-92 227 8 80 72 148 192 205Z" fill="#b55a95" opacity=".78"/>
+  </g>
+  <g stroke="#252525" stroke-width="7">
+    <circle cx="226" cy="294" r="54" fill="#f2c64f"/>
+    <circle cx="676" cy="866" r="70" fill="#f2c64f"/>
+    <path d="M272 762c-82 0-118 59-126 112h252c-9-53-44-112-126-112Z" fill="#d95f41"/>
+    <rect x="238" y="872" width="68" height="132" rx="32" fill="#f2d59b"/>
+    <path d="M570 680c-94 0-135 68-145 128h290c-10-60-51-128-145-128Z" fill="#d95f41"/>
+    <rect x="528" y="805" width="84" height="168" rx="38" fill="#f2d59b"/>
+  </g>
+  <g fill="#f8df78">
+    <circle cx="235" cy="762" r="13"/><circle cx="310" cy="792" r="10"/><circle cx="548" cy="688" r="13"/><circle cx="626" cy="728" r="11"/>
+  </g>
+  <text x="450" y="1040" text-anchor="middle" fill="#252525" font-family="Arial Black, Arial, sans-serif" font-size="66" font-weight="900">MISTY PINES</text>
+</svg>
