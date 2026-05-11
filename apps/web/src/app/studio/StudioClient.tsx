@@ -257,7 +257,7 @@ export default function StudioClient() {
           <p className="text-xs font-black uppercase tracking-[0.16em] text-[#b7653a]">
             V0.5 artist studio
           </p>
-          <h1 className="mt-4 max-w-4xl text-5xl font-black leading-none tracking-tight sm:text-6xl">
+          <h1 className="mt-4 max-w-4xl text-4xl font-black leading-tight tracking-normal sm:text-6xl">
             Prepare artwork with provenance from the start.
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-7 text-[#4b4743]">

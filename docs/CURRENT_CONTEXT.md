@@ -8,11 +8,11 @@ GPT-Codex AWO lives at `C:\HatchVision\AWO\GPT-Codex`.
 
 ## Current Phase
 
-Admin lifecycle queue visibility.
+Visual QA baseline.
 
-Active Linear issue: AWO-48.
+Active Linear issue: AWO-44.
 
-Goal: expose read-only lifecycle queues for orders, payments, item fulfillment, reveals, and stuck states in admin ops.
+Goal: verify desktop and mobile golden paths, fix small layout defects, and log larger design follow-ups in Linear.
 
 ## What Exists
 
@@ -107,9 +107,19 @@ Goal: expose read-only lifecycle queues for orders, payments, item fulfillment, 
   - recent orders include order, payment, and fulfillment states
   - the page remains read-only and depends on server-only service-role access for
     sensitive operational metrics
+- AWO-44 adds a repeatable visual QA harness:
+  - `npm.cmd run test:visual` launches local Chrome through the debugging
+    protocol and inspects desktop and mobile routes
+  - screenshots are written to `.qa/awo-44/` and ignored by git
+  - the current sweep covers home, shop, card detail, cart, checkout, reveal,
+    people, reminders, studio, account, artists, admin build, and admin ops
+  - mobile hero typography was tightened after screenshot review
+  - larger visual follow-ups are AWO-49 mobile navigation and AWO-50 production
+    card artwork assets
 
 ## Next Work
 
 - Use the new Linear runway:
   - AWO-46 Stripe test-mode payment lifecycle
-  - AWO-44 mobile and visual QA across golden paths
+  - AWO-49 compact mobile storefront navigation
+  - AWO-50 production card artwork assets

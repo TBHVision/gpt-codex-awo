@@ -12,7 +12,7 @@ export default function Home() {
           <p className="text-xs font-black uppercase tracking-[0.16em] text-[#b7653a]">
             ArtWithOrigin
           </p>
-          <h1 className="mx-auto mt-5 max-w-4xl text-5xl font-black leading-none tracking-tight sm:text-7xl">
+          <h1 className="mx-auto mt-5 max-w-4xl text-4xl font-black leading-tight tracking-normal sm:text-7xl">
             Human art with a story you can verify.
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-base leading-7 text-[#4b4743]">

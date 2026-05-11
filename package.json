@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test:smoke": "node scripts/smoke-routes.mjs",
+    "test:visual": "node scripts/visual-qa.mjs",
     "supabase": "supabase",
     "db:link": "supabase link",
     "db:push": "supabase db push",

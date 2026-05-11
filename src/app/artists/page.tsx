@@ -39,7 +39,7 @@ export default async function ArtistsPage() {
           <p className="text-xs font-black uppercase tracking-[0.16em] text-[#b7653a]">
             Artist provenance
           </p>
-          <h1 className="mt-4 max-w-4xl text-5xl font-black leading-none tracking-tight sm:text-6xl">
+          <h1 className="mt-4 max-w-4xl text-4xl font-black leading-tight tracking-normal sm:text-6xl">
             Human creation is the point.
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-7 text-[#4b4743]">

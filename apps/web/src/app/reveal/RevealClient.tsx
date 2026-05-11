@@ -110,7 +110,7 @@ export default function RevealClient() {
             <p className="text-xs font-black uppercase tracking-[0.16em] text-[#b7653a]">
               QR + PIN reveal
             </p>
-            <h1 className="mt-4 max-w-3xl text-5xl font-black leading-none tracking-tight sm:text-6xl">
+            <h1 className="mt-4 max-w-3xl text-4xl font-black leading-tight tracking-normal sm:text-6xl">
               Unlock the story behind the card.
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-7 text-[#4b4743]">
@@ -224,7 +224,7 @@ export default function RevealClient() {
                 </p>
                 <p className="mt-2 text-xl font-black">{reveal.reveal_public_id}</p>
                 <p className="mt-2 text-sm text-[#4b4743]">
-                  {reveal.checkout_reference} · {reveal.reveal_status}
+                  {reveal.checkout_reference} - {reveal.reveal_status}
                 </p>
               </div>
             </div>
