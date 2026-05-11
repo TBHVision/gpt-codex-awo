@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import StorefrontNav from "@/app/components/StorefrontNav";
 
 type Person = {
@@ -25,11 +25,41 @@ const initialPeople: Person[] = [
   },
 ];
 
+const PEOPLE_STORAGE_KEY = "awo-demo-people";
+
+function loadInitialPeople() {
+  if (typeof window === "undefined") {
+    return initialPeople;
+  }
+
+  try {
+    const savedPeople = window.localStorage.getItem(PEOPLE_STORAGE_KEY);
+
+    if (!savedPeople) {
+      return initialPeople;
+    }
+
+    const parsedPeople = JSON.parse(savedPeople) as Person[];
+
+    if (Array.isArray(parsedPeople) && parsedPeople.length > 0) {
+      return parsedPeople;
+    }
+  } catch {
+    return initialPeople;
+  }
+
+  return initialPeople;
+}
+
 export default function PeopleClient() {
-  const [people, setPeople] = useState<Person[]>(initialPeople);
+  const [people, setPeople] = useState<Person[]>(loadInitialPeople);
   const [name, setName] = useState("");
   const [relationship, setRelationship] = useState("");
   const [occasion, setOccasion] = useState("");
+
+  useEffect(() => {
+    window.localStorage.setItem(PEOPLE_STORAGE_KEY, JSON.stringify(people));
+  }, [people]);
 
   const upcomingOccasions = useMemo(
     () =>
@@ -59,6 +89,11 @@ export default function PeopleClient() {
     setOccasion("");
   }
 
+  function resetPeople() {
+    setPeople(initialPeople);
+    window.localStorage.removeItem(PEOPLE_STORAGE_KEY);
+  }
+
   return (
     <main className="min-h-screen bg-[#fbfaf8] text-[#252525]">
       <StorefrontNav active="people" />
@@ -73,7 +108,7 @@ export default function PeopleClient() {
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-7 text-[#4b4743]">
             This shell previews relationship-centered planning. Demo people live
-            only in the browser for now; full account storage comes later.
+            in this browser only for now; full account storage comes later.
           </p>
         </div>
       </section>
@@ -124,6 +159,13 @@ export default function PeopleClient() {
             type="button"
           >
             Add Person
+          </button>
+          <button
+            className="mt-3 h-11 w-full border border-[#d8c8bb] px-4 text-sm font-black uppercase tracking-wide text-[#7a472e] hover:border-[#b7653a] hover:bg-[#fff8f3]"
+            onClick={resetPeople}
+            type="button"
+          >
+            Reset Demo People
           </button>
         </aside>
 
