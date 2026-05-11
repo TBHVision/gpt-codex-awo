@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test:smoke": "node scripts/smoke-routes.mjs",
     "supabase": "supabase",
     "db:link": "supabase link",
     "db:push": "supabase db push",
