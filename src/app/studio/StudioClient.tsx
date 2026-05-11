@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import StorefrontNav from "@/app/components/StorefrontNav";
 
 type Draft = {
@@ -33,14 +33,79 @@ const captureChecklist = [
   "Ownership terms review",
 ];
 
+const STUDIO_DRAFTS_STORAGE_KEY = "awo-studio-drafts";
+const STUDIO_EVIDENCE_STORAGE_KEY = "awo-studio-evidence";
+const initialCapturedEvidence = [captureChecklist[0], captureChecklist[2]];
+
+function loadInitialDrafts() {
+  if (typeof window === "undefined") {
+    return initialDrafts;
+  }
+
+  try {
+    const savedDrafts = window.localStorage.getItem(STUDIO_DRAFTS_STORAGE_KEY);
+
+    if (!savedDrafts) {
+      return initialDrafts;
+    }
+
+    const parsedDrafts = JSON.parse(savedDrafts) as Draft[];
+
+    if (Array.isArray(parsedDrafts) && parsedDrafts.length > 0) {
+      return parsedDrafts;
+    }
+  } catch {
+    return initialDrafts;
+  }
+
+  return initialDrafts;
+}
+
+function loadInitialEvidence() {
+  if (typeof window === "undefined") {
+    return initialCapturedEvidence;
+  }
+
+  try {
+    const savedEvidence = window.localStorage.getItem(STUDIO_EVIDENCE_STORAGE_KEY);
+
+    if (!savedEvidence) {
+      return initialCapturedEvidence;
+    }
+
+    const parsedEvidence = JSON.parse(savedEvidence) as string[];
+
+    if (Array.isArray(parsedEvidence)) {
+      return parsedEvidence.filter((item) => captureChecklist.includes(item));
+    }
+  } catch {
+    return initialCapturedEvidence;
+  }
+
+  return initialCapturedEvidence;
+}
+
 export default function StudioClient() {
-  const [drafts, setDrafts] = useState<Draft[]>(initialDrafts);
-  const [capturedEvidence, setCapturedEvidence] = useState<string[]>([
-    captureChecklist[0],
-    captureChecklist[2],
-  ]);
+  const [drafts, setDrafts] = useState<Draft[]>(loadInitialDrafts);
+  const [capturedEvidence, setCapturedEvidence] = useState<string[]>(
+    loadInitialEvidence,
+  );
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("Originals");
+
+  useEffect(() => {
+    window.localStorage.setItem(
+      STUDIO_DRAFTS_STORAGE_KEY,
+      JSON.stringify(drafts),
+    );
+  }, [drafts]);
+
+  useEffect(() => {
+    window.localStorage.setItem(
+      STUDIO_EVIDENCE_STORAGE_KEY,
+      JSON.stringify(capturedEvidence),
+    );
+  }, [capturedEvidence]);
 
   const readyCount = useMemo(
     () => drafts.filter((draft) => draft.capture === "Ready").length,
@@ -82,6 +147,13 @@ export default function StudioClient() {
         ? current.filter((capturedItem) => capturedItem !== item)
         : [...current, item],
     );
+  }
+
+  function resetStudio() {
+    setDrafts(initialDrafts);
+    setCapturedEvidence(initialCapturedEvidence);
+    window.localStorage.removeItem(STUDIO_DRAFTS_STORAGE_KEY);
+    window.localStorage.removeItem(STUDIO_EVIDENCE_STORAGE_KEY);
   }
 
   return (
@@ -144,6 +216,13 @@ export default function StudioClient() {
             type="button"
           >
             Add Draft
+          </button>
+          <button
+            className="mt-3 h-11 w-full border border-[#d8c8bb] px-4 text-sm font-black uppercase tracking-wide text-[#7a472e] hover:border-[#b7653a] hover:bg-[#fff8f3]"
+            onClick={resetStudio}
+            type="button"
+          >
+            Reset Studio Demo
           </button>
 
           <div className="mt-6 border border-[#e5ded6] bg-[#fbfaf8] p-4">
