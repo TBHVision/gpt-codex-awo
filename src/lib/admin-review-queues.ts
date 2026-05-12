@@ -18,9 +18,14 @@ export type ReviewCard = {
 };
 
 export type ReviewArtist = {
+  commercialTermsAcknowledged: boolean;
+  contactEmail: string | null;
   createdAt: string;
   id: string;
+  medium: string | null;
   name: string;
+  originStatement: string | null;
+  portfolioUrl: string | null;
   slug: string;
   status: string;
   updatedAt: string;
@@ -69,6 +74,11 @@ type SupabaseCardRow = {
 };
 
 type SupabaseArtistRow = {
+  application_contact_email: string | null;
+  application_medium: string | null;
+  application_origin_statement: string | null;
+  application_portfolio_url: string | null;
+  commercial_terms_acknowledged: boolean;
   created_at: string;
   id: string;
   public_name: string;
@@ -263,7 +273,7 @@ export async function loadAdminReviewQueues(): Promise<AdminReviewQueuesSnapshot
     fetchRows<SupabaseArtistRow>({
       key: serviceRoleKey,
       path:
-        "/rest/v1/artists?select=id,public_name,slug,status,created_at,updated_at&order=updated_at.desc&limit=8",
+        "/rest/v1/artists?select=id,public_name,slug,status,application_contact_email,application_medium,application_origin_statement,application_portfolio_url,commercial_terms_acknowledged,created_at,updated_at&order=updated_at.desc&limit=8",
       supabaseUrl,
     }),
     fetchRows<SupabaseOrderRow>({
@@ -303,9 +313,14 @@ export async function loadAdminReviewQueues(): Promise<AdminReviewQueuesSnapshot
   return {
     artistStatus,
     artists: artists.map((artist) => ({
+      commercialTermsAcknowledged: artist.commercial_terms_acknowledged,
+      contactEmail: artist.application_contact_email,
       createdAt: artist.created_at,
       id: artist.id,
+      medium: artist.application_medium,
       name: artist.public_name,
+      originStatement: artist.application_origin_statement,
+      portfolioUrl: artist.application_portfolio_url,
       slug: artist.slug,
       status: artist.status,
       updatedAt: artist.updated_at,

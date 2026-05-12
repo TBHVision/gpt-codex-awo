@@ -25,8 +25,9 @@ item blocks the next code change.
   clarity.
 - V0.6: Review `/admin/ops` for whether the read-only operations model is
   trustworthy enough.
-- AWO-78: Review `/admin/reviews` for named-admin card and artist approval
-  clarity.
+- AWO-78: Review `/studio` and `/admin/reviews` for the richer artist
+  application packet: contact email, medium, portfolio, human-origin statement,
+  commercial-terms acknowledgment, and named-admin approval clarity.
 - AWO-81: Review `/admin/fulfillment` and `/admin/ownership` for the new
   lifecycle exception controls. `Record Refund` is internal lifecycle state only
   and does not execute a live Stripe refund.
@@ -35,7 +36,7 @@ item blocks the next code change.
 ## External Checks
 
 - GitHub Actions: latest confirmed `main` release-readiness run is green
-  (`25737300165`) on commit `7fcd020`; keep confirming after launch-critical
+  (`25737521753`) on commit `e2a56a6`; keep confirming after launch-critical
   pushes.
 - Vercel: confirm production redeployed after the latest push and that protected
   admin routes still require login. Direct Vercel deploys hit the daily

@@ -106,6 +106,7 @@ Review actions:
 
 - Require a Supabase profile with `role = admin`.
 - Update only artists currently in `pending_review`.
+- Stamp `reviewed_at` and `reviewed_by_profile_id` on the artist row.
 - Write `admin_audit_events` with `artist_approved` or `artist_rejected`.
 - Keep public catalog visibility limited to artists with `status = approved`.
 
@@ -116,9 +117,20 @@ edit profile fields, but approval status changes to `approved`, `rejected`, or
 `suspended` require a named admin/service-role path.
 
 The `/studio` page includes the first application path for signed-in users
-without an artist workspace: public artist name, artist story, and
-`pending_review` submission. While pending, drafts can be prepared in Supabase,
-but the artist remains hidden from public catalog views until admin approval.
+without an artist workspace. Artist applications now persist an onboarding
+packet on `artists`:
+
+- `application_contact_email`
+- `application_medium`
+- `application_origin_statement`
+- `application_portfolio_url`
+- `commercial_terms_acknowledged`
+
+The admin review queue shows those fields so a named admin can review the
+artist's contact path, medium, portfolio, and human-origin statement before
+approving public artist visibility. While pending, drafts can be prepared in
+Supabase, but real identity verification, payout setup, and commercial terms
+approval remain business gates outside the current self-service form.
 
 ## AWO-43 Lifecycle Model
 

@@ -168,12 +168,17 @@ Completed:
 - AWO-78 now has the first signed-in artist application path from `/studio` and
   database guardrails that keep non-admin users from self-promoting artist
   approval status.
+- AWO-78 now captures an artist application packet before review: contact
+  email, medium/discipline, portfolio URL, human-origin statement, and
+  commercial-terms acknowledgment. `/admin/reviews` shows this packet and
+  records named-admin review metadata.
 
 Remaining:
 
 - Artist onboarding is not production-complete. Applicants still need profile
   verification steps and operational payout/commercial review before launch.
-- Real artist verification and payout/commercial workflows are future scope.
+- Real artist identity verification, payout/commercial workflows, and legal
+  terms acceptance are still human/business gates.
 
 ## Admin And Ops Status
 
@@ -248,9 +253,9 @@ Remaining:
   planned rather than configured. Tracked by AWO-79.
 - Authenticated end-to-end coverage now exists for buyer account loading,
   People/Reminders persistence, artist application submission, named-admin
-  login, audited artist approval, and audit-event verification. Tracked by
-  AWO-80. Hosted CI still needs Supabase test secrets before it can run this
-  harness outside skip mode.
+  login, audited artist approval, artist application packet persistence, and
+  audit-event verification. Tracked by AWO-80. Hosted CI still needs Supabase
+  test secrets before it can run this harness outside skip mode.
 - Production smoke/visual checks should be run after every Vercel deploy when
   nearing launch.
 

@@ -223,6 +223,39 @@ export default async function AdminReviewsPage() {
                       <p className="mt-1 text-sm text-slate-500">
                         Updated {formatDate(artist.updatedAt)}
                       </p>
+                      <div className="mt-3 grid gap-2 text-sm text-slate-600">
+                        <p>
+                          <span className="font-semibold text-slate-800">Contact:</span>{" "}
+                          {artist.contactEmail ?? "Not provided"}
+                        </p>
+                        <p>
+                          <span className="font-semibold text-slate-800">Medium:</span>{" "}
+                          {artist.medium ?? "Not provided"}
+                        </p>
+                        <p>
+                          <span className="font-semibold text-slate-800">Origin:</span>{" "}
+                          {artist.originStatement ?? "Not provided"}
+                        </p>
+                        <p>
+                          <span className="font-semibold text-slate-800">Portfolio:</span>{" "}
+                          {artist.portfolioUrl ? (
+                            <a
+                              className="break-all text-slate-950 underline decoration-slate-300 underline-offset-4"
+                              href={artist.portfolioUrl}
+                              rel="noreferrer"
+                              target="_blank"
+                            >
+                              {artist.portfolioUrl}
+                            </a>
+                          ) : (
+                            "Not provided"
+                          )}
+                        </p>
+                        <p>
+                          <span className="font-semibold text-slate-800">Commercial terms:</span>{" "}
+                          {artist.commercialTermsAcknowledged ? "Acknowledged" : "Not acknowledged"}
+                        </p>
+                      </div>
                     </div>
                     <div className="flex flex-wrap items-center gap-2 sm:justify-end">
                       <StatusPill value={artist.status} />

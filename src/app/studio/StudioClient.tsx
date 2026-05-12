@@ -90,7 +90,12 @@ function isReady(draft: LocalDraft | StudioDraftRecord) {
 export default function StudioClient() {
   const [accountMode, setAccountMode] = useState(false);
   const [applicationBio, setApplicationBio] = useState("");
+  const [applicationContactEmail, setApplicationContactEmail] = useState("");
+  const [applicationMedium, setApplicationMedium] = useState("");
   const [applicationName, setApplicationName] = useState("");
+  const [applicationOriginStatement, setApplicationOriginStatement] = useState("");
+  const [applicationPortfolioUrl, setApplicationPortfolioUrl] = useState("");
+  const [applicationTerms, setApplicationTerms] = useState(false);
   const [artistProfile, setArtistProfile] = useState<ArtistStudioProfile | null>(null);
   const [category, setCategory] = useState("Originals");
   const [drafts, setDrafts] = useState<Array<LocalDraft | StudioDraftRecord>>(initialDrafts);
@@ -156,6 +161,12 @@ export default function StudioClient() {
 
   const readyCount = useMemo(() => drafts.filter(isReady).length, [drafts]);
   const evidenceReady = readyCount === drafts.length && drafts.length > 0;
+  const applicationReady =
+    applicationName.trim().length > 0 &&
+    applicationContactEmail.trim().length > 0 &&
+    applicationMedium.trim().length > 0 &&
+    applicationOriginStatement.trim().length > 0 &&
+    applicationTerms;
 
   async function addDraft() {
     if (!title.trim()) {
@@ -206,7 +217,7 @@ export default function StudioClient() {
   }
 
   async function submitApplication() {
-    if (!applicationName.trim()) {
+    if (!applicationReady) {
       return;
     }
 
@@ -224,6 +235,11 @@ export default function StudioClient() {
 
       const profile = await submitArtistApplication(session, {
         bio: applicationBio,
+        commercialTermsAcknowledged: applicationTerms,
+        contactEmail: applicationContactEmail,
+        medium: applicationMedium,
+        originStatement: applicationOriginStatement,
+        portfolioUrl: applicationPortfolioUrl,
         publicName: applicationName,
       });
       if (!profile.artistId) {
@@ -233,7 +249,12 @@ export default function StudioClient() {
       setAccountMode(true);
       setDrafts(await fetchStudioDrafts(session, profile.artistId));
       setApplicationBio("");
+      setApplicationContactEmail("");
+      setApplicationMedium("");
       setApplicationName("");
+      setApplicationOriginStatement("");
+      setApplicationPortfolioUrl("");
+      setApplicationTerms(false);
       setStatus(`Submitted ${profile.artistName} for artist review. You can prepare drafts while review is pending.`);
     } catch (applicationError) {
       setError(
@@ -322,8 +343,9 @@ export default function StudioClient() {
             <div className="mt-4 border border-[#e5ded6] bg-[#fbfaf8] p-4">
               <h3 className="text-base font-black">Request Artist Review</h3>
               <p className="mt-2 text-sm leading-6 text-[#4b4743]">
-                Submit an artist profile for admin review. Approved artists can
-                appear publicly; pending artists can prepare drafts.
+                Submit an artist profile for admin review. AWO captures contact,
+                medium, origin, and commercial-readiness evidence before a named
+                admin can approve the public artist profile.
               </p>
               <label className="mt-4 block text-sm font-black uppercase tracking-wide text-[#373431]">
                 Public artist name
@@ -336,6 +358,36 @@ export default function StudioClient() {
                 />
               </label>
               <label className="mt-4 block text-sm font-black uppercase tracking-wide text-[#373431]">
+                Contact email
+                <input
+                  className="mt-2 h-11 w-full border border-[#dfd5ca] bg-white px-3 text-sm font-medium normal-case tracking-normal outline-none focus:border-[#b7653a]"
+                  onChange={(event) => setApplicationContactEmail(event.target.value)}
+                  placeholder="artist@example.com"
+                  type="email"
+                  value={applicationContactEmail}
+                />
+              </label>
+              <label className="mt-4 block text-sm font-black uppercase tracking-wide text-[#373431]">
+                Medium / discipline
+                <input
+                  className="mt-2 h-11 w-full border border-[#dfd5ca] bg-white px-3 text-sm font-medium normal-case tracking-normal outline-none focus:border-[#b7653a]"
+                  onChange={(event) => setApplicationMedium(event.target.value)}
+                  placeholder="Watercolor, ink, collage..."
+                  type="text"
+                  value={applicationMedium}
+                />
+              </label>
+              <label className="mt-4 block text-sm font-black uppercase tracking-wide text-[#373431]">
+                Portfolio or website
+                <input
+                  className="mt-2 h-11 w-full border border-[#dfd5ca] bg-white px-3 text-sm font-medium normal-case tracking-normal outline-none focus:border-[#b7653a]"
+                  onChange={(event) => setApplicationPortfolioUrl(event.target.value)}
+                  placeholder="https://..."
+                  type="url"
+                  value={applicationPortfolioUrl}
+                />
+              </label>
+              <label className="mt-4 block text-sm font-black uppercase tracking-wide text-[#373431]">
                 Artist story
                 <textarea
                   className="mt-2 min-h-24 w-full border border-[#dfd5ca] bg-white px-3 py-3 text-sm font-medium normal-case tracking-normal outline-none focus:border-[#b7653a]"
@@ -344,13 +396,34 @@ export default function StudioClient() {
                   value={applicationBio}
                 />
               </label>
+              <label className="mt-4 block text-sm font-black uppercase tracking-wide text-[#373431]">
+                Origin statement
+                <textarea
+                  className="mt-2 min-h-24 w-full border border-[#dfd5ca] bg-white px-3 py-3 text-sm font-medium normal-case tracking-normal outline-none focus:border-[#b7653a]"
+                  onChange={(event) => setApplicationOriginStatement(event.target.value)}
+                  placeholder="Confirm this is your human-made work and how you document creation."
+                  value={applicationOriginStatement}
+                />
+              </label>
+              <label className="mt-4 flex items-start gap-3 border border-[#e5ded6] bg-white p-3 text-sm font-bold normal-case tracking-normal text-[#373431]">
+                <input
+                  checked={applicationTerms}
+                  className="mt-0.5 size-5 accent-[#252525]"
+                  onChange={(event) => setApplicationTerms(event.target.checked)}
+                  type="checkbox"
+                />
+                <span>
+                  I understand commercial terms, payout setup, and final artist
+                  verification are required before production launch.
+                </span>
+              </label>
               <button
                 className={`mt-4 h-11 w-full px-4 text-sm font-black uppercase tracking-wide ${
-                  applicationName.trim()
+                  applicationReady
                     ? "bg-[#252525] text-white hover:bg-[#3a3632]"
                     : "bg-[#e5ded6] text-[#8a8178]"
                 }`}
-                disabled={!applicationName.trim() || isSaving}
+                disabled={!applicationReady || isSaving}
                 onClick={submitApplication}
                 type="button"
               >

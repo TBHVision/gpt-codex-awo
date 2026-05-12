@@ -6,6 +6,7 @@ export type ArtistStudioProfile = {
   artistId: string | null;
   artistName: string | null;
   artistStatus: string | null;
+  commercialTermsAcknowledged?: boolean;
   role: "admin" | "artist" | "buyer";
 };
 
@@ -93,20 +94,25 @@ export async function fetchArtistStudioProfile(session: BuyerSession) {
     profile.role === "admin" ? "status=eq.approved" : `profile_id=eq.${session.user.id}`;
 
   const artistResponse = await fetch(
-    `${supabaseUrl}/rest/v1/artists?select=id,public_name,status&${artistQuery}&order=created_at.asc&limit=1`,
+    `${supabaseUrl}/rest/v1/artists?select=id,public_name,status,commercial_terms_acknowledged&${artistQuery}&order=created_at.asc&limit=1`,
     {
       headers: headersFor(session),
     },
   );
-  const [artist] = await parseResponse<Array<{ id: string; public_name: string; status: string }>>(
-    artistResponse,
-    "Could not load artist workspace.",
-  );
+  const [artist] = await parseResponse<
+    Array<{
+      commercial_terms_acknowledged?: boolean;
+      id: string;
+      public_name: string;
+      status: string;
+    }>
+  >(artistResponse, "Could not load artist workspace.");
 
   return {
     artistId: artist?.id ?? null,
     artistName: artist?.public_name ?? null,
     artistStatus: artist?.status ?? null,
+    commercialTermsAcknowledged: artist?.commercial_terms_acknowledged ?? false,
     role: profile.role,
   } satisfies ArtistStudioProfile;
 }
@@ -115,6 +121,11 @@ export async function submitArtistApplication(
   session: BuyerSession,
   input: {
     bio: string;
+    commercialTermsAcknowledged: boolean;
+    contactEmail: string;
+    medium: string;
+    originStatement: string;
+    portfolioUrl: string;
     publicName: string;
   },
 ) {
@@ -124,9 +135,15 @@ export async function submitArtistApplication(
 
   const response = await fetch(`${supabaseUrl}/rest/v1/artists`, {
     body: JSON.stringify({
+      application_contact_email: input.contactEmail.trim(),
+      application_medium: input.medium.trim(),
+      application_origin_statement: input.originStatement.trim(),
+      application_portfolio_url: input.portfolioUrl.trim() || null,
       bio: input.bio.trim() || null,
+      commercial_terms_acknowledged: input.commercialTermsAcknowledged,
       profile_id: session.user.id,
       public_name: publicName,
+      website_url: input.portfolioUrl.trim() || null,
       slug,
       status: "pending_review",
     }),
@@ -146,6 +163,7 @@ export async function submitArtistApplication(
     artistId: artist.id,
     artistName: artist.public_name,
     artistStatus: artist.status,
+    commercialTermsAcknowledged: input.commercialTermsAcknowledged,
     role: "buyer",
   } satisfies ArtistStudioProfile;
 }

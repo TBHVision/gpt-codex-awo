@@ -397,7 +397,32 @@ async function runBuyerFlow(client, buyerSession) {
   await navigate(client, "/studio");
   await waitForText(client, "Request Artist Review", "/studio artist application");
   await setValue(client, 'input[placeholder="Artist or studio name"]', `E2E Artist ${runId}`, "/studio artist name");
+  await setValue(client, 'input[placeholder="artist@example.com"]', `artist-${runId}@example.com`, "/studio artist contact");
+  await setValue(client, 'input[placeholder="Watercolor, ink, collage..."]', "Watercolor and ink", "/studio artist medium");
+  await setValue(client, 'input[placeholder="https://..."]', `https://example.com/e2e-artist-${runId}`, "/studio artist portfolio");
   await setValue(client, "textarea", "Automated test artist profile for AWO authenticated regression coverage.", "/studio artist story");
+  await setValue(
+    client,
+    'textarea[placeholder="Confirm this is your human-made work and how you document creation."]',
+    "I confirm these are human-made test works with process notes and provenance documentation.",
+    "/studio artist origin statement",
+  );
+  const termsChecked = await evaluate(
+    client,
+    `
+      (() => {
+        const checkbox = Array.from(document.querySelectorAll('input[type="checkbox"]')).find((item) =>
+          item.closest('label')?.textContent?.includes('commercial terms')
+        );
+        if (!checkbox) return false;
+        if (!checkbox.checked) checkbox.click();
+        return true;
+      })()
+    `,
+  );
+  if (!termsChecked) {
+    throw new Error("/studio artist commercial terms checkbox was not clickable.");
+  }
   await clickButton(client, "Submit For Review", "/studio");
   await waitForText(client, "Submitted E2E Artist", "/studio artist application submit");
   console.log("PASS authenticated artist application submits as pending review");
@@ -440,7 +465,7 @@ async function runAdminFlow(client, adminSession) {
   await waitForText(client, "Admin Review Queues", "/admin/reviews");
   await waitForText(client, "E2E Artist", "/admin/reviews pending artist");
   await approvePendingArtist(client);
-  await verifyArtistApproved();
+  await verifyArtistApproved(adminSession.user.id);
   console.log("PASS named admin login approves pending artist");
 
   await navigate(client, "/admin/fulfillment");
@@ -478,11 +503,11 @@ async function approvePendingArtist(client) {
   }
 }
 
-async function verifyArtistApproved() {
+async function verifyArtistApproved(adminUserId) {
   let artist;
   for (let attempt = 0; attempt < 20; attempt += 1) {
     const artistResponse = await fetch(
-      `${supabaseUrl}/rest/v1/artists?select=id,status&public_name=eq.${encodeURIComponent(`E2E Artist ${runId}`)}&limit=1`,
+      `${supabaseUrl}/rest/v1/artists?select=id,status,application_contact_email,application_medium,application_origin_statement,commercial_terms_acknowledged,reviewed_at,reviewed_by_profile_id&public_name=eq.${encodeURIComponent(`E2E Artist ${runId}`)}&limit=1`,
       {
         headers: serviceHeaders(),
       },
@@ -498,6 +523,17 @@ async function verifyArtistApproved() {
 
   if (artist?.status !== "approved") {
     throw new Error(`Artist review action did not approve the pending artist. status=${artist?.status ?? "missing"}`);
+  }
+
+  if (
+    artist.application_contact_email !== `artist-${runId}@example.com` ||
+    artist.application_medium !== "Watercolor and ink" ||
+    !artist.application_origin_statement?.includes("human-made test works") ||
+    artist.commercial_terms_acknowledged !== true ||
+    !artist.reviewed_at ||
+    artist.reviewed_by_profile_id !== adminUserId
+  ) {
+    throw new Error("Artist application packet or review metadata was not persisted.");
   }
 
   const auditResponse = await fetch(

@@ -292,6 +292,15 @@ every small decision.
 - `/api/health` now exposes a no-secret production posture endpoint for service
   readiness checks. It reports configured/missing service posture without
   returning secret values.
+- AWO-78 artist onboarding hardening:
+  - Supabase migration `20260512133000` adds artist application packet fields
+    for contact email, medium, portfolio URL, human-origin statement,
+    commercial-terms acknowledgment, and named-admin review metadata
+  - `/studio` requires the application packet before signed-in users can submit
+    for review
+  - `/admin/reviews` shows the packet before approval/rejection and records
+    `reviewed_at` plus `reviewed_by_profile_id`
+  - `npm run test:release` passed locally at `2026-05-12T13:47:18.249Z`
 - `docs/TONY_REVIEW_BATCH.md` is the current batched list of Tony reviews,
   external checks, and later decisions.
 - `docs/OVERNIGHT_WORK_QUEUE.md` is the current autonomous execution checklist

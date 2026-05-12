@@ -69,6 +69,8 @@ export async function reviewArtist(input: {
     `${supabaseUrl}/rest/v1/artists?id=eq.${input.artistId}&status=eq.pending_review`,
     {
       body: JSON.stringify({
+        reviewed_at: new Date().toISOString(),
+        reviewed_by_profile_id: input.adminUserId,
         status: nextStatus,
       }),
       cache: "no-store",
@@ -91,6 +93,7 @@ export async function reviewArtist(input: {
       entity_id: input.artistId,
       entity_table: "artists",
       metadata: {
+        decision: nextStatus,
         source: "admin_reviews",
       },
     }),

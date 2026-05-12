@@ -41,8 +41,10 @@ moving without waking Tony for every small branch decision.
 
 - AWO-77: production QR/PIN credential generation.
 - AWO-78: artist onboarding and approval workflow. Admin approve/reject and the
-  first self-service application path are now implemented; commercial
-  verification remains.
+  first self-service application path are now implemented. Applications now
+  capture contact email, medium, portfolio, human-origin statement, and
+  commercial-terms acknowledgment before admin review; external identity,
+  payout, and legal/commercial verification remain.
 - AWO-79: production observability stack.
 - AWO-80: authenticated buyer/admin E2E tests. Local release readiness now
   creates disposable buyer/admin Supabase users and verifies buyer persistence,

@@ -211,11 +211,22 @@ Codex evidence:
   states.
 - `/studio` now includes a signed-in user artist application path that creates
   `pending_review` artist rows without making them public.
+- Supabase migration `20260512133000` adds an artist application packet:
+  contact email, medium/discipline, origin statement, portfolio URL,
+  commercial-terms acknowledgment, and named-admin review metadata.
+- `/studio` now requires the application packet before a signed-in user can
+  submit for artist review.
+- `/admin/reviews` now shows the artist application packet alongside each
+  artist review row so approval is based on evidence, not only the public name.
+- Artist approval/rejection writes `reviewed_at` and `reviewed_by_profile_id`
+  on the artist row in addition to the existing admin audit event.
+- `npm run test:release` passed locally with authenticated E2E coverage for the
+  richer artist packet at `2026-05-12T13:47:18.249Z`.
 
 Remaining:
 
-- Artist verification checklist and payout or commercial onboarding workflow
-  remain open under AWO-78.
+- Real external identity verification, payout setup, and legal/commercial terms
+  approval remain open under AWO-78 as human/business gates.
 
 ## AWO-80 Authenticated E2E Evidence
 
@@ -231,7 +242,7 @@ Codex evidence:
 - `npm run test:release` now includes the authenticated E2E step after smoke
   and demo tests and before visual QA.
 - Local `npm run test:release` passed with the authenticated step at
-  `2026-05-12T13:20:30.599Z`.
+  `2026-05-12T13:47:18.249Z`.
 
 Remaining:
 
@@ -264,7 +275,7 @@ Codex evidence:
   and `/admin/ownership` operator pages after login without clicking exception
   actions.
 - Local `npm run test:release` passed after the operator UI wiring at
-  `2026-05-12T13:20:30.599Z`.
+  `2026-05-12T13:47:18.249Z`.
 
 Remaining:
 
