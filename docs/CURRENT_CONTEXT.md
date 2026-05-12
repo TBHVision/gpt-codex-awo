@@ -300,7 +300,7 @@ every small decision.
     for review
   - `/admin/reviews` shows the packet before approval/rejection and records
     `reviewed_at` plus `reviewed_by_profile_id`
-  - `npm run test:release` passed locally at `2026-05-12T13:47:18.249Z`
+  - `npm run test:release` passed locally at `2026-05-12T14:07:27.715Z`
 - `docs/TONY_REVIEW_BATCH.md` is the current batched list of Tony reviews,
   external checks, and later decisions.
 - `docs/OVERNIGHT_WORK_QUEUE.md` is the current autonomous execution checklist

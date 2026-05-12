@@ -43,7 +43,8 @@ item blocks the next code change.
   deployment limit during the overnight run, so production may lag behind the
   latest GitHub commit until the limit clears.
 - Health endpoint: review `/api/health` on the deployed URL to confirm it
-  reports configured services without exposing secret values.
+  reports configured services and observability posture without exposing secret
+  values.
 - Vercel smoke/demo: `npm run test:vercel:smoke` and
   `npm run test:vercel:demo` are available for deployed-site verification.
 - Supabase: create or confirm at least one named admin user whose

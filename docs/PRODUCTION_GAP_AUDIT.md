@@ -250,7 +250,10 @@ Remaining:
 - Replacing the shared temporary admin password before launch is tracked by
   AWO-82.
 - Observability setup for production errors, analytics, and performance is still
-  planned rather than configured. Tracked by AWO-79.
+  planned rather than configured. `/admin/launch` and `/api/health` now expose
+  no-secret posture checks for error tracking, analytics, performance
+  monitoring, and uptime monitoring. Provider selection/configuration is still
+  tracked by AWO-79.
 - Authenticated end-to-end coverage now exists for buyer account loading,
   People/Reminders persistence, artist application submission, named-admin
   login, audited artist approval, artist application packet persistence, and

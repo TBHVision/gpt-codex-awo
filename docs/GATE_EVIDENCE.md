@@ -221,7 +221,7 @@ Codex evidence:
 - Artist approval/rejection writes `reviewed_at` and `reviewed_by_profile_id`
   on the artist row in addition to the existing admin audit event.
 - `npm run test:release` passed locally with authenticated E2E coverage for the
-  richer artist packet at `2026-05-12T13:47:18.249Z`.
+  richer artist packet at `2026-05-12T14:07:27.715Z`.
 
 Remaining:
 
@@ -242,7 +242,7 @@ Codex evidence:
 - `npm run test:release` now includes the authenticated E2E step after smoke
   and demo tests and before visual QA.
 - Local `npm run test:release` passed with the authenticated step at
-  `2026-05-12T13:47:18.249Z`.
+  `2026-05-12T14:07:27.715Z`.
 
 Remaining:
 
@@ -250,6 +250,22 @@ Remaining:
   daily deployment limit clears.
 - Hosted CI will run the harness in skip mode unless Supabase service-role test
   secrets are added to GitHub Actions.
+
+## AWO-79 Observability Posture Evidence
+
+Codex evidence:
+
+- `/admin/launch` now includes an Observability section for error tracking,
+  product analytics, performance monitoring, and uptime monitoring posture.
+- `/api/health` now returns no-secret boolean observability posture flags under
+  `services.observability`.
+- `docs/OBSERVABILITY_PLAN.md` lists the recognized optional environment keys
+  without requiring Tony to choose or configure a provider during this run.
+
+Remaining:
+
+- Tony still needs to choose/configure Sentry, Vercel Web Analytics/Speed
+  Insights, PostHog, or explicit deferrals before AWO-79 can be called Done.
 
 ## AWO-81 Lifecycle Exception Evidence
 
@@ -275,7 +291,7 @@ Codex evidence:
   and `/admin/ownership` operator pages after login without clicking exception
   actions.
 - Local `npm run test:release` passed after the operator UI wiring at
-  `2026-05-12T13:47:18.249Z`.
+  `2026-05-12T14:07:27.715Z`.
 
 Remaining:
 

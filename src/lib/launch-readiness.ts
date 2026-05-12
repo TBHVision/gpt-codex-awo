@@ -37,6 +37,10 @@ function stateForPresence(isPresent: boolean): ReadinessState {
   return isPresent ? "ready" : "blocked";
 }
 
+function observabilityState(envNames: string[]): ReadinessState {
+  return envNames.some((name) => hasEnv(name)) ? "ready" : "review";
+}
+
 async function loadLocalReleaseEvidence() {
   try {
     const reportPath = path.join(
@@ -169,6 +173,42 @@ export async function loadLaunchReadinessSnapshot(): Promise<LaunchReadinessSnap
           detail: "Protected admin lifecycle reconciliation page is included in smoke and visual QA.",
           label: "Reconciliation QA coverage",
           state: "ready",
+        },
+      ],
+    },
+    {
+      title: "Observability",
+      items: [
+        {
+          detail:
+            "Application exception tracking should be wired through Sentry or an equivalent service before public launch. This check only reports whether a DSN is configured; it never exposes the value.",
+          label: "Error tracking DSN",
+          state: observabilityState(["SENTRY_DSN", "NEXT_PUBLIC_SENTRY_DSN"]),
+        },
+        {
+          detail:
+            "Product analytics should be a deliberate privacy decision. This check recognizes PostHog or Vercel Analytics configuration when present.",
+          label: "Product analytics",
+          state: observabilityState([
+            "NEXT_PUBLIC_POSTHOG_KEY",
+            "POSTHOG_PROJECT_API_KEY",
+            "VERCEL_ANALYTICS_ID",
+          ]),
+        },
+        {
+          detail:
+            "Performance monitoring should be enabled through Vercel Speed Insights or another web-vitals provider before a broader launch.",
+          label: "Performance monitoring",
+          state: observabilityState([
+            "NEXT_PUBLIC_VERCEL_SPEED_INSIGHTS_ID",
+            "VERCEL_SPEED_INSIGHTS_ID",
+          ]),
+        },
+        {
+          detail:
+            "A production uptime monitor is not configured in app code yet. Vercel deployment status and release gates cover the current pre-launch posture.",
+          label: "External uptime monitor",
+          state: "review",
         },
       ],
     },

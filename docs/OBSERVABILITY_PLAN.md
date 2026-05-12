@@ -2,7 +2,7 @@
 
 Linear issue: AWO-62
 
-Last updated: 2026-05-11
+Last updated: 2026-05-12
 
 ## Purpose
 
@@ -50,6 +50,16 @@ Not yet configured:
 - performance/web vital monitoring
 - authenticated end-to-end tests
 
+Current app posture checks:
+
+- `/admin/launch` includes an Observability section that reports whether error
+  tracking, analytics, performance monitoring, and uptime monitoring appear to
+  be configured.
+- `/api/health` includes no-secret boolean observability flags for the same
+  posture checks.
+- These checks are intentionally configuration-only. They do not choose a paid
+  provider or expose DSNs, API keys, or project IDs.
+
 ## Recommended Production Stack
 
 Use hosted tools rather than building custom observability first.
@@ -82,6 +92,18 @@ Core ops events:
 - `stripe_webhook_failed`
 - `reveal_locked`
 - `credential_generation_failed`
+
+## Environment Posture Keys
+
+The current readiness checks recognize these optional keys without exposing
+their values:
+
+- Error tracking: `SENTRY_DSN` or `NEXT_PUBLIC_SENTRY_DSN`
+- Product analytics: `NEXT_PUBLIC_POSTHOG_KEY`,
+  `POSTHOG_PROJECT_API_KEY`, or `VERCEL_ANALYTICS_ID`
+- Performance monitoring: `NEXT_PUBLIC_VERCEL_SPEED_INSIGHTS_ID` or
+  `VERCEL_SPEED_INSIGHTS_ID`
+- Uptime monitor reference: `AWO_UPTIME_MONITOR_URL`
 
 ## Error Policy
 

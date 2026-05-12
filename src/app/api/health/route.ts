@@ -31,6 +31,17 @@ export async function GET() {
       services: {
         adminGate:
           hasEnv("AWO_ADMIN_PASSWORD") && hasEnv("AWO_ADMIN_SESSION_TOKEN"),
+        observability: {
+          analytics:
+            hasEnv("NEXT_PUBLIC_POSTHOG_KEY") ||
+            hasEnv("POSTHOG_PROJECT_API_KEY") ||
+            hasEnv("VERCEL_ANALYTICS_ID"),
+          errorTracking: hasEnv("SENTRY_DSN") || hasEnv("NEXT_PUBLIC_SENTRY_DSN"),
+          performance:
+            hasEnv("NEXT_PUBLIC_VERCEL_SPEED_INSIGHTS_ID") ||
+            hasEnv("VERCEL_SPEED_INSIGHTS_ID"),
+          uptimeMonitor: hasEnv("AWO_UPTIME_MONITOR_URL"),
+        },
         stripeTestMode:
           process.env.STRIPE_SECRET_KEY?.trim().startsWith("sk_test_") ?? false,
         stripeWebhook: hasEnv("STRIPE_WEBHOOK_SECRET"),
