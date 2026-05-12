@@ -31,6 +31,7 @@ const routes = [
   "/studio",
   "/account",
   "/artists",
+  "/artists/hatchvision-studio",
   "/admin/build",
   "/admin/ops",
   "/admin/launch",

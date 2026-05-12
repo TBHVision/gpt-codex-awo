@@ -12,6 +12,7 @@ const publicRoutes = [
   "/search",
   "/demo",
   "/artists",
+  "/artists/hatchvision-studio",
   "/people",
   "/reminders",
   "/reveal",

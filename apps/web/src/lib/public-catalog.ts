@@ -167,3 +167,51 @@ export async function getPublishedCardBySlug(
     };
   }
 }
+
+export async function getPublishedCardsByArtistSlug(
+  artistSlug: string,
+): Promise<CatalogResult> {
+  const config = getSupabasePublicConfig();
+
+  if (config.status === "missing") {
+    return {
+      cards: [],
+      message: `Missing Vercel environment variable: ${config.missing.join(", ")}.`,
+      status: "not_configured",
+    };
+  }
+
+  const endpoint = new URL("/rest/v1/published_cards", config.supabaseUrl);
+
+  endpoint.searchParams.set("select", publishedCardSelect);
+  endpoint.searchParams.set("artist_slug", `eq.${artistSlug}`);
+  endpoint.searchParams.set("order", "published_at.desc.nullslast");
+
+  try {
+    const response = await fetch(endpoint, {
+      headers: {
+        apikey: config.anonKey,
+        Authorization: `Bearer ${config.anonKey}`,
+      },
+      next: { revalidate: 60 },
+    });
+
+    if (!response.ok) {
+      return {
+        cards: [],
+        message: `Supabase artist catalog request failed with HTTP ${response.status}.`,
+        status: "error",
+      };
+    }
+
+    const cards = (await response.json()) as PublishedCard[];
+
+    return { cards, status: "ready" };
+  } catch {
+    return {
+      cards: [],
+      message: "Supabase artist catalog request failed before a response was returned.",
+      status: "error",
+    };
+  }
+}

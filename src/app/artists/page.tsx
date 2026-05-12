@@ -68,18 +68,33 @@ export default async function ArtistsPage() {
                   <p className="text-xs font-black uppercase tracking-[0.16em] text-[#b7653a]">
                     {artist.focus}
                   </p>
-                  <h2 className="mt-2 text-3xl font-black">{artist.name}</h2>
+                  <h2 className="mt-2 text-3xl font-black">
+                    <Link
+                      className="hover:text-[#a85f38]"
+                      href={`/artists/${artist.slug}`}
+                    >
+                      {artist.name}
+                    </Link>
+                  </h2>
                   <p className="mt-3 text-sm leading-6 text-[#4b4743]">
                     {artist.bio}
                   </p>
-                  {artist.websiteUrl ? (
-                    <a
-                      className="mt-4 inline-flex text-sm font-black uppercase tracking-wide text-[#7a472e]"
-                      href={artist.websiteUrl}
+                  <div className="mt-4 flex flex-wrap gap-3">
+                    <Link
+                      className="inline-flex text-sm font-black uppercase tracking-wide text-[#7a472e]"
+                      href={`/artists/${artist.slug}`}
                     >
-                      Artist Website
-                    </a>
-                  ) : null}
+                      View Artist Story
+                    </Link>
+                    {artist.websiteUrl ? (
+                      <a
+                        className="inline-flex text-sm font-black uppercase tracking-wide text-[#7a472e]"
+                        href={artist.websiteUrl}
+                      >
+                        Artist Website
+                      </a>
+                    ) : null}
+                  </div>
                 </div>
               </div>
             </article>

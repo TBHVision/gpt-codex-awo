@@ -683,6 +683,7 @@ async function verifyStorefrontNavigation(client) {
     { marker: "Shop", path: "/shop" },
     { marker: "Find the right verified card", path: "/search" },
     { marker: "Artists", path: "/artists" },
+    { marker: "Cards by HatchVision Studio", path: "/artists/hatchvision-studio" },
     { marker: "Reveal", path: "/reveal" },
     { marker: "People", path: "/people" },
     { marker: "Reminders", path: "/reminders" },
