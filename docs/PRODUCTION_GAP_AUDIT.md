@@ -140,6 +140,9 @@ Completed:
   dropping into a generic page-load failure.
 - Buyer account page now gives practical next actions after sign-in: People,
   Reminders, Cart, Shop Cards, Demo Checkout, and Demo Reveal.
+- Checkout now reads `/api/health` before enabling Stripe test payment, so a
+  local environment without Stripe secrets shows a clear draft/hosted-demo path
+  instead of letting the buyer hit a known-dead payment action.
 
 Remaining:
 

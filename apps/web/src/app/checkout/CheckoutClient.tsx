@@ -30,6 +30,16 @@ const demoCartItem: CartItem = {
   title: "Wildflower Notes",
 };
 
+type RuntimePaymentStatus = {
+  environment: string;
+  isLoaded: boolean;
+  provider: string;
+  stripeTestMode: boolean;
+};
+
+const hostedDemoCheckoutUrl =
+  "https://gpt-codex-awo-dashboard.vercel.app/checkout?demo=1";
+
 function cartTotal(items: CartItem[]) {
   return items.reduce(
     (total, item) => total + item.priceCents * item.quantity,
@@ -57,6 +67,12 @@ export default function CheckoutClient() {
   const [cartStatus, setCartStatus] = useState("");
   const [buyerSession, setBuyerSession] = useState<BuyerSession | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState<RuntimePaymentStatus>({
+    environment: "unknown",
+    isLoaded: false,
+    provider: "unknown",
+    stripeTestMode: false,
+  });
 
   const itemCount = useMemo(() => countCartItems(items), [items]);
   const totalCents = useMemo(() => cartTotal(items), [items]);
@@ -65,6 +81,7 @@ export default function CheckoutClient() {
   const revealCode = searchParams.get("reveal");
   const paymentSucceeded = paymentState === "success";
   const paymentCancelled = paymentState === "cancelled";
+  const canStartStripePayment = paymentStatus.isLoaded && paymentStatus.stripeTestMode;
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -97,6 +114,40 @@ export default function CheckoutClient() {
 
     return () => window.clearTimeout(timer);
   }, [isDemoCheckout]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    fetch("/api/health", { cache: "no-store" })
+      .then((response) => response.json())
+      .then((payload) => {
+        if (!isMounted) {
+          return;
+        }
+
+        setPaymentStatus({
+          environment: String(payload?.deployment?.environment ?? "unknown"),
+          isLoaded: true,
+          provider: String(payload?.deployment?.provider ?? "unknown"),
+          stripeTestMode: Boolean(payload?.services?.stripeTestMode),
+        });
+      })
+      .catch(() => {
+        if (!isMounted) {
+          return;
+        }
+
+        setPaymentStatus((current) => ({
+          ...current,
+          isLoaded: true,
+          stripeTestMode: false,
+        }));
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   function persistCheckoutItems(nextItems: CartItem[]) {
     const normalizedItems = nextItems.filter((item) => item.quantity > 0);
@@ -348,13 +399,42 @@ export default function CheckoutClient() {
 
           <button
             className="mt-6 h-12 w-full bg-[#252525] px-4 text-sm font-black uppercase tracking-wide text-white hover:bg-[#3a3632] disabled:cursor-not-allowed disabled:bg-[#d8d0c7] disabled:text-[#7d746d]"
-            disabled={isSaving || items.length === 0}
+            disabled={isSaving || items.length === 0 || !canStartStripePayment}
             name="checkoutMode"
             type="submit"
             value="payment"
           >
-            {isSaving ? "Starting Checkout..." : "Continue to Test Payment"}
+            {isSaving
+              ? "Starting Checkout..."
+              : canStartStripePayment
+                ? "Continue to Test Payment"
+                : "Test Payment Unavailable Here"}
           </button>
+          {!canStartStripePayment ? (
+            <div className="mt-3 border border-amber-200 bg-amber-50 p-4 text-sm font-bold leading-6 text-amber-950">
+              {paymentStatus.isLoaded ? (
+                <>
+                  Stripe test payment is not configured in this running{" "}
+                  {paymentStatus.provider} environment
+                  {paymentStatus.environment !== "unknown"
+                    ? ` (${paymentStatus.environment})`
+                    : ""}
+                  . Save a draft here, or use the deployed Vercel demo when
+                  you want to exercise Stripe.
+                </>
+              ) : (
+                "Checking whether Stripe test payment is available in this environment..."
+              )}
+              {paymentStatus.isLoaded && paymentStatus.provider === "local" ? (
+                <a
+                  className="mt-3 inline-flex h-10 items-center justify-center border border-amber-300 bg-white px-4 text-xs font-black uppercase tracking-wide text-amber-900 hover:border-amber-500"
+                  href={hostedDemoCheckoutUrl}
+                >
+                  Open Hosted Demo Checkout
+                </a>
+              ) : null}
+            </div>
+          ) : null}
           <button
             className="mt-3 h-11 w-full border border-[#dfd5ca] bg-white px-4 text-sm font-black uppercase tracking-wide text-[#7a472e] hover:border-[#b7653a] disabled:cursor-not-allowed disabled:bg-[#f1ece6] disabled:text-[#9d938b]"
             disabled={isSaving || items.length === 0}
