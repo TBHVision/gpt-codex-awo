@@ -20,6 +20,8 @@ const routes = [
   "/",
   "/demo",
   "/shop",
+  "/search",
+  "/search?q=wildflower",
   "/shop/wildflower-notes",
   "/cart",
   "/checkout",

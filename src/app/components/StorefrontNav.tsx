@@ -19,6 +19,7 @@ type StorefrontNavProps = {
     | "people"
     | "reminders"
     | "reveal"
+    | "search"
     | "shop";
 };
 
@@ -89,13 +90,20 @@ export default function StorefrontNav({ active }: StorefrontNavProps) {
     };
   }, []);
 
-  const activeLabel = navItems.find((item) => item.value === active)?.label ?? "Menu";
+  const activeLabel =
+    active === "search" ? "Search" : navItems.find((item) => item.value === active)?.label ?? "Menu";
 
   const utilityActions = (
     <div className="flex shrink-0 items-center gap-2 text-[#252525] sm:gap-4">
-      <span className="hidden sm:inline-flex">
+      <a
+        aria-label="Search cards"
+        className={`inline-flex size-9 items-center justify-center ${
+          active === "search" ? "text-[#a85f38]" : ""
+        }`}
+        href="/search"
+      >
         <LineIcon kind="search" />
-      </span>
+      </a>
       <a
         aria-label="Buyer account"
         className={`inline-flex size-9 items-center justify-center ${

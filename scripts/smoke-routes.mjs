@@ -4,6 +4,7 @@ const expectedCommit = process.env.SMOKE_EXPECTED_COMMIT?.trim();
 const publicRoutes = [
   "/",
   "/shop",
+  "/search",
   "/demo",
   "/artists",
   "/people",

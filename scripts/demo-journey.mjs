@@ -607,6 +607,7 @@ async function verifyStorefrontNavigation(client) {
   const routes = [
     { marker: "ArtWithOrigin", path: "/" },
     { marker: "Shop", path: "/shop" },
+    { marker: "Find the right verified card", path: "/search" },
     { marker: "Artists", path: "/artists" },
     { marker: "Reveal", path: "/reveal" },
     { marker: "People", path: "/people" },
