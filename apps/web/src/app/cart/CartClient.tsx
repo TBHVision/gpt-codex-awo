@@ -11,7 +11,7 @@ import {
 } from "@/lib/cart-types";
 import type { CartItem } from "@/lib/cart-types";
 import { readBuyerSession } from "@/lib/buyer-auth";
-import { clearBuyerCart, syncBuyerCart } from "@/lib/buyer-cart";
+import { clearBuyerCart, saveBuyerCart, syncBuyerCart } from "@/lib/buyer-cart";
 
 function formatPrice(cents: number, currency = "USD") {
   return new Intl.NumberFormat("en-US", {
@@ -78,11 +78,24 @@ export default function CartClient() {
 
   function persistItems(nextItems: CartItem[]) {
     const normalizedItems = nextItems.filter((item) => item.quantity > 0);
+    const savedSession = readBuyerSession();
+
     setItems(normalizedItems);
     writeCartToStorage(normalizedItems);
-    setSyncStatus(
-      "Cart updated on this browser. Signed-in account sync will refresh when you revisit cart.",
-    );
+
+    if (!savedSession) {
+      setSyncStatus("Guest cart updated on this browser.");
+      return;
+    }
+
+    setSyncStatus("Saving signed-in cart...");
+    saveBuyerCart(savedSession, normalizedItems)
+      .then(() => setSyncStatus("Signed-in cart updated."))
+      .catch(() =>
+        setSyncStatus(
+          "Cart updated in this browser. Account cart could not be updated.",
+        ),
+      );
   }
 
   function updateQuantity(slug: string, quantity: number) {

@@ -506,6 +506,80 @@ async function verifyCartControls(client) {
   console.log(`PASS /cart quantity and remove controls -> ${new URL("/cart", baseUrl)}`);
 }
 
+async function verifyCheckoutCartControls(client) {
+  const checkoutLoad = client.waitFor("Page.loadEventFired");
+  await client.send("Page.navigate", { url: new URL("/checkout", baseUrl).toString() });
+  await checkoutLoad;
+
+  await evaluate(
+    client,
+    `(() => {
+      localStorage.setItem('awo_demo_cart', JSON.stringify([{
+        artistName: 'HatchVision Studio',
+        currency: 'USD',
+        priceCents: 550,
+        quantity: 1,
+        slug: 'wildflower-notes',
+        title: 'Wildflower Notes'
+      }]));
+    })()`,
+  );
+
+  const reload = client.waitFor("Page.loadEventFired");
+  await client.send("Page.reload");
+  await reload;
+  await sleep(250);
+
+  const plusResult = await evaluate(
+    client,
+    `(async () => {
+      const button = Array.from(document.querySelectorAll('button')).find((item) =>
+        item.getAttribute('aria-label') === 'Increase Wildflower Notes quantity'
+      );
+      if (!button) return { ok: false, reason: 'Checkout increase quantity button not found' };
+      button.click();
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      const input = document.querySelector('input[aria-label="Wildflower Notes quantity"]');
+      return {
+        ok: input?.value === '2' && document.body.innerText.includes('$11.00'),
+        text: document.body.innerText.slice(0, 500),
+        value: input?.value ?? ''
+      };
+    })()`,
+  );
+
+  if (!plusResult.ok) {
+    throw new Error(
+      plusResult.reason ??
+        `Checkout quantity did not update: ${plusResult.value} text=${plusResult.text}`,
+    );
+  }
+
+  const removeResult = await evaluate(
+    client,
+    `(async () => {
+      const button = Array.from(document.querySelectorAll('button')).find((item) =>
+        item.textContent?.trim() === 'Remove'
+      );
+      if (!button) return { ok: false, reason: 'Checkout remove button not found' };
+      button.click();
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      return {
+        ok:
+          document.body.innerText.includes('Items\\n0') &&
+          document.body.innerText.includes('$0.00'),
+        text: document.body.innerText.slice(0, 500)
+      };
+    })()`,
+  );
+
+  if (!removeResult.ok) {
+    throw new Error(removeResult.reason ?? `Checkout remove did not update summary. text=${removeResult.text}`);
+  }
+
+  console.log(`PASS /checkout inline cart controls -> ${new URL("/checkout", baseUrl)}`);
+}
+
 async function verifyCartStorageRecovery(client) {
   const cartLoad = client.waitFor("Page.loadEventFired");
   await client.send("Page.navigate", { url: new URL("/cart", baseUrl).toString() });
@@ -731,6 +805,7 @@ async function main() {
     await unlockDemoReveal(client);
 
     await verifyCartControls(client);
+    await verifyCheckoutCartControls(client);
     await verifyCartStorageRecovery(client);
     await verifyAccountSessionRecovery(client);
     await verifyStorefrontNavigation(client);

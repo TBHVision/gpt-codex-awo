@@ -287,6 +287,16 @@ export async function syncBuyerCart(
   return mergedItems;
 }
 
+export async function saveBuyerCart(
+  session: BuyerSession,
+  localItems: CartItem[],
+) {
+  const cart = await getOrCreateActiveCart(session);
+  await replaceRemoteCartItems(session, cart.id, localItems);
+
+  return localItems;
+}
+
 export async function clearBuyerCart(session: BuyerSession) {
   const cart = await findActiveCart(session);
 

@@ -19,7 +19,7 @@ import {
 } from "@/lib/checkout-draft";
 import { readBuyerSession } from "@/lib/buyer-auth";
 import type { BuyerSession } from "@/lib/buyer-auth";
-import { clearBuyerCart, syncBuyerCart } from "@/lib/buyer-cart";
+import { clearBuyerCart, saveBuyerCart, syncBuyerCart } from "@/lib/buyer-cart";
 
 const demoCartItem: CartItem = {
   artistName: "HatchVision Studio",
@@ -54,6 +54,7 @@ export default function CheckoutClient() {
   );
   const [draft, setDraft] = useState<CheckoutDraftResult | null>(null);
   const [error, setError] = useState("");
+  const [cartStatus, setCartStatus] = useState("");
   const [buyerSession, setBuyerSession] = useState<BuyerSession | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -84,15 +85,54 @@ export default function CheckoutClient() {
           .then((mergedItems) => {
             writeCartToStorage(mergedItems);
             setItems(mergedItems);
+            setCartStatus("Signed-in cart synced for checkout.");
           })
           .catch(() => {
             setError("Checkout is using the browser cart until account sync works.");
           });
+      } else {
+        setCartStatus("Guest checkout is using this browser cart.");
       }
     }, 0);
 
     return () => window.clearTimeout(timer);
   }, [isDemoCheckout]);
+
+  function persistCheckoutItems(nextItems: CartItem[]) {
+    const normalizedItems = nextItems.filter((item) => item.quantity > 0);
+
+    setItems(normalizedItems);
+    writeCartToStorage(normalizedItems);
+    setDraft(null);
+
+    if (!buyerSession) {
+      setCartStatus("Checkout cart updated on this browser.");
+      return;
+    }
+
+    setCartStatus("Saving checkout cart to your account...");
+    saveBuyerCart(buyerSession, normalizedItems)
+      .then(() => setCartStatus("Checkout cart updated for this account."))
+      .catch(() =>
+        setCartStatus(
+          "Checkout cart updated in this browser. Account cart could not be updated.",
+        ),
+      );
+  }
+
+  function updateQuantity(slug: string, quantity: number) {
+    persistCheckoutItems(
+      items.map((item) =>
+        item.slug === slug
+          ? { ...item, quantity: Math.max(1, Math.min(quantity, 25)) }
+          : item,
+      ),
+    );
+  }
+
+  function removeItem(slug: string) {
+    persistCheckoutItems(items.filter((item) => item.slug !== slug));
+  }
 
   async function submitCheckout(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -346,6 +386,69 @@ export default function CheckoutClient() {
             Test payment redirects to Stripe when test keys are configured.
             Live charges stay disabled until Tony explicitly approves them.
           </p>
+          {cartStatus ? (
+            <p className="mt-4 border border-[#e5ded6] bg-[#fbfaf8] p-3 text-xs font-bold leading-5 text-[#6e6258]">
+              {cartStatus}
+            </p>
+          ) : null}
+          {items.length > 0 ? (
+            <div className="mt-5 space-y-3 border-t border-[#e5ded6] pt-5">
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-[#b7653a]">
+                Checkout Items
+              </p>
+              {items.map((item) => (
+                <div
+                  className="border border-[#e5ded6] bg-[#fbfaf8] p-3"
+                  key={item.slug}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-black">{item.title}</p>
+                      <p className="mt-1 text-xs font-bold text-[#6e6258]">
+                        {formatCheckoutPrice(item.priceCents * item.quantity, item.currency)}
+                      </p>
+                    </div>
+                    <button
+                      className="text-xs font-black uppercase tracking-wide text-[#a21616] hover:text-[#7e1111]"
+                      onClick={() => removeItem(item.slug)}
+                      type="button"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                  <div className="mt-3 flex items-center gap-2">
+                    <button
+                      aria-label={`Decrease ${item.title} quantity`}
+                      className="inline-flex size-8 items-center justify-center border border-[#dfd5ca] bg-white text-base font-black text-[#7a472e] hover:border-[#b7653a]"
+                      onClick={() => updateQuantity(item.slug, item.quantity - 1)}
+                      type="button"
+                    >
+                      -
+                    </button>
+                    <input
+                      aria-label={`${item.title} quantity`}
+                      className="h-8 w-14 border border-[#dfd5ca] bg-white text-center text-xs font-black outline-none focus:border-[#b7653a]"
+                      max={25}
+                      min={1}
+                      onChange={(event) =>
+                        updateQuantity(item.slug, Number(event.target.value) || 1)
+                      }
+                      type="number"
+                      value={item.quantity}
+                    />
+                    <button
+                      aria-label={`Increase ${item.title} quantity`}
+                      className="inline-flex size-8 items-center justify-center border border-[#dfd5ca] bg-white text-base font-black text-[#7a472e] hover:border-[#b7653a]"
+                      onClick={() => updateQuantity(item.slug, item.quantity + 1)}
+                      type="button"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : null}
           <Link
             className="mt-6 inline-flex h-11 w-full items-center justify-center border border-[#dfd5ca] bg-white px-4 text-sm font-black uppercase tracking-wide text-[#b7653a] hover:border-[#b7653a]"
             href="/cart"
