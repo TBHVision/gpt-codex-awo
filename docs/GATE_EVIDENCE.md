@@ -359,8 +359,8 @@ Remaining:
 
 Codex evidence:
 
-- Supabase migrations `20260512123500` and `20260512124000` are applied locally
-  and remotely.
+- Supabase migrations `20260512123500`, `20260512124000`, `20260512211500`,
+  `20260512212500`, and `20260512213500` are applied remotely.
 - `admin_transition_lifecycle_exception(...)` now defines named-admin guarded
   transitions for `refund_item`, `revoke_credential`, `revoke_ownership`, and
   `transfer_ownership`.
@@ -369,8 +369,11 @@ Codex evidence:
 - Lifecycle exception transitions write `admin_audit_events` and emit custody
   evidence for credential revocation, item refund, ownership transfer, and
   ownership revocation.
-- `npm run test:lifecycle` passed against Supabase and verified the RPC exists
-  while enforcing the named-admin guard.
+- `npm run test:lifecycle` passed against Supabase and now verifies the
+  named-admin guard plus disposable refund, credential revocation, ownership
+  revocation, and ownership transfer mutations. The smoke confirms persisted
+  order/item/reveal/ownership state and audit/custody evidence, then cleans up
+  the disposable records.
 - `/admin/fulfillment` now exposes named-admin exception actions for internal
   refund state recording and credential revocation.
 - `/admin/ownership` now exposes named-admin ownership revocation and transfer

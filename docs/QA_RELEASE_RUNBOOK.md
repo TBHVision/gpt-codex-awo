@@ -22,6 +22,7 @@ npm run test:mirror
 npm run build
 npm run test:smoke
 npm run test:demo
+npm run test:lifecycle
 npm run test:release
 ```
 
@@ -45,6 +46,9 @@ What each command proves:
 - `npm run test:demo`: launches Chrome, clicks `/demo` Start Guided Checkout,
   verifies the prefilled checkout story, cart item, and total, then checks the
   seeded honoree playback path at `/reveal?code=AWO-DEMO-001&demo=1`.
+- `npm run test:lifecycle`: verifies the Supabase lifecycle exception RPC with
+  disposable refund, credential revocation, ownership revocation, and ownership
+  transfer fixtures, including audit/custody evidence and cleanup.
 - `npm run test:credentials`: safely verifies the remote credential-generation
   RPC exists and rejects calls without a named admin actor. It does not generate
   or mutate a credential.

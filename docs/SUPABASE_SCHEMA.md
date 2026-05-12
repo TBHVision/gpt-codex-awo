@@ -289,8 +289,11 @@ Supported actions:
   or person, marks it `transferred`, and emits `ownership_transferred`.
 
 The RPC requires `actor_profile_id` to belong to a `profiles.role = 'admin'`
-row. `scripts/lifecycle-exception-rpc-smoke.mjs` verifies the RPC exists and
-enforces the named-admin guard without mutating lifecycle state.
+row. `scripts/lifecycle-exception-rpc-smoke.mjs` creates disposable catalog,
+order, reveal, and ownership fixtures, verifies the named-admin guard, executes
+refund, credential revocation, ownership revocation, and ownership transfer
+mutations, confirms persisted state plus audit/custody evidence, and removes
+the disposable records.
 
 Operator surfaces:
 
