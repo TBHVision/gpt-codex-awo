@@ -273,6 +273,8 @@ every small decision.
 - AWO-76 stakeholder playback polish is in progress:
   - `/demo` is a stakeholder walkthrough surface linking shop, checkout,
     seeded reveal, and protected proof-layer pages
+  - guided checkout from `/demo` seeds Wildflower Notes into the browser cart
+    and pre-fills recipient, occasion, and sender message context
   - `/reveal` is the recipient-facing playback surface for code/PIN unlocks
   - checkout success can carry a reveal code into `/reveal?code=...`
   - the seeded `AWO-DEMO-001` reveal now returns richer human-origin evidence,

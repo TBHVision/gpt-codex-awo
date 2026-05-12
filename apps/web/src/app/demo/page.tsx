@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-html-link-for-pages */
 
 import StorefrontNav from "@/app/components/StorefrontNav";
+import DemoStartButton from "./DemoStartButton";
 
 const journey = [
   {
@@ -61,11 +62,12 @@ export default function DemoWalkthroughPage() {
               playback, and the operational evidence behind the reveal.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
+              <DemoStartButton />
               <a
-                className="inline-flex h-12 items-center justify-center bg-[#252525] px-6 text-sm font-black uppercase tracking-wide text-white hover:bg-[#3a3632]"
-                href="/shop"
+                className="inline-flex h-12 items-center justify-center border border-[#dfd5ca] bg-white px-6 text-sm font-black uppercase tracking-wide text-[#373431] hover:border-[#b7653a] hover:text-[#a85f38]"
+                href="/shop/wildflower-notes"
               >
-                Start Walkthrough
+                Review Card First
               </a>
               <a
                 className="inline-flex h-12 items-center justify-center border border-[#b7653a] bg-white px-6 text-sm font-black uppercase tracking-wide text-[#7a472e] hover:bg-[#fff8f3]"

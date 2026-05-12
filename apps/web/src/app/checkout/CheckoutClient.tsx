@@ -21,6 +21,15 @@ import { readBuyerSession } from "@/lib/buyer-auth";
 import type { BuyerSession } from "@/lib/buyer-auth";
 import { clearBuyerCart, syncBuyerCart } from "@/lib/buyer-cart";
 
+const demoCartItem: CartItem = {
+  artistName: "HatchVision Studio",
+  currency: "USD",
+  priceCents: 550,
+  quantity: 1,
+  slug: "wildflower-notes",
+  title: "Wildflower Notes",
+};
+
 function cartTotal(items: CartItem[]) {
   return items.reduce(
     (total, item) => total + item.priceCents * item.quantity,
@@ -30,10 +39,19 @@ function cartTotal(items: CartItem[]) {
 
 export default function CheckoutClient() {
   const searchParams = useSearchParams();
+  const isDemoCheckout = searchParams.get("demo") === "1";
   const [items, setItems] = useState<CartItem[]>([]);
-  const [recipientName, setRecipientName] = useState("");
-  const [occasionLabel, setOccasionLabel] = useState("");
-  const [messageNotes, setMessageNotes] = useState("");
+  const [recipientName, setRecipientName] = useState(
+    isDemoCheckout ? "Demo Recipient" : "",
+  );
+  const [occasionLabel, setOccasionLabel] = useState(
+    isDemoCheckout ? "Birthday" : "",
+  );
+  const [messageNotes, setMessageNotes] = useState(
+    isDemoCheckout
+      ? "I picked this card because it felt calm, handmade, and personal. I hope the artist story behind it makes the moment feel even more yours."
+      : "",
+  );
   const [draft, setDraft] = useState<CheckoutDraftResult | null>(null);
   const [error, setError] = useState("");
   const [buyerSession, setBuyerSession] = useState<BuyerSession | null>(null);
@@ -49,8 +67,14 @@ export default function CheckoutClient() {
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      const localItems = readCartFromStorage();
+      const storedItems = readCartFromStorage();
+      const localItems =
+        isDemoCheckout && storedItems.length === 0 ? [demoCartItem] : storedItems;
       const savedSession = readBuyerSession();
+
+      if (isDemoCheckout && storedItems.length === 0) {
+        writeCartToStorage(localItems);
+      }
 
       setItems(localItems);
       setBuyerSession(savedSession);
@@ -68,7 +92,7 @@ export default function CheckoutClient() {
     }, 0);
 
     return () => window.clearTimeout(timer);
-  }, []);
+  }, [isDemoCheckout]);
 
   async function submitCheckout(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -154,6 +178,12 @@ export default function CheckoutClient() {
             Save recipient, occasion, message, and cart items into AWO. Stripe
             test checkout is available when test-mode keys are configured.
           </p>
+          {isDemoCheckout ? (
+            <p className="mt-4 inline-flex border border-[#e5ded6] bg-white px-3 py-2 text-xs font-bold text-[#6e6258]">
+              Guided demo mode loaded Wildflower Notes and prefilled the
+              recipient story.
+            </p>
+          ) : null}
         </div>
       </section>
 
@@ -239,7 +269,7 @@ export default function CheckoutClient() {
               <input
                 className="mt-2 h-11 w-full border border-[#dfd5ca] bg-[#fbfaf8] px-3 text-sm font-medium normal-case tracking-normal outline-none focus:border-[#b7653a]"
                 onChange={(event) => setRecipientName(event.target.value)}
-                placeholder="Who is this for?"
+                placeholder={isDemoCheckout ? "Demo Recipient" : "Who is this for?"}
                 type="text"
                 value={recipientName}
               />
@@ -249,7 +279,9 @@ export default function CheckoutClient() {
               <input
                 className="mt-2 h-11 w-full border border-[#dfd5ca] bg-[#fbfaf8] px-3 text-sm font-medium normal-case tracking-normal outline-none focus:border-[#b7653a]"
                 onChange={(event) => setOccasionLabel(event.target.value)}
-                placeholder="Birthday, support, thank you..."
+                placeholder={
+                  isDemoCheckout ? "Birthday" : "Birthday, support, thank you..."
+                }
                 type="text"
                 value={occasionLabel}
               />
