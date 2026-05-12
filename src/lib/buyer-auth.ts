@@ -27,6 +27,22 @@ export type BuyerProfile = {
 
 export const buyerSessionStorageKey = "awo_buyer_session";
 
+function isBuyerSession(value: unknown): value is BuyerSession {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const candidate = value as Partial<BuyerSession>;
+
+  return Boolean(
+    candidate.access_token &&
+      candidate.token_type &&
+      candidate.user &&
+      typeof candidate.user === "object" &&
+      candidate.user.id,
+  );
+}
+
 function getSupabasePublicConfig() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -67,6 +83,15 @@ async function parseAuthResponse(response: Response, fallback: string) {
     throw new Error(errorMessage(payload as AuthErrorResponse, fallback));
   }
 
+  if (
+    !("access_token" in payload) ||
+    !payload.access_token ||
+    !("user" in payload) ||
+    !payload.user?.id
+  ) {
+    throw new Error(fallback);
+  }
+
   return payload as BuyerSession;
 }
 
@@ -89,7 +114,10 @@ export async function signUpBuyer(input: {
     method: "POST",
   });
 
-  return parseAuthResponse(response, "Could not create the buyer account.");
+  return parseAuthResponse(
+    response,
+    "Account created, but Supabase requires email confirmation before sign-in. Check your email, then come back and use Sign In.",
+  );
 }
 
 export async function signInBuyer(input: { email: string; password: string }) {
@@ -140,8 +168,19 @@ export function readBuyerSession() {
 
   try {
     const raw = window.localStorage.getItem(buyerSessionStorageKey);
-    return raw ? (JSON.parse(raw) as BuyerSession) : null;
+    if (!raw) {
+      return null;
+    }
+
+    const parsed = JSON.parse(raw) as unknown;
+    if (isBuyerSession(parsed)) {
+      return parsed;
+    }
+
+    window.localStorage.removeItem(buyerSessionStorageKey);
+    return null;
   } catch {
+    window.localStorage.removeItem(buyerSessionStorageKey);
     return null;
   }
 }

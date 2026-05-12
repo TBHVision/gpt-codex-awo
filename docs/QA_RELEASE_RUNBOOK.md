@@ -32,7 +32,8 @@ What each command proves:
   redirect to login when unauthenticated.
 - `npm run test:demo`: launches Chrome, clicks `/demo` Start Guided Checkout,
   verifies the prefilled checkout story, cart item, and total, then checks that
-  Open Demo Reveal preloads the seeded reveal code and PIN.
+  Open Demo Reveal preloads the seeded reveal code and PIN. It also verifies
+  cart quantity and remove controls.
 - `npm run test:release`: runs the full local gate: lint, build, fresh
   production server, smoke routes, guided demo journey, and desktop/mobile
   visual QA.
@@ -97,6 +98,9 @@ that `/checkout?demo=1` has:
 
 It also opens the demo reveal link and verifies the seeded reveal code and PIN
 are prefilled for stakeholder walkthroughs.
+
+Finally, it seeds a local cart item, confirms quantity can be increased, then
+confirms Remove empties the cart.
 
 Use another target with:
 

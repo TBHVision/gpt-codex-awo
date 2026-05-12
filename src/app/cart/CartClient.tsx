@@ -76,6 +76,29 @@ export default function CartClient() {
     return () => window.clearTimeout(timer);
   }, []);
 
+  function persistItems(nextItems: CartItem[]) {
+    const normalizedItems = nextItems.filter((item) => item.quantity > 0);
+    setItems(normalizedItems);
+    writeCartToStorage(normalizedItems);
+    setSyncStatus(
+      "Cart updated on this browser. Signed-in account sync will refresh when you revisit cart.",
+    );
+  }
+
+  function updateQuantity(slug: string, quantity: number) {
+    persistItems(
+      items.map((item) =>
+        item.slug === slug
+          ? { ...item, quantity: Math.max(1, Math.min(quantity, 25)) }
+          : item,
+      ),
+    );
+  }
+
+  function removeItem(slug: string) {
+    persistItems(items.filter((item) => item.slug !== slug));
+  }
+
   async function clearCart() {
     const savedSession = readBuyerSession();
     clearCartStorage();
@@ -135,6 +158,42 @@ export default function CartClient() {
                       <p className="mt-3 text-xs font-black uppercase tracking-wide text-[#8a8178]">
                         Quantity {item.quantity}
                       </p>
+                      <div className="mt-3 flex flex-wrap items-center gap-2">
+                        <button
+                          aria-label={`Decrease ${item.title} quantity`}
+                          className="inline-flex size-9 items-center justify-center border border-[#dfd5ca] bg-white text-lg font-black text-[#7a472e] hover:border-[#b7653a]"
+                          onClick={() => updateQuantity(item.slug, item.quantity - 1)}
+                          type="button"
+                        >
+                          -
+                        </button>
+                        <input
+                          aria-label={`${item.title} quantity`}
+                          className="h-9 w-16 border border-[#dfd5ca] bg-white text-center text-sm font-black outline-none focus:border-[#b7653a]"
+                          max={25}
+                          min={1}
+                          onChange={(event) =>
+                            updateQuantity(item.slug, Number(event.target.value) || 1)
+                          }
+                          type="number"
+                          value={item.quantity}
+                        />
+                        <button
+                          aria-label={`Increase ${item.title} quantity`}
+                          className="inline-flex size-9 items-center justify-center border border-[#dfd5ca] bg-white text-lg font-black text-[#7a472e] hover:border-[#b7653a]"
+                          onClick={() => updateQuantity(item.slug, item.quantity + 1)}
+                          type="button"
+                        >
+                          +
+                        </button>
+                        <button
+                          className="ml-0 inline-flex h-9 items-center justify-center border border-[#f0c7c7] bg-white px-3 text-xs font-black uppercase tracking-wide text-[#a21616] hover:bg-[#fff5f5] sm:ml-2"
+                          onClick={() => removeItem(item.slug)}
+                          type="button"
+                        >
+                          Remove
+                        </button>
+                      </div>
                     </div>
                   </div>
                   <p className="text-xl font-black">

@@ -222,6 +222,72 @@ async function waitForRevealDemoState(client) {
   throw new Error("Guided demo reveal state did not load correctly.");
 }
 
+async function verifyCartControls(client) {
+  const cartLoad = client.waitFor("Page.loadEventFired");
+  await client.send("Page.navigate", { url: new URL("/cart", baseUrl).toString() });
+  await cartLoad;
+
+  await evaluate(
+    client,
+    `(() => {
+      localStorage.setItem('awo_demo_cart', JSON.stringify([{
+        artistName: 'HatchVision Studio',
+        currency: 'USD',
+        priceCents: 550,
+        quantity: 1,
+        slug: 'wildflower-notes',
+        title: 'Wildflower Notes'
+      }]));
+      window.dispatchEvent(new Event('awo-cart-updated'));
+    })()`,
+  );
+
+  const reload = client.waitFor("Page.loadEventFired");
+  await client.send("Page.reload");
+  await reload;
+  await sleep(250);
+
+  const plusResult = await evaluate(
+    client,
+    `(async () => {
+      const button = Array.from(document.querySelectorAll('button')).find((item) =>
+        item.getAttribute('aria-label') === 'Increase Wildflower Notes quantity'
+      );
+      if (!button) return { ok: false, reason: 'Increase quantity button not found' };
+      button.click();
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      const input = document.querySelector('input[aria-label="Wildflower Notes quantity"]');
+      return { ok: input?.value === '2', value: input?.value ?? '' };
+    })()`,
+  );
+
+  if (!plusResult.ok) {
+    throw new Error(plusResult.reason ?? `Cart quantity did not update: ${plusResult.value}`);
+  }
+
+  const removeResult = await evaluate(
+    client,
+    `(async () => {
+      const button = Array.from(document.querySelectorAll('button')).find((item) =>
+        item.textContent?.trim() === 'Remove'
+      );
+      if (!button) return { ok: false, reason: 'Remove button not found' };
+      button.click();
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      return {
+        ok: document.body.innerText.includes('Your Cart Is Empty'),
+        text: document.body.innerText.slice(0, 500)
+      };
+    })()`,
+  );
+
+  if (!removeResult.ok) {
+    throw new Error(removeResult.reason ?? "Cart remove did not empty the cart.");
+  }
+
+  console.log(`PASS /cart quantity and remove controls -> ${new URL("/cart", baseUrl)}`);
+}
+
 async function main() {
   const chrome = await findChrome();
   const userDataDir = await mkdtemp(path.join(tmpdir(), "awo-demo-journey-"));
@@ -296,6 +362,8 @@ async function main() {
 
     const revealState = await waitForRevealDemoState(client);
     console.log(`PASS /demo guided reveal -> ${revealState.url}`);
+
+    await verifyCartControls(client);
   } finally {
     if (client) {
       await client.close();

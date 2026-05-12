@@ -10,6 +10,7 @@ This registry is the GPT-Codex source of truth for feature status. A feature is 
 | Buyer account auth | V0.1 | Buyer | Working path | AWO-38; Supabase Auth REST signup/sign-in route and buyer profile bootstrap |
 | Buyer order history | V0.2/V0.4 | Buyer | Working path | AWO-53; server verifies buyer access token before order attachment, account page reads buyer-owned orders through RLS |
 | Buyer cart persistence | V0.2/V0.4 | Buyer | Working path | AWO-54; signed-in carts sync through Supabase `carts`/`cart_items`, guests keep browser fallback |
+| Cart edit controls | V0.2/V1.0 | Buyer | Working path | Cart supports quantity update, remove item, and clear cart; covered by `npm run test:demo` |
 | Shop browse | V0.2 | Buyer | Polished real-catalog path | AWO-51; local and production smoke tests; production reads five-card `published_cards` catalog with real AWO logo |
 | Checkout/order draft | V0.2+ | Buyer | Complete | AWO-37; local and production API draft creation verified |
 | Stripe test checkout | V0.6/V0.7 | Buyer/Ops | Complete | AWO-46; Stripe test payment and webhook verified, `AWO-DRAFT-F2EC02824E` moved to paid in Supabase |

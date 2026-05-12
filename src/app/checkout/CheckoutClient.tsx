@@ -136,10 +136,14 @@ export default function CheckoutClient() {
         | CheckoutSessionResponse;
 
       if (!response.ok || !result.ok) {
+        const resultMessage = result.ok
+          ? "Checkout could not be started yet."
+          : result.message;
         setError(
-          result.ok
-            ? "Checkout could not be started yet."
-            : result.message,
+          mode === "payment" &&
+            resultMessage.includes("Stripe test checkout is not configured")
+            ? "Stripe test checkout is not configured in this running environment. Use Save Draft Only here, or test Stripe on the Vercel deployment after env vars are set."
+            : resultMessage,
         );
         return;
       }
@@ -177,6 +181,11 @@ export default function CheckoutClient() {
           <p className="mt-3 max-w-2xl text-sm leading-6 text-[#4b4743]">
             Save recipient, occasion, message, and cart items into AWO. Stripe
             test checkout is available when test-mode keys are configured.
+          </p>
+          <p className="mt-3 max-w-2xl text-xs font-bold leading-5 text-[#7a6f66]">
+            Local checkout can save drafts even when Stripe secrets are not on
+            this PC. Stripe test payment requires the configured Vercel
+            environment or local secret variables.
           </p>
           {isDemoCheckout ? (
             <p className="mt-4 inline-flex border border-[#e5ded6] bg-white px-3 py-2 text-xs font-bold text-[#6e6258]">
