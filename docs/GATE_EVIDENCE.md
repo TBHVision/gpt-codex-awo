@@ -292,15 +292,18 @@ Codex evidence:
 - Vercel Web Analytics and Speed Insights components are wired into the root
   app shell so deployed pages can emit first-party analytics/performance
   signals once Vercel collection is available.
+- Optional Sentry exception tracking is wired into server, edge, and browser
+  runtime paths through `@sentry/nextjs`; it stays inert until `SENTRY_DSN` or
+  `NEXT_PUBLIC_SENTRY_DSN` is configured.
 - `docs/OBSERVABILITY_PLAN.md` lists the recognized optional environment keys
   without requiring Tony to choose or configure a provider during this run.
-- Vercel production is serving commit `b381b48`, and `npm run
-  test:vercel:smoke` passed against `https://gpt-codex-awo-dashboard.vercel.app`.
+- Local `npm run test:release` passed after optional Sentry instrumentation was
+  added.
 
 Remaining:
 
-- Tony still needs to choose/configure Sentry or explicitly defer exception
-  tracking.
+- Tony still needs to create/configure the Sentry project DSN, or explicitly
+  defer exception event collection.
 - Tony should confirm Vercel Web Analytics and Speed Insights are collecting in
   the Vercel dashboard before AWO-79 can be called Done.
 

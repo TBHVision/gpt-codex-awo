@@ -101,7 +101,9 @@ Core ops events:
 The current readiness checks recognize these optional keys without exposing
 their values:
 
-- Error tracking: `SENTRY_DSN` or `NEXT_PUBLIC_SENTRY_DSN`
+- Error tracking: `SENTRY_DSN` or `NEXT_PUBLIC_SENTRY_DSN`. The app has
+  optional Sentry instrumentation for server, edge, and browser runtime paths;
+  it stays inert until a DSN is configured.
 - Product analytics: `NEXT_PUBLIC_POSTHOG_KEY`,
   `POSTHOG_PROJECT_API_KEY`, `VERCEL_ANALYTICS_ID`, or Vercel runtime with the
   `@vercel/analytics` component

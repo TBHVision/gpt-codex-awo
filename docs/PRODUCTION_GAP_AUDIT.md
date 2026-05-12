@@ -299,6 +299,14 @@ Remaining:
 - Production smoke/visual checks should be run after every Vercel deploy when
   nearing launch.
 
+## Known Dependency Advisory
+
+`npm audit --omit=dev` currently reports a moderate PostCSS advisory through
+the installed Next.js dependency. The suggested `npm audit fix --force` path is
+not acceptable because it attempts a breaking downgrade. Track this until a
+safe patched Next.js release is available, then upgrade and rerun the release
+gate.
+
 ## Recent Payment Evidence
 
 AWO-46 is complete from the test-mode perspective.

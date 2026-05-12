@@ -222,7 +222,7 @@ export async function loadLaunchReadinessSnapshot(): Promise<LaunchReadinessSnap
       items: [
         {
           detail:
-            "Application exception tracking should be wired through Sentry or an equivalent service before public launch. This check only reports whether a DSN is configured; it never exposes the value.",
+            "Optional Sentry exception tracking is wired into server, edge, and browser instrumentation. This check reports whether a DSN is configured; it never exposes the value.",
           label: "Error tracking DSN",
           state: observabilityState(["SENTRY_DSN", "NEXT_PUBLIC_SENTRY_DSN"]),
         },
