@@ -287,8 +287,8 @@ every small decision.
   - `npm run test:demo` verifies guided checkout, seeded reveal playback,
     `/api/reveal/verify` when Supabase public env is present, cart controls,
     malformed cart recovery, stale account-session recovery, and navigation
-  - GitHub Actions release-readiness passed on `main` in run `25727061599` for
-    commit `caff352`
+  - GitHub Actions release-readiness passed on `main` in run `25727458788` for
+    commit `8ae402a`
 - `/api/health` now exposes a no-secret production posture endpoint for service
   readiness checks. It reports configured/missing service posture without
   returning secret values.
