@@ -31,6 +31,18 @@ export async function GET() {
       services: {
         adminGate:
           hasEnv("AWO_ADMIN_PASSWORD") && hasEnv("AWO_ADMIN_SESSION_TOKEN"),
+        adminAuth: {
+          namedAdminLoginConfigured:
+            hasEnv("NEXT_PUBLIC_SUPABASE_URL") &&
+            hasEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY") &&
+            hasEnv("SUPABASE_SERVICE_ROLE_KEY") &&
+            hasEnv("AWO_ADMIN_SESSION_TOKEN"),
+          sessionTokenConfigured: hasEnv("AWO_ADMIN_SESSION_TOKEN"),
+          temporaryPasswordFallback: hasEnv("AWO_ADMIN_PASSWORD"),
+          temporaryPasswordProductionRisk:
+            hasEnv("AWO_ADMIN_PASSWORD") &&
+            (valueOrNull("VERCEL_ENV") ?? "local") === "production",
+        },
         observability: {
           analytics:
             hasEnv("NEXT_PUBLIC_POSTHOG_KEY") ||

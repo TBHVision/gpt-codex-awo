@@ -49,6 +49,11 @@ Server-only:
 
 `AWO_ADMIN_SESSION_TOKEN` should be a separate random value. If it is missing, the app currently falls back to `AWO_ADMIN_PASSWORD`, but production should define both.
 
+To remove the temporary password fallback safely later, keep
+`AWO_ADMIN_SESSION_TOKEN` configured and remove `AWO_ADMIN_PASSWORD` after a
+real Supabase admin login is confirmed. `/api/health` reports this posture under
+`services.adminAuth` without exposing either secret.
+
 These values are set in:
 
 - Local developer shell or `.env.local`

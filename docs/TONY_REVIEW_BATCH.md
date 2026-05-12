@@ -58,6 +58,7 @@ item blocks the next code change.
   before V1.0 or intentionally deferred.
 - Whether production should disable the temporary admin password entirely or
   restrict it to local/development after a real named admin login is confirmed.
+  `/api/health` now reports this posture under `services.adminAuth`.
 - Whether the next investor/artist demo should intentionally use seeded demo
   records or real Stripe/Supabase records created during the session.
 

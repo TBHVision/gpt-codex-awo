@@ -221,7 +221,7 @@ Codex evidence:
 - Artist approval/rejection writes `reviewed_at` and `reviewed_by_profile_id`
   on the artist row in addition to the existing admin audit event.
 - `npm run test:release` passed locally with authenticated E2E coverage for the
-  richer artist packet at `2026-05-12T14:07:27.715Z`.
+  richer artist packet at `2026-05-12T14:24:40.212Z`.
 
 Remaining:
 
@@ -242,7 +242,7 @@ Codex evidence:
 - `npm run test:release` now includes the authenticated E2E step after smoke
   and demo tests and before visual QA.
 - Local `npm run test:release` passed with the authenticated step at
-  `2026-05-12T14:07:27.715Z`.
+  `2026-05-12T14:24:40.212Z`.
 
 Remaining:
 
@@ -266,6 +266,24 @@ Remaining:
 
 - Tony still needs to choose/configure Sentry, Vercel Web Analytics/Speed
   Insights, PostHog, or explicit deferrals before AWO-79 can be called Done.
+
+## AWO-82 Admin Fallback Posture Evidence
+
+Codex evidence:
+
+- `/admin/launch` now reports the temporary admin fallback as its own launch
+  policy item instead of hiding it inside generic admin-secret readiness.
+- `/api/health` now reports `services.adminAuth` booleans for named-admin login
+  configuration, session-token configuration, temporary password fallback, and
+  production fallback risk.
+- `docs/AUTH_SESSION_MODEL.md` documents the safe future path: keep
+  `AWO_ADMIN_SESSION_TOKEN`, confirm a named Supabase admin login, then remove
+  `AWO_ADMIN_PASSWORD`.
+
+Remaining:
+
+- Tony still needs to confirm the real named admin account and decide whether
+  the temporary fallback is removed entirely or kept local/dev-only.
 
 ## AWO-81 Lifecycle Exception Evidence
 
@@ -291,7 +309,7 @@ Codex evidence:
   and `/admin/ownership` operator pages after login without clicking exception
   actions.
 - Local `npm run test:release` passed after the operator UI wiring at
-  `2026-05-12T14:07:27.715Z`.
+  `2026-05-12T14:24:40.212Z`.
 
 Remaining:
 

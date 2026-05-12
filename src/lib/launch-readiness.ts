@@ -88,6 +88,12 @@ export async function loadLaunchReadinessSnapshot(): Promise<LaunchReadinessSnap
     : stripeSecret.startsWith("sk_test_")
       ? "ready"
       : "blocked";
+  const namedAdminLoginConfigured =
+    hasEnv("NEXT_PUBLIC_SUPABASE_URL") &&
+    hasEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY") &&
+    hasEnv("SUPABASE_SERVICE_ROLE_KEY") &&
+    hasEnv("AWO_ADMIN_SESSION_TOKEN");
+  const temporaryAdminFallbackConfigured = hasEnv("AWO_ADMIN_PASSWORD");
 
   const sections: LaunchReadinessSection[] = [
     {
@@ -126,6 +132,19 @@ export async function loadLaunchReadinessSnapshot(): Promise<LaunchReadinessSnap
           label: "Admin password/session secrets",
           state:
             hasEnv("AWO_ADMIN_PASSWORD") && hasEnv("AWO_ADMIN_SESSION_TOKEN")
+              ? "ready"
+              : "blocked",
+        },
+        {
+          detail: temporaryAdminFallbackConfigured
+            ? "The shared temporary password fallback is still enabled. This is acceptable for controlled pre-launch work but should be removed or restricted before launch."
+            : namedAdminLoginConfigured
+              ? "Temporary password fallback is disabled; named Supabase admin login has the required app/session configuration."
+              : "Named Supabase admin login needs Supabase env vars and AWO_ADMIN_SESSION_TOKEN before the fallback can be removed safely.",
+          label: "Temporary admin fallback policy",
+          state: temporaryAdminFallbackConfigured
+            ? "review"
+            : namedAdminLoginConfigured
               ? "ready"
               : "blocked",
         },

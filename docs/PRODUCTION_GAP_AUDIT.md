@@ -248,7 +248,9 @@ Remaining:
   approval gates.
 - Temporary password admin sessions remain read-only for fulfillment actions.
 - Replacing the shared temporary admin password before launch is tracked by
-  AWO-82.
+  AWO-82. `/admin/launch` and `/api/health` now report the temporary fallback
+  posture separately so it is visible as a launch policy risk rather than a
+  hidden implementation detail.
 - Observability setup for production errors, analytics, and performance is still
   planned rather than configured. `/admin/launch` and `/api/health` now expose
   no-secret posture checks for error tracking, analytics, performance
