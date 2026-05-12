@@ -95,7 +95,7 @@ checks.
 - Local route smoke tests pass.
 - Desktop/mobile visual QA passes across golden routes.
 - GitHub Actions release readiness has passed on `main`; latest confirmed run
-  from this audit pass is `25724739319` for commit `a4a1a4c`.
+  from this audit pass is `25725888927` for commit `836bb6e`.
 - Vercel production smoke and demo journey checks pass through
   `npm run test:vercel:smoke` and `npm run test:vercel:demo`.
 - Public Vercel environment has Supabase and Stripe test variables configured.
