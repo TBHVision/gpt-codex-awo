@@ -65,7 +65,7 @@ jobs:
 
       - name: Upload QA evidence
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           include-hidden-files: true
           name: qa-evidence
