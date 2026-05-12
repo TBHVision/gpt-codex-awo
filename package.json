@@ -17,6 +17,7 @@
     "test:lifecycle": "node scripts/lifecycle-exception-rpc-smoke.mjs",
     "test:vercel:smoke": "node scripts/vercel-smoke.mjs",
     "test:vercel:demo": "node scripts/vercel-demo.mjs",
+    "test:stripe:checkout": "node scripts/stripe-checkout-smoke.mjs",
     "supabase": "supabase",
     "db:link": "supabase link",
     "db:push": "supabase db push",

@@ -249,6 +249,11 @@ Codex evidence:
 - Vercel production is serving commit `a022663`, and `npm run
   test:vercel:smoke` plus `npm run test:vercel:demo` passed against
   `https://gpt-codex-awo-dashboard.vercel.app`.
+- `npm run test:stripe:checkout` creates a deployed Stripe sandbox Checkout
+  Session through `/api/checkout/session`, verifies the returned `cs_test_`
+  session and `checkout.stripe.com` URL, then deletes the generated Supabase
+  smoke order when service-role credentials are available. Stripe-side session
+  expiration requires a local `STRIPE_SECRET_KEY`.
 
 Remaining:
 

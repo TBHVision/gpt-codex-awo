@@ -48,6 +48,10 @@ item blocks the next code change.
 - Vercel smoke/demo: `npm run test:vercel:smoke` and
   `npm run test:vercel:demo` passed against the deployed site after commit
   `a022663`.
+- Stripe checkout smoke: `npm run test:stripe:checkout` can verify the
+  deployed checkout session endpoint creates a Stripe sandbox session and
+  cleans the generated Supabase smoke order. Add local `STRIPE_SECRET_KEY` if
+  you want the script to expire the Stripe-side test session too.
 - Supabase: create or confirm at least one named admin user whose
   `profiles.role` is `admin` before relying on Supabase admin login.
 - Stripe: keep test mode only until Tony explicitly approves live charges.
