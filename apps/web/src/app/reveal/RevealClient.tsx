@@ -167,6 +167,20 @@ function formatValue(value: string | null | undefined, fallback: string) {
   return value && value.trim().length > 0 ? value : fallback;
 }
 
+function getCardArtworkUrl(cardTitle: string | null | undefined) {
+  const normalized = cardTitle?.trim().toLowerCase() ?? "";
+
+  const artworkByTitle: Record<string, string> = {
+    "wildflower notes": "/cards/wildflower-notes.svg",
+    "coastal morning": "/cards/coastal-morning.svg",
+    "with all my heart": "/cards/with-all-my-heart.svg",
+    "morning song": "/cards/morning-song.svg",
+    "misty pines": "/cards/misty-pines.svg",
+  };
+
+  return artworkByTitle[normalized] ?? null;
+}
+
 function getInitialDemoReveal() {
   if (typeof window === "undefined") {
     return false;
@@ -200,6 +214,7 @@ export default function RevealClient() {
     activeReveal?.sender_message,
     "The sender message will appear here when it is included at checkout.",
   );
+  const cardArtworkUrl = getCardArtworkUrl(activeReveal?.card_title);
   const evidenceItems = useMemo(
     () => (activeReveal?.evidence_items ?? []).filter((item) => item.label || item.value),
     [activeReveal],
@@ -380,29 +395,47 @@ export default function RevealClient() {
           <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
             <section className="space-y-6">
               <div className="border border-[#e5ded6] bg-white p-6 shadow-[0_18px_45px_rgba(45,38,32,.06)] sm:p-8">
-                <div className="flex items-center gap-3 text-[#b7653a]">
-                  <ShieldIcon />
-                  <p className="text-xs font-black uppercase tracking-[0.16em]">
-                    Reveal unlocked
-                  </p>
+                <div className="grid gap-6 lg:grid-cols-[220px_1fr]">
+                  {cardArtworkUrl ? (
+                    <div className="mx-auto w-full max-w-[220px]">
+                      <div
+                        aria-label={`${cardTitle} artwork`}
+                        className="aspect-[3/4] border border-[#e5ded6] bg-[#f4f0ea] shadow-[0_16px_35px_rgba(45,38,32,.1)]"
+                        role="img"
+                        style={{
+                          backgroundImage: `url(${cardArtworkUrl})`,
+                          backgroundPosition: "center",
+                          backgroundSize: "cover",
+                        }}
+                      />
+                    </div>
+                  ) : null}
+                  <div>
+                    <div className="flex items-center gap-3 text-[#b7653a]">
+                      <ShieldIcon />
+                      <p className="text-xs font-black uppercase tracking-[0.16em]">
+                        Reveal unlocked
+                      </p>
+                    </div>
+                    <h2 className="mt-4 text-3xl font-black tracking-tight sm:text-4xl">
+                      For {recipientName}
+                    </h2>
+                    <p className="mt-2 text-sm font-black uppercase tracking-[0.16em] text-[#b7653a]">
+                      {occasionLabel}
+                    </p>
+                    <p className="mt-4 max-w-3xl text-base leading-7 text-[#4b4743]">
+                      This is the verified playback for <strong>{cardTitle}</strong>,
+                      an ArtWithOrigin card by <strong>{artistName}</strong>. The
+                      record below ties the gift, artwork, purchase, reveal, and
+                      ownership trail together.
+                    </p>
+                    <p className="mt-4 border border-[#f4d3bc] bg-[#fff8ef] p-3 text-sm font-bold leading-6 text-[#6f3a1f]">
+                      Demo-safe proof layer: this walkthrough uses seeded test data
+                      to show the recipient experience before live ownership claims
+                      are enabled.
+                    </p>
+                  </div>
                 </div>
-                <h2 className="mt-4 text-3xl font-black tracking-tight sm:text-4xl">
-                  For {recipientName}
-                </h2>
-                <p className="mt-2 text-sm font-black uppercase tracking-[0.16em] text-[#b7653a]">
-                  {occasionLabel}
-                </p>
-                <p className="mt-4 max-w-3xl text-base leading-7 text-[#4b4743]">
-                  This is the verified playback for <strong>{cardTitle}</strong>,
-                  an ArtWithOrigin card by <strong>{artistName}</strong>. The
-                  record below ties the gift, artwork, purchase, reveal, and
-                  ownership trail together.
-                </p>
-                <p className="mt-4 border border-[#f4d3bc] bg-[#fff8ef] p-3 text-sm font-bold leading-6 text-[#6f3a1f]">
-                  Demo-safe proof layer: this walkthrough uses seeded test data
-                  to show the recipient experience before live ownership claims
-                  are enabled.
-                </p>
                 <div className="mt-6 border border-[#efe8df] bg-[#fbfaf8] p-5">
                   <p className="text-xs font-black uppercase tracking-[0.16em] text-[#b7653a]">
                     Sender message

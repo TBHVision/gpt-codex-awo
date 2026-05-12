@@ -42,6 +42,13 @@ const proofLinks = [
   { href: "/admin/launch", label: "Launch Readiness" },
 ];
 
+const reviewCues = [
+  "Can a buyer understand why this card is different from a generic greeting card?",
+  "Does the recipient reveal feel like a gift moment before it becomes a proof dashboard?",
+  "Can an artist see how AWO protects their story and provenance?",
+  "Can an operator prove the lifecycle without asking engineering to inspect the database?",
+];
+
 export default function DemoWalkthroughPage() {
   return (
     <main className="min-h-screen bg-[#fbfaf8] text-[#252525]">
@@ -98,6 +105,11 @@ export default function DemoWalkthroughPage() {
                 </dd>
               </div>
             </dl>
+            <p className="mt-5 border-t border-[#e3c8ae] pt-4 text-xs font-bold leading-5 text-[#6f3a1f]">
+              Use these only for sandbox walkthroughs. The demo is designed to
+              prove the experience without charging a card or exposing live
+              recipient data.
+            </p>
           </aside>
         </div>
       </section>
@@ -145,6 +157,16 @@ export default function DemoWalkthroughPage() {
               custody events, ownership records, and reconciliation all tell the
               same story.
             </p>
+            <div className="mt-6 grid gap-3">
+              {reviewCues.map((cue) => (
+                <div
+                  className="border border-[#e5ded6] bg-[#fbfaf8] p-4 text-sm font-bold leading-6 text-[#373431]"
+                  key={cue}
+                >
+                  {cue}
+                </div>
+              ))}
+            </div>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             {proofLinks.map((link) => (
