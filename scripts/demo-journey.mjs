@@ -288,6 +288,56 @@ async function verifyCartControls(client) {
   console.log(`PASS /cart quantity and remove controls -> ${new URL("/cart", baseUrl)}`);
 }
 
+async function verifyAccountSessionRecovery(client) {
+  const accountLoad = client.waitFor("Page.loadEventFired");
+  await client.send("Page.navigate", { url: new URL("/account", baseUrl).toString() });
+  await accountLoad;
+
+  await evaluate(
+    client,
+    `(() => {
+      localStorage.setItem('awo_buyer_session', JSON.stringify({
+        access_token: '',
+        token_type: '',
+        user: {}
+      }));
+    })()`,
+  );
+
+  const reload = client.waitFor("Page.loadEventFired");
+  await client.send("Page.reload");
+  await reload;
+
+  let lastState = { bodyText: "", session: "" };
+  for (let attempt = 0; attempt < 50; attempt += 1) {
+    lastState = await evaluate(
+      client,
+      `(() => ({
+        bodyText: document.body.innerText,
+        session: localStorage.getItem('awo_buyer_session')
+      }))()`,
+    );
+
+    const bodyText = lastState.bodyText ?? "";
+    const normalizedText = bodyText.toLowerCase();
+    if (
+      normalizedText.includes("sign in to awo") &&
+      normalizedText.includes("create account") &&
+      lastState.session === null &&
+      !normalizedText.includes("this page couldn't load")
+    ) {
+      console.log(`PASS /account stale session recovery -> ${new URL("/account", baseUrl)}`);
+      return;
+    }
+
+    await sleep(100);
+  }
+
+  throw new Error(
+    `Account page did not recover cleanly from a stale buyer session. session=${lastState.session ?? "null"} text=${(lastState.bodyText ?? "").slice(0, 160)}`,
+  );
+}
+
 async function main() {
   const chrome = await findChrome();
   const userDataDir = await mkdtemp(path.join(tmpdir(), "awo-demo-journey-"));
@@ -364,6 +414,7 @@ async function main() {
     console.log(`PASS /demo guided reveal -> ${revealState.url}`);
 
     await verifyCartControls(client);
+    await verifyAccountSessionRecovery(client);
   } finally {
     if (client) {
       await client.close();

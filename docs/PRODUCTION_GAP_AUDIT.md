@@ -2,7 +2,7 @@
 
 Linear issue: AWO-36, refreshed by AWO-56 and AWO-62
 
-Last updated: 2026-05-11
+Last updated: 2026-05-12
 
 ## Executive Summary
 
@@ -16,7 +16,7 @@ queues.
 Stripe test-mode checkout is now verified end to end. The remaining production
 work is no longer "can we collect a test payment"; it is hardening the launch
 posture around observability, admin actions, fulfillment, ownership transfer,
-and final human review.
+buyer/artist experience polish, and final human review.
 
 ## Verified Surfaces
 
@@ -48,6 +48,8 @@ Current automated evidence:
 `test:release` now runs lint, build, a fresh production server, route smoke,
 guided demo journey, and desktop/mobile visual QA, then writes
 `.qa/release-readiness/latest.json`.
+`test:demo` now covers the guided checkout/reveal path, cart quantity/remove
+controls, and stale buyer-session recovery on `/account`.
 `/admin/launch` now gives the V1.0 gate a protected launch-readiness view for
 environment posture, release evidence, required docs, and Tony review blockers.
 `/admin/reviews` now gives operators a protected read-only view of card,
@@ -84,6 +86,8 @@ read-only; repair and replay workflows remain future audited scopes.
 
 - Local route smoke tests pass.
 - Desktop/mobile visual QA passes across golden routes.
+- GitHub Actions release readiness has passed on `main`; latest confirmed run
+  from this audit pass is `25713427285`.
 - Public Vercel environment has Supabase and Stripe test variables configured.
 - Admin routes redirect unauthenticated users to login.
 - Temporary admin password gate remains in place for `/admin/*`.
@@ -105,6 +109,10 @@ Completed:
   shows buyer-owned order history through RLS.
 - AWO-54: Signed-in carts sync to Supabase `carts` and `cart_items`; guests keep
   browser-local cart fallback.
+- Cart edit controls now support quantity increase/decrease, direct quantity
+  entry, item removal, and full cart clearing.
+- Buyer account page now clears malformed/stale browser sessions instead of
+  dropping into a generic page-load failure.
 
 Remaining:
 
@@ -194,9 +202,8 @@ Completed:
 
 Remaining:
 
-- CI-hosted release gate has been added, but the first remote GitHub Actions run
-  should be checked after push to confirm repository secrets and Chrome are
-  available in the runner.
+- CI-hosted release gate is confirmed working on `main`; continue checking it
+  after every push that changes launch-critical flows.
 - Broader write-capable approval tools are still deferred. Current admin writes
   are limited to audited card approve/reject actions for named Supabase admins.
 - Fulfillment now has narrow named-admin item transition controls, but shipping,
@@ -206,7 +213,8 @@ Remaining:
 - Observability setup for production errors, analytics, and performance is still
   planned rather than configured.
 - Browser-based authenticated end-to-end tests are still parked until account
-  flows stabilize further.
+  flows stabilize further. The current demo journey intentionally avoids
+  creating real Supabase users.
 - Production smoke/visual checks should be run after every Vercel deploy when
   nearing launch.
 
@@ -227,9 +235,13 @@ Evidence captured on 2026-05-11:
 
 ## Recommended Next Build Order
 
-1. Finish V0.6 gate review after Tony reviews `/admin/ops`.
-2. Add the V0.7 observability and CI posture.
-3. Build admin approval tools for cards/artists/orders after payment state is
-   verified.
-4. Add fulfillment and ownership write workflows with audit and rollback rules.
-5. Add authenticated E2E tests once account/session mechanics stabilize.
+1. Keep V1.0 focused on a demo-ready stakeholder walkthrough: shopper path,
+   honoree playback, buyer account recovery, and obvious dead-end removal.
+2. Decide and configure observability: Sentry for exceptions, plus either
+   Vercel Analytics/Speed Insights or PostHog for product behavior.
+3. Build the next audited admin write controls only where they unblock launch:
+   card/artist approval, fulfillment updates, refunds, or revoke/transfer.
+4. Add authenticated E2E tests for buyer and admin flows once the account model
+   is no longer changing daily.
+5. Convert remaining launch gaps into specific Linear issues instead of using
+   broad phase percentages as a proxy for readiness.

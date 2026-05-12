@@ -1,6 +1,6 @@
 # Tony Review Batch
 
-Last updated: 2026-05-11
+Last updated: 2026-05-12
 
 This is the batched list of things Tony should review or configure when ready.
 Codex should keep working around this list and avoid stopping unless a missing
@@ -9,9 +9,13 @@ item blocks the next code change.
 ## Browser Reviews
 
 - V0.2: Review `/shop`, card detail, `/cart`, and `/checkout` for buyer clarity.
+  Cart now supports quantity editing, remove item, and clear cart. Checkout
+  still tells the user when Stripe is not configured in the current environment.
 - V0.3: Review `/reveal` on a phone-sized viewport for recipient clarity and
   gift-worthiness.
 - V0.4: Review `/people`, `/reminders`, and `/account` for warmth and usefulness.
+  `/account` should recover to the sign-in/create-account view if a stale saved
+  browser session exists.
 - V0.5: Review `/artists` and `/studio` for artist confidence and submission
   clarity.
 - V0.6: Review `/admin/ops` for whether the read-only operations model is
@@ -22,8 +26,8 @@ item blocks the next code change.
 
 ## External Checks
 
-- GitHub Actions: confirm the latest `main` release-readiness workflow passes
-  after the latest push.
+- GitHub Actions: latest confirmed `main` release-readiness run is green
+  (`25713427285`); keep confirming after launch-critical pushes.
 - Vercel: confirm production redeployed after the latest push and that protected
   admin routes still require login.
 - Supabase: create or confirm at least one named admin user whose
@@ -37,6 +41,8 @@ item blocks the next code change.
   before V1.0 or intentionally deferred.
 - Whether write-capable admin actions should start with card approval, artist
   approval, fulfillment updates, or refund/revoke controls.
+- Whether the next investor/artist demo should intentionally use seeded demo
+  records or real Stripe/Supabase records created during the session.
 
 ## Current Default
 
