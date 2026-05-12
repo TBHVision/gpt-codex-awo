@@ -33,8 +33,8 @@ What each command proves:
 - `npm run test:demo`: launches Chrome, clicks `/demo` Start Guided Checkout,
   verifies the prefilled checkout story, cart item, and total, then checks that
   Open Demo Reveal preloads the seeded reveal code and PIN. It also verifies
-  cart quantity/remove controls, stale buyer-session recovery, and core
-  storefront navigation routes.
+  cart quantity/remove controls, malformed cart-storage recovery, stale
+  buyer-session recovery, and core storefront navigation routes.
 - `npm run test:release`: runs the full local gate: lint, build, fresh
   production server, smoke routes, guided demo journey, and desktop/mobile
   visual QA.
@@ -100,8 +100,9 @@ that `/checkout?demo=1` has:
 It also opens the demo reveal link and verifies the seeded reveal code and PIN
 are prefilled for stakeholder walkthroughs.
 
-Finally, it seeds a local cart item, confirms quantity can be increased, then
-confirms Remove empties the cart.
+Finally, it seeds a local cart item, confirms quantity can be increased,
+confirms Remove empties the cart, and confirms malformed browser cart storage
+recovers to the empty-cart state instead of crashing the page.
 
 It also verifies `/account` recovers from a malformed saved buyer session and
 checks the core storefront routes render expected page markers instead of 404,

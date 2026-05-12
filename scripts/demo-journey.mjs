@@ -288,6 +288,53 @@ async function verifyCartControls(client) {
   console.log(`PASS /cart quantity and remove controls -> ${new URL("/cart", baseUrl)}`);
 }
 
+async function verifyCartStorageRecovery(client) {
+  const cartLoad = client.waitFor("Page.loadEventFired");
+  await client.send("Page.navigate", { url: new URL("/cart", baseUrl).toString() });
+  await cartLoad;
+
+  await evaluate(
+    client,
+    `(() => {
+      localStorage.setItem('awo_demo_cart', JSON.stringify([
+        { title: 'Broken Card', quantity: 'two' },
+        null
+      ]));
+      window.dispatchEvent(new Event('awo-cart-updated'));
+    })()`,
+  );
+
+  const reload = client.waitFor("Page.loadEventFired");
+  await client.send("Page.reload");
+  await reload;
+
+  let lastState = { bodyText: "", cart: "" };
+  for (let attempt = 0; attempt < 50; attempt += 1) {
+    lastState = await evaluate(
+      client,
+      `(() => ({
+        bodyText: document.body.innerText,
+        cart: localStorage.getItem('awo_demo_cart')
+      }))()`,
+    );
+    const normalizedText = (lastState.bodyText ?? "").toLowerCase();
+    if (
+      normalizedText.includes("your cart is empty") &&
+      lastState.cart === null &&
+      !normalizedText.includes("this page couldn't load")
+    ) {
+      console.log(`PASS /cart malformed storage recovery -> ${new URL("/cart", baseUrl)}`);
+      return;
+    }
+
+    await sleep(100);
+  }
+
+  throw new Error(
+    `Cart page did not recover cleanly from malformed cart storage. cart=${lastState.cart ?? "null"} text=${(lastState.bodyText ?? "").slice(0, 160)}`,
+  );
+}
+
 async function verifyAccountSessionRecovery(client) {
   const accountLoad = client.waitFor("Page.loadEventFired");
   await client.send("Page.navigate", { url: new URL("/account", baseUrl).toString() });
@@ -456,6 +503,7 @@ async function main() {
     console.log(`PASS /demo guided reveal -> ${revealState.url}`);
 
     await verifyCartControls(client);
+    await verifyCartStorageRecovery(client);
     await verifyAccountSessionRecovery(client);
     await verifyStorefrontNavigation(client);
   } finally {

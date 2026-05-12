@@ -49,8 +49,8 @@ Current automated evidence:
 guided demo journey, and desktop/mobile visual QA, then writes
 `.qa/release-readiness/latest.json`.
 `test:demo` now covers the guided checkout/reveal path, cart quantity/remove
-controls, stale buyer-session recovery on `/account`, and core storefront route
-navigation.
+controls, malformed cart-storage recovery, stale buyer-session recovery on
+`/account`, and core storefront route navigation.
 `/admin/launch` now gives the V1.0 gate a protected launch-readiness view for
 environment posture, release evidence, required docs, and Tony review blockers.
 `/admin/reviews` now gives operators a protected read-only view of card,

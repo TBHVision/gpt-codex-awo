@@ -11,6 +11,26 @@ export const cartStorageKey = "awo_demo_cart";
 
 export const cartUpdatedEventName = "awo-cart-updated";
 
+function isCartItem(value: unknown): value is CartItem {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const candidate = value as Partial<CartItem>;
+
+  return (
+    typeof candidate.artistName === "string" &&
+    typeof candidate.currency === "string" &&
+    typeof candidate.priceCents === "number" &&
+    Number.isFinite(candidate.priceCents) &&
+    typeof candidate.quantity === "number" &&
+    Number.isInteger(candidate.quantity) &&
+    candidate.quantity > 0 &&
+    typeof candidate.slug === "string" &&
+    typeof candidate.title === "string"
+  );
+}
+
 export function readCartFromStorage() {
   if (typeof window === "undefined") {
     return [];
@@ -18,8 +38,28 @@ export function readCartFromStorage() {
 
   try {
     const raw = window.localStorage.getItem(cartStorageKey);
-    return raw ? (JSON.parse(raw) as CartItem[]) : [];
+    if (!raw) {
+      return [];
+    }
+
+    const parsed = JSON.parse(raw) as unknown;
+    if (!Array.isArray(parsed)) {
+      window.localStorage.removeItem(cartStorageKey);
+      return [];
+    }
+
+    const items = parsed.filter(isCartItem);
+    if (items.length !== parsed.length) {
+      if (items.length) {
+        window.localStorage.setItem(cartStorageKey, JSON.stringify(items));
+      } else {
+        window.localStorage.removeItem(cartStorageKey);
+      }
+    }
+
+    return items;
   } catch {
+    window.localStorage.removeItem(cartStorageKey);
     return [];
   }
 }

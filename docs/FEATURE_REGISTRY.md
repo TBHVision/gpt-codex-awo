@@ -27,4 +27,4 @@ This registry is the GPT-Codex source of truth for feature status. A feature is 
 | Custody events | V0.6/V1.0 | Backend/Ops | Working path | AWO-73; `/admin/custody` provides read-only provenance event visibility for payment, credential, fulfillment, reveal, and ownership lifecycle evidence |
 | Lifecycle reconciliation | V0.6/V1.0 | Backend/Ops | Working path | AWO-74; `/admin/reconciliation` flags mismatches between paid items, fulfillment, ownership records, and custody events |
 | Visual QA | V0.7 | QA | Automated baseline | AWO-44/AWO-49/AWO-52; local desktop/mobile visual QA harness passes golden route sweep, mobile menu interaction, and mobile storefront density polish |
-| Release readiness | V0.7/V1.0 | QA | Automated baseline | AWO-55/AWO-76; `npm run test:release` runs lint, build, smoke, guided demo journey, cart/account/nav dead-end checks, visual QA, and writes `.qa/release-readiness/latest.json` |
+| Release readiness | V0.7/V1.0 | QA | Automated baseline | AWO-55/AWO-76; `npm run test:release` runs lint, build, smoke, guided demo journey, cart/account/nav dead-end and recovery checks, visual QA, and writes `.qa/release-readiness/latest.json` |
