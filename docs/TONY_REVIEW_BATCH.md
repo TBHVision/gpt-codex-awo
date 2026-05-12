@@ -32,7 +32,7 @@ item blocks the next code change.
 ## External Checks
 
 - GitHub Actions: latest confirmed `main` release-readiness run is green
-  (`25725888927`) on commit `836bb6e`; keep confirming after launch-critical
+  (`25726493122`) on commit `90e6542`; keep confirming after launch-critical
   pushes.
 - Vercel: confirm production redeployed after the latest push and that protected
   admin routes still require login.
