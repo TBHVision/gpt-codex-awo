@@ -34,6 +34,8 @@ What each command proves:
   redirect to login when unauthenticated. It also validates the no-secret
   `/api/health` payload shape, including deployment metadata and service
   posture booleans.
+- `npm run test:vercel:smoke`: runs the same route checks against production
+  Vercel and verifies `/api/health` is serving the local Git `HEAD` commit.
 - `npm run test:demo`: launches Chrome, clicks `/demo` Start Guided Checkout,
   verifies the prefilled checkout story, cart item, and total, then checks the
   seeded honoree playback path at `/reveal?code=AWO-DEMO-001&demo=1`.

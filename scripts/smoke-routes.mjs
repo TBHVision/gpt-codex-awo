@@ -1,4 +1,5 @@
 const baseUrl = process.env.SMOKE_BASE_URL ?? "http://127.0.0.1:3000";
+const expectedCommit = process.env.SMOKE_EXPECTED_COMMIT?.trim();
 
 const publicRoutes = [
   "/",
@@ -51,6 +52,16 @@ async function checkPublicRoute(route) {
 
     if (!health.services || typeof health.services.supabaseUrl !== "boolean") {
       throw new Error("/api/health is missing service posture metadata.");
+    }
+
+    if (expectedCommit) {
+      const actualCommit = health.deployment.commit;
+
+      if (actualCommit !== expectedCommit) {
+        throw new Error(
+          `/api/health is serving commit ${actualCommit ?? "unknown"}, expected ${expectedCommit}.`,
+        );
+      }
     }
   }
 
