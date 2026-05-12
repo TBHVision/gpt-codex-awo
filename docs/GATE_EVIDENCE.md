@@ -320,6 +320,25 @@ Remaining:
 - Tony still needs to confirm the real named admin account and decide whether
   the temporary fallback is removed entirely or kept local/dev-only.
 
+## AWO-78 Artist Onboarding Evidence
+
+Codex evidence:
+
+- `/studio` now explains the production artist onboarding sequence: account
+  requirement, artist review request, proof packet preparation, and named-admin
+  approval.
+- Guest/local users now see a clear account-required artist application panel
+  instead of only a draft tool.
+- The Studio roadmap links directly to the protected admin review queue and the
+  seeded example artist profile.
+- Local `npm run test:release` passed after the Studio onboarding polish at
+  `2026-05-12T18:20:46.535Z`.
+
+Remaining:
+
+- Real artist media upload/storage, payout setup, and commercial terms remain
+  future scoped until Tony selects production policies and assets.
+
 ## AWO-81 Lifecycle Exception Evidence
 
 Codex evidence:

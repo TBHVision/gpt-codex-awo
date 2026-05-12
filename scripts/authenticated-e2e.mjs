@@ -291,7 +291,7 @@ async function waitForText(client, marker, label) {
   let lastText = "";
   let reloads = 0;
   for (let attempt = 0; attempt < 80; attempt += 1) {
-    lastText = await evaluate(client, "document.body.innerText");
+    lastText = await evaluate(client, "document.body?.innerText ?? ''");
     if ((lastText ?? "").includes(marker)) {
       return;
     }

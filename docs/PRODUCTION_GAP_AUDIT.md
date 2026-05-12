@@ -88,6 +88,9 @@ AWO-77 adds the first production QR/PIN generation boundary: a named-admin-only
 Supabase RPC generates a unique reveal code and raw PIN, stores only the hashed
 PIN, activates the reveal credential, and returns the raw PIN once for
 print/fulfillment handoff.
+AWO-78 improves the Artist Studio launch path so guest/local users see the
+account-required onboarding sequence, artist review expectations, proof packet
+requirements, admin approval posture, and links to review/profile surfaces.
 AWO-76 hardens the stakeholder demo path with deterministic `/demo` checkout,
 seeded `/reveal?code=AWO-DEMO-001&demo=1` playback, recipient-facing proof
 copy, operator proof links, and demo QA that checks `/api/reveal/verify` when

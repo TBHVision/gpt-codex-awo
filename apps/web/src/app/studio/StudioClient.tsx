@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import StorefrontNav from "@/app/components/StorefrontNav";
 import { readBuyerSession } from "@/lib/buyer-auth";
 import {
@@ -26,6 +27,29 @@ const captureChecklist = [
   "Artist verification statement",
   "QR reveal copy",
   "Ownership terms review",
+];
+
+const onboardingSteps = [
+  {
+    body: "Create or sign in to an AWO account so artist applications, drafts, and provenance checklists can be saved to Supabase.",
+    label: "Step 1",
+    title: "Use an account",
+  },
+  {
+    body: "Submit public name, contact email, medium, portfolio, story, human-origin statement, and commercial-terms acknowledgment.",
+    label: "Step 2",
+    title: "Request artist review",
+  },
+  {
+    body: "Prepare card drafts with the evidence AWO needs before a card can move into publishing and fulfillment review.",
+    label: "Step 3",
+    title: "Build the proof packet",
+  },
+  {
+    body: "A named admin approves the artist, writes an audit event, and unlocks the public artist profile path.",
+    label: "Step 4",
+    title: "Admin approval",
+  },
 ];
 
 const initialDrafts: LocalDraft[] = [
@@ -333,12 +357,52 @@ export default function StudioClient() {
             Signed-in artist/admin accounts save studio drafts and provenance
             checklists to Supabase. Guests can still explore the workflow locally.
           </p>
+          <div className="mt-8 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            {onboardingSteps.map((step) => (
+              <article
+                className="border border-[#e5ded6] bg-white/85 p-4 shadow-[0_18px_45px_rgba(45,38,32,.05)]"
+                key={step.title}
+              >
+                <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#b7653a]">
+                  {step.label}
+                </p>
+                <h2 className="mt-2 text-lg font-black">{step.title}</h2>
+                <p className="mt-2 text-xs font-medium leading-5 text-[#4b4743]">
+                  {step.body}
+                </p>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 
       <section className="mx-auto grid max-w-7xl gap-6 px-6 py-10 lg:grid-cols-[380px_1fr] lg:px-10">
         <aside className="h-fit border border-[#e5ded6] bg-white p-6 shadow-[0_18px_45px_rgba(45,38,32,.08)]">
           <h2 className="text-2xl font-black">Add Draft</h2>
+          {!artistProfile ? (
+            <div className="mt-4 border border-[#e5ded6] bg-[#fff8ef] p-4">
+              <h3 className="text-base font-black">Artist application starts with an account</h3>
+              <p className="mt-2 text-sm leading-6 text-[#4b4743]">
+                Drafts below are safe local practice. To request real artist
+                review, create or sign in to an AWO account, then return here to
+                submit the artist application packet.
+              </p>
+              <div className="mt-4 grid gap-3">
+                <a
+                  className="inline-flex h-11 items-center justify-center bg-[#252525] px-4 text-sm font-black uppercase tracking-wide text-white hover:bg-[#3a3632]"
+                  href="/account"
+                >
+                  Sign In Or Create Account
+                </a>
+                <Link
+                  className="inline-flex h-11 items-center justify-center border border-[#d8c8bb] px-4 text-sm font-black uppercase tracking-wide text-[#7a472e] hover:border-[#b7653a] hover:bg-[#fff8f3]"
+                  href="/artists"
+                >
+                  View Public Artists
+                </Link>
+              </div>
+            </div>
+          ) : null}
           {artistProfile && !artistProfile.artistId ? (
             <div className="mt-4 border border-[#e5ded6] bg-[#fbfaf8] p-4">
               <h3 className="text-base font-black">Request Artist Review</h3>
@@ -557,6 +621,20 @@ export default function StudioClient() {
                 Uploads, media storage, and publishing controls remain future
                 scoped so this screen stays read/write but not destructive.
               </p>
+            </div>
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              <a
+                className="inline-flex min-h-11 items-center justify-center border border-[#dfd5ca] px-4 text-center text-sm font-black uppercase tracking-wide text-[#373431] hover:border-[#b7653a] hover:text-[#a85f38]"
+                href="/admin/reviews"
+              >
+                Admin Review Queue
+              </a>
+              <Link
+                className="inline-flex min-h-11 items-center justify-center border border-[#dfd5ca] px-4 text-center text-sm font-black uppercase tracking-wide text-[#373431] hover:border-[#b7653a] hover:text-[#a85f38]"
+                href="/artists/hatchvision-studio"
+              >
+                Example Artist Profile
+              </Link>
             </div>
           </section>
         </div>
