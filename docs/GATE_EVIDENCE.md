@@ -161,6 +161,9 @@ Codex evidence:
   seeded reveal, and protected proof-layer review pages.
 - Demo journey cards now point to deterministic destinations: checkout opens
   `/checkout?demo=1`, and reveal opens `/reveal?code=AWO-DEMO-001&demo=1`.
+- `/` now acts as the public stakeholder jump-off surface instead of a shell:
+  it presents the AWO brand, shopper/artist/recipient/investor paths, seeded
+  reveal credentials, and protected operator proof links.
 - Cart and account support copy now reflects the current system state: Stripe
   is sandbox/test-mode until approval, signed-in carts sync through Supabase,
   and People/Reminders are account-aware rather than future-only.

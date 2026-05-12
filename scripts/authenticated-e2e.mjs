@@ -258,7 +258,15 @@ async function evaluate(client, expression) {
   });
 
   if (result.exceptionDetails) {
-    throw new Error(result.exceptionDetails.text ?? "Runtime.evaluate failed");
+    const details = result.exceptionDetails;
+    const exception = details.exception;
+    const description =
+      exception?.description ??
+      exception?.value ??
+      details.exception?.className ??
+      details.text ??
+      "Runtime.evaluate failed";
+    throw new Error(description);
   }
 
   return result.result?.value;

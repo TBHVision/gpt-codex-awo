@@ -92,6 +92,9 @@ AWO-76 hardens the stakeholder demo path with deterministic `/demo` checkout,
 seeded `/reveal?code=AWO-DEMO-001&demo=1` playback, recipient-facing proof
 copy, operator proof links, and demo QA that checks `/api/reveal/verify` when
 Supabase public env vars are available.
+The homepage now functions as a stakeholder command surface rather than a
+placeholder: it presents the AWO brand, review links for shopper checkout,
+artist story, honoree reveal, investor demo, and protected operator proof pages.
 `/api/health` now exposes a no-secret readiness endpoint for production posture
 checks.
 
