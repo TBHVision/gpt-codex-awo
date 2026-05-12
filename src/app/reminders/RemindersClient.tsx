@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import StorefrontNav from "@/app/components/StorefrontNav";
 import { readBuyerSession } from "@/lib/buyer-auth";
 import {
@@ -9,6 +10,7 @@ import {
   fetchPlanningData,
 } from "@/lib/buyer-planning";
 import type { PlanningReminder } from "@/lib/buyer-planning";
+import { getOccasionDiscoveryLink } from "@/lib/occasion-discovery";
 
 type StoredPerson = {
   name: string;
@@ -269,11 +271,14 @@ export default function RemindersClient() {
           </div>
 
           <div className="mt-6 grid gap-4">
-            {sortedReminders.map((reminder) => (
-              <article
-                className="grid gap-4 border border-[#e5ded6] bg-[#fbfaf8] p-5 md:grid-cols-[1fr_180px_150px]"
-                key={reminder.id}
-              >
+            {sortedReminders.map((reminder) => {
+              const discoveryLink = getOccasionDiscoveryLink(reminder.occasion);
+
+              return (
+                <article
+                  className="grid gap-4 border border-[#e5ded6] bg-[#fbfaf8] p-5 md:grid-cols-[1fr_170px_140px_150px]"
+                  key={reminder.id}
+                >
                 <div>
                   <p className="text-xs font-black uppercase tracking-[0.16em] text-[#b7653a]">
                     {reminder.person}
@@ -297,8 +302,17 @@ export default function RemindersClient() {
                     {reminder.source === "account" ? "Supabase" : "Local"}
                   </p>
                 </div>
+                <div className="flex items-end">
+                  <Link
+                    className="inline-flex h-10 w-full items-center justify-center border border-[#b7653a] bg-white px-3 text-xs font-black uppercase tracking-wide text-[#7a472e] hover:bg-[#fff8f3]"
+                    href={discoveryLink.href}
+                  >
+                    {discoveryLink.label}
+                  </Link>
+                </div>
               </article>
-            ))}
+              );
+            })}
           </div>
         </section>
       </section>

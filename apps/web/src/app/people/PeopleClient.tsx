@@ -10,6 +10,7 @@ import {
   fetchPlanningData,
 } from "@/lib/buyer-planning";
 import type { PlanningPerson } from "@/lib/buyer-planning";
+import { getOccasionDiscoveryLink } from "@/lib/occasion-discovery";
 
 const initialPeople: PlanningPerson[] = [
   {
@@ -278,8 +279,11 @@ export default function PeopleClient() {
           <section className="border border-[#e5ded6] bg-white p-6 shadow-[0_18px_45px_rgba(45,38,32,.06)]">
             <h2 className="text-2xl font-black">My People</h2>
             <div className="mt-5 grid gap-4 md:grid-cols-2">
-              {people.map((person) => (
-                <article className="border border-[#e5ded6] bg-[#fbfaf8] p-5" key={person.id}>
+              {people.map((person) => {
+                const discoveryLink = getOccasionDiscoveryLink(person.occasion);
+
+                return (
+                  <article className="border border-[#e5ded6] bg-[#fbfaf8] p-5" key={person.id}>
                   <p className="text-xs font-black uppercase tracking-[0.16em] text-[#b7653a]">
                     {person.relationship}
                   </p>
@@ -287,11 +291,20 @@ export default function PeopleClient() {
                   <p className="mt-3 text-sm leading-6 text-[#4b4743]">
                     Next card intent: {person.occasion}
                   </p>
-                  <p className="mt-4 text-xs font-black uppercase tracking-wide text-[#8a8178]">
-                    {person.source === "account" ? "Supabase" : "Local"} storage
-                  </p>
+                  <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+                    <p className="text-xs font-black uppercase tracking-wide text-[#8a8178]">
+                      {person.source === "account" ? "Supabase" : "Local"} storage
+                    </p>
+                    <Link
+                      className="inline-flex h-9 items-center justify-center border border-[#b7653a] bg-white px-3 text-xs font-black uppercase tracking-wide text-[#7a472e] hover:bg-[#fff8f3]"
+                      href={discoveryLink.href}
+                    >
+                      {discoveryLink.label}
+                    </Link>
+                  </div>
                 </article>
-              ))}
+                );
+              })}
             </div>
           </section>
 
@@ -299,17 +312,29 @@ export default function PeopleClient() {
             <div className="border border-[#e5ded6] bg-white p-6 shadow-[0_18px_45px_rgba(45,38,32,.06)]">
               <h2 className="text-2xl font-black">Upcoming Occasions</h2>
               <div className="mt-5 space-y-3">
-                {upcomingOccasions.map((person) => (
-                  <div className="flex items-center justify-between border border-[#e5ded6] bg-[#fbfaf8] p-4" key={person.id}>
-                    <div>
-                      <p className="font-black">{person.occasion}</p>
-                      <p className="text-sm text-[#4b4743]">{person.name}</p>
-                    </div>
-                    <span className="text-xs font-black uppercase tracking-wide text-[#b7653a]">
-                      {person.timing}
-                    </span>
+                {upcomingOccasions.map((person) => {
+                  const discoveryLink = getOccasionDiscoveryLink(person.occasion);
+
+                  return (
+                    <div className="grid gap-3 border border-[#e5ded6] bg-[#fbfaf8] p-4 sm:grid-cols-[1fr_auto] sm:items-center" key={person.id}>
+                          <div>
+                            <p className="font-black">{person.occasion}</p>
+                            <p className="text-sm text-[#4b4743]">{person.name}</p>
+                          </div>
+                          <div className="flex flex-wrap items-center gap-3 sm:justify-end">
+                            <span className="text-xs font-black uppercase tracking-wide text-[#b7653a]">
+                              {person.timing}
+                            </span>
+                            <Link
+                              className="inline-flex h-9 items-center justify-center border border-[#dfd5ca] bg-white px-3 text-xs font-black uppercase tracking-wide text-[#6e6258] hover:border-[#b7653a] hover:text-[#a85f38]"
+                              href={discoveryLink.href}
+                            >
+                              Find Cards
+                            </Link>
+                          </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 

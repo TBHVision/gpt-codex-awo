@@ -636,6 +636,44 @@ async function verifyShopSortControls(client) {
   console.log(`PASS /shop sort controls -> ${new URL("/shop", baseUrl)}`);
 }
 
+async function verifyBuyerPlanningDiscoveryLinks(client) {
+  for (const route of ["/people", "/reminders"]) {
+    const load = client.waitFor("Page.loadEventFired");
+    await client.send("Page.navigate", { url: new URL(route, baseUrl).toString() });
+    await load;
+    await sleep(350);
+
+    const result = await evaluate(
+      client,
+      `(() => {
+        const links = Array.from(document.querySelectorAll('a')).map((link) => ({
+          href: link.getAttribute('href'),
+          text: (link.textContent || '').trim().replace(/\\s+/g, ' '),
+        }));
+        const expectedHrefs = ['/shop?occasion=birthday', '/shop?occasion=sympathy'];
+        const missing = expectedHrefs.filter((href) => !links.some((link) => link.href === href));
+        const hasFindCards = links.some((link) =>
+          /Find Cards|Shop birthday Cards|Shop sympathy Cards/i.test(link.text)
+        );
+        return {
+          ok: missing.length === 0 && hasFindCards,
+          links,
+          missing,
+          text: document.body.innerText.slice(0, 500),
+        };
+      })()`,
+    );
+
+    if (!result.ok) {
+      throw new Error(
+        `${route} does not connect buyer planning to card discovery. missing=${result.missing.join(", ")} text=${result.text}`,
+      );
+    }
+
+    console.log(`PASS ${route} buyer planning discovery links -> ${new URL(route, baseUrl)}`);
+  }
+}
+
 async function verifyCartStorageRecovery(client) {
   const cartLoad = client.waitFor("Page.loadEventFired");
   await client.send("Page.navigate", { url: new URL("/cart", baseUrl).toString() });
@@ -862,6 +900,7 @@ async function main() {
     await unlockDemoReveal(client);
 
     await verifyShopSortControls(client);
+    await verifyBuyerPlanningDiscoveryLinks(client);
     await verifyCartControls(client);
     await verifyCheckoutCartControls(client);
     await verifyCartStorageRecovery(client);

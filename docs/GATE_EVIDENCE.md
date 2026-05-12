@@ -79,6 +79,9 @@ Codex evidence:
   path.
 - Browser evidence confirmed `/reminders` renders reminder planning and
   add-reminder path.
+- `npm run test:demo` verifies People and Reminders expose deterministic
+  card-discovery links for seeded birthday and support/encouragement planning
+  intents.
 - Browser evidence confirmed `/account` renders the account entry path.
 - The code supports signed-in Supabase-backed people, occasions, reminders, and
   order history with guest browser-local fallback.

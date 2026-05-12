@@ -138,6 +138,8 @@ Completed:
 - AWO-38: Buyer sign-in/sign-up uses Supabase Auth and profile bootstrap.
 - AWO-39: Signed-in buyers persist People and Reminders through RLS; guests keep
   local fallback.
+- People and Reminders now turn saved occasions into card discovery CTAs so
+  buyer planning does not dead-end after a recipient or reminder is created.
 - AWO-53: Signed-in checkout can attach orders to buyer profiles, and `/account`
   shows buyer-owned order history through RLS.
 - AWO-54: Signed-in carts sync to Supabase `carts` and `cart_items`; guests keep
