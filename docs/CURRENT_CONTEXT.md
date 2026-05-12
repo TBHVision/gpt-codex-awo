@@ -276,8 +276,9 @@ every small decision.
   - `/reveal` is the recipient-facing playback surface for code/PIN unlocks
   - checkout success can carry a reveal code into `/reveal?code=...`
   - the seeded `AWO-DEMO-001` reveal now returns richer human-origin evidence,
-    payment evidence, private credential evidence, custody steps, and an honest
-    pending ownership posture instead of overclaiming active ownership
+    sender message, occasion, payment evidence, private credential evidence,
+    custody steps, and an honest pending ownership posture instead of
+    overclaiming active ownership
 - `docs/TONY_REVIEW_BATCH.md` is the current batched list of Tony reviews,
   external checks, and later decisions.
 

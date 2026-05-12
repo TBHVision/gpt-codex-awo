@@ -12,10 +12,12 @@ type RevealPayload = {
   custody_steps: Array<{ label: string; value: string }>;
   evidence_items: Array<{ label: string; value: string }>;
   message: string;
+  occasion_label: string | null;
   ownership_summary: string | null;
   recipient_name: string | null;
   reveal_public_id: string | null;
   reveal_status: string | null;
+  sender_message: string | null;
   success: boolean;
 };
 
@@ -150,6 +152,11 @@ export default function RevealClient() {
   const recipientName = formatValue(reveal?.recipient_name, "your recipient");
   const cardTitle = formatValue(reveal?.card_title, "AWO card");
   const artistName = formatValue(reveal?.artist_name, "the artist");
+  const occasionLabel = formatValue(reveal?.occasion_label, "your occasion");
+  const senderMessage = formatValue(
+    reveal?.sender_message,
+    "The sender message will appear here when it is included at checkout.",
+  );
   const evidenceItems = useMemo(
     () => (reveal?.evidence_items ?? []).filter((item) => item.label || item.value),
     [reveal],
@@ -300,12 +307,23 @@ export default function RevealClient() {
                 <h2 className="mt-4 text-3xl font-black tracking-tight sm:text-4xl">
                   For {recipientName}
                 </h2>
+                <p className="mt-2 text-sm font-black uppercase tracking-[0.16em] text-[#b7653a]">
+                  {occasionLabel}
+                </p>
                 <p className="mt-4 max-w-3xl text-base leading-7 text-[#4b4743]">
                   This is the verified playback for <strong>{cardTitle}</strong>,
                   an ArtWithOrigin card by <strong>{artistName}</strong>. The
                   record below ties the gift, artwork, purchase, reveal, and
                   ownership trail together.
                 </p>
+                <div className="mt-6 border border-[#efe8df] bg-[#fbfaf8] p-5">
+                  <p className="text-xs font-black uppercase tracking-[0.16em] text-[#b7653a]">
+                    Sender message
+                  </p>
+                  <p className="mt-3 text-base leading-7 text-[#373431]">
+                    {senderMessage}
+                  </p>
+                </div>
               </div>
 
               <div className="grid gap-5 md:grid-cols-3">

@@ -14,7 +14,7 @@ This registry is the GPT-Codex source of truth for feature status. A feature is 
 | Checkout/order draft | V0.2+ | Buyer | Complete | AWO-37; local and production API draft creation verified |
 | Stripe test checkout | V0.6/V0.7 | Buyer/Ops | Complete | AWO-46; Stripe test payment and webhook verified, `AWO-DRAFT-F2EC02824E` moved to paid in Supabase |
 | Stakeholder demo walkthrough | V1.0 | Demo | Working path | AWO-76; `/demo` guides the shop, checkout, reveal, and protected proof-layer review path with demo-safe credentials |
-| Honoree PIN reveal | V0.3 | Recipient | Demo-ready playback path | AWO-41/AWO-76; `/api/reveal/verify` validates code/PIN through `verify_honoree_reveal`, then `/reveal` presents recipient playback, evidence, custody, and honest ownership posture |
+| Honoree PIN reveal | V0.3 | Recipient | Demo-ready playback path | AWO-41/AWO-76; `/api/reveal/verify` validates code/PIN through `verify_honoree_reveal`, then `/reveal` presents recipient playback, sender message, evidence, custody, and honest ownership posture |
 | Reveal credential lifecycle | V0.3/V0.6 | Recipient/Ops | Hardened state checks | AWO-47; blocked credential states are safe, invalid attempts lock credentials, successful reveals emit custody events |
 | My People | V0.4 | Buyer | Account-aware path | AWO-39; signed-in buyers use Supabase `people` and `occasions`, guests use local fallback |
 | Artist submission | V0.5 | Artist | Supabase-backed draft path | AWO-42; approved artist profiles load publicly and signed-in artist/admin drafts persist on `cards` |

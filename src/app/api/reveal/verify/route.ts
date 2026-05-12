@@ -9,10 +9,12 @@ type RevealRpcRow = {
   custody_steps: Array<{ label: string; value: string }>;
   evidence_items: Array<{ label: string; value: string }>;
   message: string;
+  occasion_label: string | null;
   ownership_summary: string | null;
   recipient_name: string | null;
   reveal_public_id: string | null;
   reveal_status: string | null;
+  sender_message: string | null;
   success: boolean;
 };
 
