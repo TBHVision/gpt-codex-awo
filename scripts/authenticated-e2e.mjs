@@ -428,6 +428,55 @@ async function runBuyerFlow(client, buyerSession) {
   console.log("PASS authenticated artist application submits as pending review");
 }
 
+async function runBuyerSignupConfirmationFlow(client) {
+  await navigate(client, "/account");
+  await evaluate(
+    client,
+    `
+      (() => {
+        localStorage.removeItem('awo_buyer_session');
+      })()
+    `,
+  );
+  await client.send("Page.reload");
+  await waitForText(client, "Sign in to AWO", "/account signup clean session");
+  await evaluate(
+    client,
+    `
+      (() => {
+        const originalFetch = window.fetch.bind(window);
+        window.fetch = async (input, init) => {
+          const url = typeof input === 'string' ? input : input?.url ?? '';
+          if (url.includes('/auth/v1/signup')) {
+            return new Response(JSON.stringify({
+              user: {
+                email: 'needs-confirmation@example.test',
+                id: '00000000-0000-4000-8000-000000000000'
+              }
+            }), {
+              headers: { 'content-type': 'application/json' },
+              status: 200
+            });
+          }
+          return originalFetch(input, init);
+        };
+      })()
+    `,
+  );
+  await clickButton(client, "Create Account", "/account signup toggle");
+  await setValue(client, "#display-name", "Confirmation Needed", "/account signup name");
+  await setValue(client, "#buyer-email", "needs-confirmation@example.test", "/account signup email");
+  await setValue(client, "#buyer-password", "AWO-confirmation-1!", "/account signup password");
+  await clickButton(client, "Create Buyer Account", "/account signup submit");
+  await waitForText(
+    client,
+    "Account created, but Supabase requires email confirmation before sign-in.",
+    "/account signup confirmation notice",
+  );
+  await waitForText(client, "Sign In", "/account returns to sign in");
+  console.log("PASS buyer signup email-confirmation state stays on account page");
+}
+
 async function verifyBuyerPlanningRows(session) {
   const [peopleResponse, occasionsResponse] = await Promise.all([
     fetch(`${supabaseUrl}/rest/v1/people?select=display_name&order=created_at.asc`, {
@@ -598,6 +647,7 @@ async function main() {
     await client.send("Runtime.enable");
 
     await runBuyerFlow(client, buyerSession);
+    await runBuyerSignupConfirmationFlow(client);
     await runAdminFlow(client, adminSession);
   } finally {
     if (client) {

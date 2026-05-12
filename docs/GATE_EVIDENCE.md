@@ -239,10 +239,13 @@ Codex evidence:
   Supabase-backed People save, Supabase-backed Reminder save, signed-in artist
   application submission, named-admin login, artist approval, and the approval
   audit event.
+- The authenticated browser harness also covers the buyer create-account path
+  when Supabase requires email confirmation, so `/account` stays on-page with a
+  clear next step instead of feeling like a broken sign-up.
 - `npm run test:release` now includes the authenticated E2E step after smoke
   and demo tests and before visual QA.
 - Local `npm run test:release` passed with the authenticated step at
-  `2026-05-12T14:24:40.212Z`.
+  `2026-05-12T14:56:32.481Z`.
 
 Remaining:
 

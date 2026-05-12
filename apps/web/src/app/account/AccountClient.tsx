@@ -121,11 +121,18 @@ export default function AccountClient() {
           : "Signed in to the buyer account.",
       );
     } catch (submitError) {
-      setError(
+      const message =
         submitError instanceof Error
           ? submitError.message
-          : "The account request failed.",
-      );
+          : "The account request failed.";
+
+      if (mode === "signup" && message.includes("email confirmation")) {
+        setMode("signin");
+        setPassword("");
+        setStatus(message);
+      } else {
+        setError(message);
+      }
     } finally {
       setSubmitting(false);
     }
