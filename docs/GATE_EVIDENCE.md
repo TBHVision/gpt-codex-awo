@@ -254,6 +254,8 @@ Codex evidence:
   session and `checkout.stripe.com` URL, then deletes the generated Supabase
   smoke order when service-role credentials are available. Stripe-side session
   expiration requires a local `STRIPE_SECRET_KEY`.
+- `npm run test:vercel:all` passed after adding the bundled deployed-site
+  verification command.
 
 Remaining:
 

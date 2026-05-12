@@ -36,18 +36,18 @@ item blocks the next code change.
 ## External Checks
 
 - GitHub Actions: latest confirmed `main` release-readiness run is green
-  (`25742908637`) on commit `a022663`; keep confirming after launch-critical
+  (`25743890092`) on commit `6750f21`; keep confirming after launch-critical
   pushes.
-- Vercel: confirm production redeployed after the latest push and that protected
-  admin routes still require login. Direct Vercel deploys hit the daily
-  deployment limit during the overnight run, so production may lag behind the
-  latest GitHub commit until the limit clears.
+- Vercel: confirm production redeployed after app/runtime changes and that
+  protected admin routes still require login. Docs/scripts-only commits may not
+  change the served app bundle.
 - Health endpoint: review `/api/health` on the deployed URL to confirm it
   reports configured services and observability posture without exposing secret
   values.
-- Vercel smoke/demo: `npm run test:vercel:smoke` and
-  `npm run test:vercel:demo` passed against the deployed site after commit
-  `a022663`.
+- Vercel deployed-site checks: `npm run test:vercel:all` runs route smoke,
+  guided demo, and Stripe checkout-session smoke against the deployed site.
+  `npm run test:vercel:smoke` and `npm run test:vercel:demo` passed against
+  the deployed app bundle after commit `a022663`.
 - Stripe checkout smoke: `npm run test:stripe:checkout` can verify the
   deployed checkout session endpoint creates a Stripe sandbox session and
   cleans the generated Supabase smoke order. Add local `STRIPE_SECRET_KEY` if
