@@ -259,8 +259,8 @@ export default function RemindersClient() {
             <div>
               <h2 className="text-2xl font-black">Reminder Queue</h2>
               <p className="mt-2 text-sm leading-6 text-[#4b4743]">
-                Local planning queue for who needs a card, when to think about
-                it, and which future channel should eventually handle it.
+                Planning queue for who needs a card, when to think about it,
+                and which channel should handle the nudge.
               </p>
             </div>
             <span className="border border-[#dfd5ca] bg-[#fbfaf8] px-3 py-2 text-xs font-black uppercase tracking-wide text-[#7a472e]">

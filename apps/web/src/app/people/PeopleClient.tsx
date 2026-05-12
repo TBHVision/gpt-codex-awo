@@ -318,7 +318,8 @@ export default function PeopleClient() {
               <div className="mt-5 border border-dashed border-[#dfd5ca] bg-[#fbfaf8] p-5">
                 <p className="text-sm leading-6 text-[#4b4743]">
                   Sent-card history will connect orders, recipients, reveal
-                  status, and future reminders after account storage is wired.
+                  status, and reminders as buyer activity accumulates in the
+                  account-backed workflow.
                 </p>
               </div>
             </div>
