@@ -81,7 +81,13 @@ function startServer() {
     {
       cwd: process.cwd(),
       detached: process.platform !== "win32",
-      env: process.env,
+      env: {
+        ...process.env,
+        AWO_ADMIN_PASSWORD:
+          process.env.AWO_ADMIN_PASSWORD ?? "awo-auth-e2e-admin-password",
+        AWO_ADMIN_SESSION_TOKEN:
+          process.env.AWO_ADMIN_SESSION_TOKEN ?? "awo-auth-e2e-session-token",
+      },
     },
   );
 
@@ -177,6 +183,11 @@ async function main() {
     );
     await record(
       runCommand("demo", ["run", "test:demo"], {
+        env: { AWO_QA_BASE_URL: baseUrl },
+      }),
+    );
+    await record(
+      runCommand("authenticated", ["run", "test:auth"], {
         env: { AWO_QA_BASE_URL: baseUrl },
       }),
     );

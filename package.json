@@ -10,6 +10,7 @@
     "test:release": "node scripts/release-readiness.mjs",
     "test:smoke": "node scripts/smoke-routes.mjs",
     "test:demo": "node scripts/demo-journey.mjs",
+    "test:auth": "node scripts/authenticated-e2e.mjs",
     "test:mirror": "node scripts/check-mirrors.mjs",
     "test:visual": "node scripts/visual-qa.mjs",
     "test:credentials": "node scripts/reveal-credential-rpc-smoke.mjs",

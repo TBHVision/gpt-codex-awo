@@ -44,7 +44,11 @@ moving without waking Tony for every small branch decision.
   first self-service application path are now implemented; commercial
   verification remains.
 - AWO-79: production observability stack.
-- AWO-80: authenticated buyer/admin E2E tests.
+- AWO-80: authenticated buyer/admin E2E tests. Local release readiness now
+  creates disposable buyer/admin Supabase users and verifies buyer persistence,
+  artist application submission, named-admin approval, and audit evidence.
+  Hosted CI still needs Supabase test secrets before it can run beyond skip
+  mode.
 - AWO-81: refund, revocation, and ownership transfer workflows.
 - AWO-82: temporary admin password fallback removal.
 

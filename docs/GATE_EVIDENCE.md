@@ -8,7 +8,7 @@ comment on Linear without re-discovering the same facts.
 
 ## Shared Release Evidence
 
-- `npm run test:release` passed at `2026-05-12T11:03:32.006Z`.
+- `npm run test:release` passed at `2026-05-12T12:25:38.065Z`.
 - Release report: `.qa/release-readiness/latest.json`.
 - Local route checks returned HTTP 200 for `/`, `/shop`, `/demo`,
   `/shop/wildflower-notes`, `/cart`, `/checkout`, `/reveal`, `/people`,
@@ -216,3 +216,26 @@ Remaining:
 
 - Artist verification checklist and payout or commercial onboarding workflow
   remain open under AWO-78.
+
+## AWO-80 Authenticated E2E Evidence
+
+Codex evidence:
+
+- `scripts/authenticated-e2e.mjs` creates disposable Supabase buyer and admin
+  auth users with matching profiles, then deletes the test users at the end of
+  the run.
+- `npm run test:auth` exercises authenticated buyer account loading,
+  Supabase-backed People save, Supabase-backed Reminder save, signed-in artist
+  application submission, named-admin login, artist approval, and the approval
+  audit event.
+- `npm run test:release` now includes the authenticated E2E step after smoke
+  and demo tests and before visual QA.
+- Local `npm run test:release` passed with the authenticated step at
+  `2026-05-12T12:25:38.065Z`.
+
+Remaining:
+
+- Production cannot be redeployed with this change until the current Vercel
+  daily deployment limit clears.
+- Hosted CI will run the harness in skip mode unless Supabase service-role test
+  secrets are added to GitHub Actions.

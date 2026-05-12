@@ -244,9 +244,11 @@ Remaining:
   AWO-82.
 - Observability setup for production errors, analytics, and performance is still
   planned rather than configured. Tracked by AWO-79.
-- Browser-based authenticated end-to-end tests are still parked until account
-  flows stabilize further. Tracked by AWO-80. The current demo journey
-  intentionally avoids creating real Supabase users.
+- Authenticated end-to-end coverage now exists for buyer account loading,
+  People/Reminders persistence, artist application submission, named-admin
+  login, audited artist approval, and audit-event verification. Tracked by
+  AWO-80. Hosted CI still needs Supabase test secrets before it can run this
+  harness outside skip mode.
 - Production smoke/visual checks should be run after every Vercel deploy when
   nearing launch.
 
@@ -274,7 +276,8 @@ Evidence captured on 2026-05-11:
 3. Build the next audited admin write controls only where they unblock launch:
    artist verification, fulfillment updates, refunds, or revoke/transfer. Use
    AWO-78 for remaining artist onboarding and AWO-81 for refunds/revoke/transfer.
-4. Add authenticated E2E tests for buyer and admin flows through AWO-80 once
-   the account model is no longer changing daily.
+4. Promote authenticated E2E tests for buyer and admin flows from local
+   service-role evidence into hosted CI by adding the required Supabase test
+   secrets for AWO-80.
 5. Convert remaining launch gaps into specific Linear issues instead of using
    broad phase percentages as a proxy for readiness.
