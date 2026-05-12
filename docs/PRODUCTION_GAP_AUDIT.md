@@ -39,14 +39,15 @@ Current local golden routes:
 Current automated evidence:
 
 - `npm.cmd run lint`
+- `npm.cmd run test:mirror`
 - `npm.cmd run build`
 - `npm.cmd run test:smoke`
 - `npm.cmd run test:demo`
 - `npm.cmd run test:visual`
 - `npm.cmd run test:release`
 
-`test:release` now runs lint, build, a fresh production server, route smoke,
-guided demo journey, and desktop/mobile visual QA, then writes
+`test:release` now runs lint, mirror sync, build, a fresh production server,
+route smoke, guided demo journey, and desktop/mobile visual QA, then writes
 `.qa/release-readiness/latest.json`.
 `test:demo` now covers the guided checkout/reveal path, cart quantity/remove
 controls, malformed cart-storage recovery, stale buyer-session recovery on

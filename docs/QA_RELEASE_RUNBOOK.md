@@ -18,6 +18,7 @@ Run these from the repo root:
 
 ```powershell
 npm run lint
+npm run test:mirror
 npm run build
 npm run test:smoke
 npm run test:demo
@@ -27,6 +28,7 @@ npm run test:release
 What each command proves:
 
 - `npm run lint`: TypeScript/React/Next lint rules are clean.
+- `npm run test:mirror`: root deployment files and `apps/web` files match.
 - `npm run build`: production Next.js build succeeds.
 - `npm run test:smoke`: key public routes respond and protected admin routes
   redirect to login when unauthenticated.
@@ -35,7 +37,7 @@ What each command proves:
   Open Demo Reveal preloads the seeded reveal code and PIN. It also verifies
   cart quantity/remove controls, malformed cart-storage recovery, stale
   buyer-session recovery, and core storefront navigation routes.
-- `npm run test:release`: runs the full local gate: lint, build, fresh
+- `npm run test:release`: runs the full local gate: lint, mirror sync, build, fresh
   production server, smoke routes, guided demo journey, and desktop/mobile
   visual QA.
 

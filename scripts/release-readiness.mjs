@@ -165,6 +165,7 @@ async function main() {
   try {
     await writeReport();
     await record(runCommand("lint", ["run", "lint"]));
+    await record(runCommand("mirror", ["run", "test:mirror"]));
     await record(runCommand("build", ["run", "build"]));
 
     serverProcess = startServer();
