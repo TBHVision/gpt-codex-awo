@@ -257,9 +257,10 @@ Codex evidence:
 - `npm run test:vercel:all` passed after adding the bundled deployed-site
   verification command.
 - `npm run test:vercel:all` now starts with `npm run test:vercel:fresh`, which
-  compares `/api/health` deployment metadata to the current git commit before
-  deeper deployed checks run. This prevents stale Vercel builds from looking
-  like application route failures.
+  compares `/api/health` deployment metadata to the latest app-source commit
+  before deeper deployed checks run. This prevents stale Vercel builds from
+  looking like application route failures while allowing docs/scripts-only
+  commits to land without requiring a new app bundle.
 
 Remaining:
 

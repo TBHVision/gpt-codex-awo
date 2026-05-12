@@ -39,9 +39,9 @@ What each command proves:
   source commit. Set `SMOKE_EXPECTED_COMMIT` to override this for a specific
   deploy.
 - `npm run test:vercel:fresh`: checks production `/api/health` against the
-  current git commit before deeper deployed tests run. Use this first when
-  Vercel says a deployment is ready but the public app behaves like an older
-  build.
+  latest app-source commit before deeper deployed tests run. Use this first
+  when Vercel says a deployment is ready but the public app behaves like an
+  older build. Set `AWO_EXPECTED_DEPLOY_COMMIT` to require an exact commit.
 - `npm run test:demo`: launches Chrome, clicks `/demo` Start Guided Checkout,
   verifies the prefilled checkout story, cart item, and total, then checks the
   seeded honoree playback path at `/reveal?code=AWO-DEMO-001&demo=1`.
