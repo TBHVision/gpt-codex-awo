@@ -261,6 +261,8 @@ Codex evidence:
   `services.observability`.
 - `docs/OBSERVABILITY_PLAN.md` lists the recognized optional environment keys
   without requiring Tony to choose or configure a provider during this run.
+- Vercel production is serving commit `b381b48`, and `npm run
+  test:vercel:smoke` passed against `https://gpt-codex-awo-dashboard.vercel.app`.
 
 Remaining:
 
@@ -279,6 +281,8 @@ Codex evidence:
 - `docs/AUTH_SESSION_MODEL.md` documents the safe future path: keep
   `AWO_ADMIN_SESSION_TOKEN`, confirm a named Supabase admin login, then remove
   `AWO_ADMIN_PASSWORD`.
+- Vercel production health now reports `temporaryPasswordProductionRisk = true`,
+  which is correct while the fallback remains intentionally enabled.
 
 Remaining:
 
