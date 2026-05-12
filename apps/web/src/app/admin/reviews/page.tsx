@@ -2,6 +2,7 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { AdminSessionBanner } from "@/app/admin/AdminSessionBanner";
+import { reviewArtist, type ArtistReviewAction } from "@/lib/admin-artist-review";
 import { reviewCard, type CardReviewAction } from "@/lib/admin-card-review";
 import {
   type ReviewMetric,
@@ -81,6 +82,25 @@ async function submitCardReview(formData: FormData) {
   revalidatePath("/admin/ops");
 }
 
+async function submitArtistReview(formData: FormData) {
+  "use server";
+
+  const cookieStore = await cookies();
+  const adminUserId = cookieStore.get(adminUserCookieName)?.value;
+  const action = String(formData.get("action") ?? "") as ArtistReviewAction;
+  const artistId = String(formData.get("artistId") ?? "");
+
+  if ((action !== "approve" && action !== "reject") || !artistId) {
+    throw new Error("Invalid artist review action.");
+  }
+
+  await reviewArtist({ action, adminUserId, artistId });
+  revalidatePath("/admin/reviews");
+  revalidatePath("/admin/ops");
+  revalidatePath("/artists");
+  revalidatePath("/shop");
+}
+
 export default async function AdminReviewsPage() {
   const snapshot = await loadAdminReviewQueues();
   const cookieStore = await cookies();
@@ -98,9 +118,8 @@ export default async function AdminReviewsPage() {
               Admin Review Queues
             </h1>
             <p className="mt-3 max-w-3xl text-base leading-7 text-slate-600">
-              Read-only launch review queues for cards, artists, orders, and
-              reveal credentials. Approval actions stay out until role-based
-              admin auth and audit trails are ready.
+              Launch review queues for cards, artists, orders, and reveal
+              credentials. Named admin review actions write audit events.
             </p>
             <p className="mt-2 text-sm font-semibold text-slate-500">
               Snapshot: {formatDate(snapshot.generatedAt)} -{" "}
@@ -205,7 +224,32 @@ export default async function AdminReviewsPage() {
                         Updated {formatDate(artist.updatedAt)}
                       </p>
                     </div>
-                    <StatusPill value={artist.status} />
+                    <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+                      <StatusPill value={artist.status} />
+                      {artist.status === "pending_review" ? (
+                        <form action={submitArtistReview} className="flex flex-wrap gap-2">
+                          <input name="artistId" type="hidden" value={artist.id} />
+                          <button
+                            className="h-9 rounded-md border border-emerald-300 bg-emerald-50 px-3 text-xs font-semibold text-emerald-900 hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
+                            disabled={!hasNamedAdmin}
+                            name="action"
+                            type="submit"
+                            value="approve"
+                          >
+                            Approve
+                          </button>
+                          <button
+                            className="h-9 rounded-md border border-rose-300 bg-rose-50 px-3 text-xs font-semibold text-rose-900 hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-50"
+                            disabled={!hasNamedAdmin}
+                            name="action"
+                            type="submit"
+                            value="reject"
+                          >
+                            Reject
+                          </button>
+                        </form>
+                      ) : null}
+                    </div>
                   </article>
                 ))
               ) : (
@@ -297,8 +341,8 @@ export default async function AdminReviewsPage() {
             </h2>
             <p className="mt-2 text-sm leading-6 text-amber-900">
               Card approve/reject actions require Supabase-backed named admin
-              login and write an audit event. Temporary password sessions stay
-              read-only.
+              login and write an audit event. Artist approve/reject actions use
+              the same boundary. Temporary password sessions stay read-only.
             </p>
           </div>
         </aside>

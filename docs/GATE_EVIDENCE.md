@@ -194,3 +194,20 @@ Still needs Tony before Done:
   observability setup, AWO-80 for authenticated E2E, AWO-81 for
   refund/revocation/transfer workflows, and AWO-82 for removing the temporary
   admin password fallback.
+
+## AWO-78 Artist Review Evidence
+
+Codex evidence:
+
+- The `artist_status` enum now includes `rejected`, separating a rejected
+  application decision from a later `suspended` enforcement state.
+- `/admin/reviews` now exposes Approve/Reject actions for `pending_review`
+  artists when a named Supabase admin session is active.
+- Artist review actions require a profile with `role = admin`, update only
+  `pending_review` artist rows, and write `admin_audit_events` with
+  `artist_approved` or `artist_rejected`.
+
+Remaining:
+
+- Artist self-service application UX, verification checklist, and payout or
+  commercial onboarding workflow remain open under AWO-78.

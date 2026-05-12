@@ -95,6 +95,20 @@ access tokens. Artists can only manage draft cards tied to their own artist
 record. Admins can inspect draft cards for operational review. Guests keep local
 browser storage and do not write studio drafts to Supabase.
 
+## AWO-78 Artist Review
+
+Artist status values are `draft`, `pending_review`, `approved`, `rejected`, and
+`suspended`. The `rejected` value is for an application decision; `suspended`
+stays reserved for later enforcement or trust-and-safety actions.
+
+Named Supabase admins can approve or reject artists from `/admin/reviews`.
+Review actions:
+
+- Require a Supabase profile with `role = admin`.
+- Update only artists currently in `pending_review`.
+- Write `admin_audit_events` with `artist_approved` or `artist_rejected`.
+- Keep public catalog visibility limited to artists with `status = approved`.
+
 ## AWO-43 Lifecycle Model
 
 The production lifecycle model is documented in `docs/LIFECYCLE_MODEL.md`.

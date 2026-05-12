@@ -162,11 +162,15 @@ Completed:
 - AWO-42: Public artists read approved Supabase artist profiles.
 - Signed-in artist/admin paths can persist studio draft cards and provenance
   checklist state through RLS.
+- AWO-78 now has the first production admin review path: named Supabase admins
+  can approve or reject `pending_review` artist rows from `/admin/reviews`, and
+  every action writes `admin_audit_events`.
 
 Remaining:
 
-- Full approval workflow and artist onboarding UX are not production-complete.
-  Tracked by AWO-78.
+- Artist self-service onboarding is not production-complete. Applicants still
+  need a guided submission path, profile verification steps, and operational
+  payout/commercial review before launch.
 - Real artist verification and payout/commercial workflows are future scope.
 
 ## Admin And Ops Status
@@ -184,8 +188,9 @@ Remaining:
 
 - Temporary admin password fallback should eventually be removed after named
   Supabase admin users and audit-backed write actions are ready.
-- Real approval tools for users, artists, cards, fraud review, and fulfillment
-  still need to be built.
+- Real approval tools for users, fraud review, fulfillment exceptions, and
+  commercial onboarding still need to be built. Card and artist approve/reject
+  paths now exist for named Supabase admins.
 
 ## Data And Lifecycle Status
 
@@ -265,8 +270,9 @@ Evidence captured on 2026-05-11:
 2. Decide and configure observability via AWO-79: Sentry for exceptions, plus
    either Vercel Analytics/Speed Insights or PostHog for product behavior.
 3. Build the next audited admin write controls only where they unblock launch:
-   card/artist approval, fulfillment updates, refunds, or revoke/transfer.
-   Use AWO-78 for artist approval and AWO-81 for refunds/revoke/transfer.
+   artist onboarding submission, fulfillment updates, refunds, or
+   revoke/transfer. Use AWO-78 for remaining artist onboarding and AWO-81 for
+   refunds/revoke/transfer.
 4. Add authenticated E2E tests for buyer and admin flows through AWO-80 once
    the account model is no longer changing daily.
 5. Convert remaining launch gaps into specific Linear issues instead of using

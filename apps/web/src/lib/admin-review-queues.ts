@@ -19,6 +19,7 @@ export type ReviewCard = {
 
 export type ReviewArtist = {
   createdAt: string;
+  id: string;
   name: string;
   slug: string;
   status: string;
@@ -69,6 +70,7 @@ type SupabaseCardRow = {
 
 type SupabaseArtistRow = {
   created_at: string;
+  id: string;
   public_name: string;
   slug: string;
   status: string;
@@ -249,7 +251,7 @@ export async function loadAdminReviewQueues(): Promise<AdminReviewQueuesSnapshot
       pathFor: (status) => `/rest/v1/artists?select=id&status=eq.${status}`,
       stateFor: (status, count) =>
         status === "pending_review" && count && count > 0 ? "warning" : "healthy",
-      states: ["draft", "pending_review", "approved", "suspended"],
+      states: ["draft", "pending_review", "approved", "rejected", "suspended"],
       supabaseUrl,
     }),
     fetchRows<SupabaseCardRow>({
@@ -261,7 +263,7 @@ export async function loadAdminReviewQueues(): Promise<AdminReviewQueuesSnapshot
     fetchRows<SupabaseArtistRow>({
       key: serviceRoleKey,
       path:
-        "/rest/v1/artists?select=public_name,slug,status,created_at,updated_at&order=updated_at.desc&limit=8",
+        "/rest/v1/artists?select=id,public_name,slug,status,created_at,updated_at&order=updated_at.desc&limit=8",
       supabaseUrl,
     }),
     fetchRows<SupabaseOrderRow>({
@@ -302,6 +304,7 @@ export async function loadAdminReviewQueues(): Promise<AdminReviewQueuesSnapshot
     artistStatus,
     artists: artists.map((artist) => ({
       createdAt: artist.created_at,
+      id: artist.id,
       name: artist.public_name,
       slug: artist.slug,
       status: artist.status,

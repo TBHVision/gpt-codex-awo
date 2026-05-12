@@ -40,7 +40,8 @@ moving without waking Tony for every small branch decision.
 ## Newly Split Production Gaps
 
 - AWO-77: production QR/PIN credential generation.
-- AWO-78: artist onboarding and approval workflow.
+- AWO-78: artist onboarding and approval workflow. Admin approve/reject is now
+  implemented; self-service application and commercial verification remain.
 - AWO-79: production observability stack.
 - AWO-80: authenticated buyer/admin E2E tests.
 - AWO-81: refund, revocation, and ownership transfer workflows.
