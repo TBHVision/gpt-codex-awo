@@ -25,17 +25,22 @@ item blocks the next code change.
   clarity.
 - V0.6: Review `/admin/ops` for whether the read-only operations model is
   trustworthy enough.
-- AWO-64: Review `/admin/reviews` for whether read-only review queues are useful
-  before we add write-capable admin actions.
+- AWO-78: Review `/admin/reviews` for named-admin card and artist approval
+  clarity.
+- AWO-81: Review `/admin/fulfillment` and `/admin/ownership` for the new
+  lifecycle exception controls. `Record Refund` is internal lifecycle state only
+  and does not execute a live Stripe refund.
 - AWO-63: Review `/admin/launch` as the final V1.0 launch-readiness rollup.
 
 ## External Checks
 
 - GitHub Actions: latest confirmed `main` release-readiness run is green
-  (`25727458788`) on commit `8ae402a`; keep confirming after launch-critical
+  (`25737300165`) on commit `7fcd020`; keep confirming after launch-critical
   pushes.
 - Vercel: confirm production redeployed after the latest push and that protected
-  admin routes still require login.
+  admin routes still require login. Direct Vercel deploys hit the daily
+  deployment limit during the overnight run, so production may lag behind the
+  latest GitHub commit until the limit clears.
 - Health endpoint: review `/api/health` on the deployed URL to confirm it
   reports configured services without exposing secret values.
 - Vercel smoke/demo: `npm run test:vercel:smoke` and
@@ -49,8 +54,8 @@ item blocks the next code change.
 - Whether Sentry is required before V1.0 or intentionally deferred.
 - Whether PostHog, Vercel Web Analytics, or Vercel Speed Insights are required
   before V1.0 or intentionally deferred.
-- Whether write-capable admin actions should start with card approval, artist
-  approval, fulfillment updates, or refund/revoke controls.
+- Whether production should disable the temporary admin password entirely or
+  restrict it to local/development after a real named admin login is confirmed.
 - Whether the next investor/artist demo should intentionally use seeded demo
   records or real Stripe/Supabase records created during the session.
 
@@ -59,7 +64,8 @@ item blocks the next code change.
 Until Tony decides otherwise:
 
 - Linear remains the source of truth.
-- Admin tools stay read-only unless a specific issue adds audited write actions.
+- Admin write tools stay narrow and named-admin only.
 - Stripe live charges stay disabled.
+- Stripe live refunds stay disabled.
 - Temporary dashboard password fallback stays enabled until named Supabase admin
   login is proven with a real admin account.
