@@ -15,11 +15,14 @@ comment on Linear without re-discovering the same facts.
   `/reminders`, `/studio`, `/account`, `/artists`, and `/api/health`.
 - Production route checks returned HTTP 200 for the same public routes on
   `https://gpt-codex-awo-dashboard.vercel.app`.
-- GitHub Actions release-readiness passed on `main` in run `25727458788` for
-  commit `8ae402a`.
+- GitHub Actions release-readiness passed on `main` in run `25728063224` for
+  commit `42ea374`.
 - `npm run test:vercel:smoke` passed against
   `https://gpt-codex-awo-dashboard.vercel.app`, including `/api/health` and
   protected admin login redirects.
+- Deployed `/api/health` reports Vercel production serving commit
+  `42ea37460896218b1cb7cd12b4af89461757ac9a` with Supabase, Stripe, webhook,
+  and admin-gate posture booleans all present.
 - `npm run test:vercel:demo` passed against
   `https://gpt-codex-awo-dashboard.vercel.app`, including guided checkout,
   seeded reveal playback, live `/api/reveal/verify`, cart controls, account
