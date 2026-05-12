@@ -270,6 +270,12 @@ every small decision.
     password session or named Supabase admin session
   - protected admin pages include a consistent visible Log out action
   - route protection behavior and cookie lifetime are unchanged
+- AWO-76 stakeholder playback polish is in progress:
+  - `/reveal` is the recipient-facing playback surface for code/PIN unlocks
+  - checkout success can carry a reveal code into `/reveal?code=...`
+  - the seeded `AWO-DEMO-001` reveal now returns richer human-origin evidence,
+    payment evidence, private credential evidence, custody steps, and an honest
+    pending ownership posture instead of overclaiming active ownership
 - `docs/TONY_REVIEW_BATCH.md` is the current batched list of Tony reviews,
   external checks, and later decisions.
 
