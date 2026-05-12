@@ -36,7 +36,7 @@ item blocks the next code change.
 ## External Checks
 
 - GitHub Actions: latest confirmed `main` release-readiness run is green
-  (`25741024913`) on commit `b381b48`; keep confirming after launch-critical
+  (`25742908637`) on commit `a022663`; keep confirming after launch-critical
   pushes.
 - Vercel: confirm production redeployed after the latest push and that protected
   admin routes still require login. Direct Vercel deploys hit the daily
@@ -47,7 +47,7 @@ item blocks the next code change.
   values.
 - Vercel smoke/demo: `npm run test:vercel:smoke` and
   `npm run test:vercel:demo` passed against the deployed site after commit
-  `b381b48`.
+  `a022663`.
 - Supabase: create or confirm at least one named admin user whose
   `profiles.role` is `admin` before relying on Supabase admin login.
 - Stripe: keep test mode only until Tony explicitly approves live charges.

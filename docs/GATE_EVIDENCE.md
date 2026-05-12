@@ -246,6 +246,9 @@ Codex evidence:
   and demo tests and before visual QA.
 - Local `npm run test:release` passed with the authenticated step at
   `2026-05-12T14:56:32.481Z`.
+- Vercel production is serving commit `a022663`, and `npm run
+  test:vercel:smoke` plus `npm run test:vercel:demo` passed against
+  `https://gpt-codex-awo-dashboard.vercel.app`.
 
 Remaining:
 
