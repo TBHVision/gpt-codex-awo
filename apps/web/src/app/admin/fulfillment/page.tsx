@@ -3,8 +3,10 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { AdminSessionBanner } from "@/app/admin/AdminSessionBanner";
 import {
+  generateRevealCredential,
   transitionFulfillmentItem,
   type FulfillmentTransitionStatus,
+  type GeneratedRevealCredential,
 } from "@/lib/admin-fulfillment-actions";
 import {
   type FulfillmentMetric,
@@ -14,6 +16,7 @@ import {
 export const dynamic = "force-dynamic";
 
 const adminUserCookieName = "awo_admin_user_id";
+const recentCredentialCookieName = "awo_recent_reveal_credential";
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("en-US", {
@@ -42,20 +45,25 @@ function StatusPill({ value }: { value: string }) {
   );
 }
 
+function parseRecentCredential(value: string | undefined) {
+  if (!value) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(value) as GeneratedRevealCredential;
+  } catch {
+    return null;
+  }
+}
+
 function nextTransitions(status: string) {
   if (status === "reserved") {
     return [{ label: "Move To Purchased", value: "purchased" as const }];
   }
 
   if (status === "purchased") {
-    return [
-      { label: "Start Credential Work", value: "credential_pending" as const },
-      { label: "Mark Credential Active", value: "credential_active" as const },
-    ];
-  }
-
-  if (status === "credential_pending") {
-    return [{ label: "Mark Credential Active", value: "credential_active" as const }];
+    return [{ label: "Start Credential Work", value: "credential_pending" as const }];
   }
 
   if (status === "credential_active" || status === "revealed") {
@@ -92,10 +100,46 @@ async function submitFulfillmentTransition(formData: FormData) {
   revalidatePath("/admin/launch");
 }
 
+async function submitCredentialGeneration(formData: FormData) {
+  "use server";
+
+  const cookieStore = await cookies();
+  const adminUserId = cookieStore.get(adminUserCookieName)?.value;
+  const itemId = String(formData.get("itemId") ?? "");
+
+  if (!itemId) {
+    throw new Error("Invalid credential generation request.");
+  }
+
+  const credential = await generateRevealCredential({ adminUserId, itemId });
+
+  if (!credential) {
+    throw new Error("Reveal credential generation did not return a credential.");
+  }
+
+  cookieStore.set(recentCredentialCookieName, JSON.stringify(credential), {
+    httpOnly: true,
+    maxAge: 600,
+    path: "/admin/fulfillment",
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+  });
+
+  revalidatePath("/admin/fulfillment");
+  revalidatePath("/admin/custody");
+  revalidatePath("/admin/reconciliation");
+  revalidatePath("/admin/audit");
+  revalidatePath("/admin/ops");
+  revalidatePath("/admin/launch");
+}
+
 export default async function AdminFulfillmentPage() {
   const snapshot = await loadAdminFulfillmentSnapshot();
   const cookieStore = await cookies();
   const hasNamedAdmin = Boolean(cookieStore.get(adminUserCookieName)?.value);
+  const recentCredential = parseRecentCredential(
+    cookieStore.get(recentCredentialCookieName)?.value,
+  );
 
   return (
     <main className="min-h-screen bg-[#f6f4ef] text-slate-950">
@@ -109,9 +153,10 @@ export default async function AdminFulfillmentPage() {
               Fulfillment Queue
             </h1>
             <p className="mt-3 max-w-3xl text-base leading-7 text-slate-600">
-              Read-only view of paid orders, item state, reveal credential
-              readiness, and ownership posture. Fulfillment actions stay out
-              until policy, audit, and operator flow are deliberately scoped.
+              Paid orders, item state, reveal credential readiness, and
+              ownership posture. Named admins can generate QR/PIN credential
+              packets; fulfillment, refunds, revocation, and transfer remain
+              separate audited workflows.
             </p>
             <p className="mt-2 text-sm font-semibold text-slate-500">
               Snapshot: {formatDate(snapshot.generatedAt)} -{" "}
@@ -165,6 +210,43 @@ export default async function AdminFulfillmentPage() {
       <div className="mx-auto grid max-w-6xl gap-6 px-5 py-6 sm:px-8 lg:grid-cols-[1fr_340px]">
         <section className="min-w-0 rounded-lg border border-slate-200 bg-white p-5">
           <h2 className="text-xl font-semibold">Paid And Pending Orders</h2>
+          {recentCredential ? (
+            <div className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-emerald-950">
+              <p className="text-sm font-black uppercase tracking-[0.12em]">
+                Credential Packet
+              </p>
+              <p className="mt-2 text-sm leading-6">
+                Give this one-time packet to print or fulfillment. The raw PIN is
+                not stored after generation.
+              </p>
+              <dl className="mt-3 grid gap-3 sm:grid-cols-3">
+                <div className="rounded-md border border-emerald-200 bg-white/70 p-3">
+                  <dt className="text-xs font-semibold uppercase text-emerald-800">
+                    Order item
+                  </dt>
+                  <dd className="mt-1 break-all text-sm font-semibold">
+                    {recentCredential.order_item_id}
+                  </dd>
+                </div>
+                <div className="rounded-md border border-emerald-200 bg-white/70 p-3">
+                  <dt className="text-xs font-semibold uppercase text-emerald-800">
+                    Reveal code
+                  </dt>
+                  <dd className="mt-1 break-all text-lg font-black">
+                    {recentCredential.reveal_public_id}
+                  </dd>
+                </div>
+                <div className="rounded-md border border-emerald-200 bg-white/70 p-3">
+                  <dt className="text-xs font-semibold uppercase text-emerald-800">
+                    PIN
+                  </dt>
+                  <dd className="mt-1 text-lg font-black">
+                    {recentCredential.reveal_pin}
+                  </dd>
+                </div>
+              </dl>
+            </div>
+          ) : null}
           <div className="mt-4 divide-y divide-slate-200">
             {snapshot.orders.length > 0 ? (
               snapshot.orders.map((order) => (
@@ -214,6 +296,20 @@ export default async function AdminFulfillmentPage() {
                             </div>
                           </div>
                           <div className="mt-4 flex flex-wrap gap-2">
+                            {["purchased", "credential_pending"].includes(
+                              item.itemStatus,
+                            ) ? (
+                              <form action={submitCredentialGeneration}>
+                                <input name="itemId" type="hidden" value={item.id} />
+                                <button
+                                  className="h-9 rounded-md border border-emerald-300 bg-emerald-50 px-3 text-xs font-semibold text-emerald-900 shadow-sm hover:border-emerald-400 hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
+                                  disabled={!hasNamedAdmin}
+                                  type="submit"
+                                >
+                                  Generate QR/PIN
+                                </button>
+                              </form>
+                            ) : null}
                             {nextTransitions(item.itemStatus).length > 0 ? (
                               nextTransitions(item.itemStatus).map((action) => (
                                 <form action={submitFulfillmentTransition} key={`${item.id}-${action.value}`}>
@@ -280,7 +376,8 @@ export default async function AdminFulfillmentPage() {
             </h2>
             <p className="mt-2 text-sm leading-6 text-amber-900">
               This page does not fulfill, ship, revoke, refund, or transfer
-              ownership. Those actions need separate audited workflows.
+              ownership. It can generate a one-time QR/PIN packet for a paid
+              item when a named admin session is active.
             </p>
           </div>
         </aside>

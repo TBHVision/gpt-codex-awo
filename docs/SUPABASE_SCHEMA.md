@@ -195,6 +195,28 @@ The RPC:
 The admin UI still does not expose fulfillment write buttons. This RPC is the
 foundation those controls must use later.
 
+## AWO-77 Reveal Credential Generation
+
+`public.generate_order_item_reveal_credential(order_item_id, actor_profile_id, note)`
+now creates a production QR/PIN credential packet for a paid order item.
+
+The RPC:
+
+- requires `actor_profile_id` to belong to a `profiles.role = 'admin'` row
+- only runs for paid items in `purchased`, `credential_pending`, or incomplete
+  `credential_active` states
+- generates a unique `AWO-...` reveal code
+- generates a six-digit PIN and stores only `extensions.crypt(...)` in
+  `order_items.reveal_pin_hash`
+- returns the raw PIN only in the trusted RPC response for print/fulfillment
+  handoff
+- activates or creates the matching `honoree_reveals` row
+- emits `credential_activated` custody evidence
+- writes a `reveal_credential_generated` admin audit event
+
+The `/admin/fulfillment` page exposes this as a named-admin-only Generate
+QR/PIN action and shows the one-time credential packet after generation.
+
 ## AWO-71 Ownership Lifecycle Wiring
 
 Stripe checkout completion now creates or updates a pending `ownership_records`

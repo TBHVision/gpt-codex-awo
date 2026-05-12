@@ -8,7 +8,7 @@ comment on Linear without re-discovering the same facts.
 
 ## Shared Release Evidence
 
-- `npm run test:release` passed at `2026-05-12T10:23:38.861Z`.
+- `npm run test:release` passed at `2026-05-12T10:54:32.393Z`.
 - Release report: `.qa/release-readiness/latest.json`.
 - Local route checks returned HTTP 200 for `/`, `/shop`, `/demo`,
   `/shop/wildflower-notes`, `/cart`, `/checkout`, `/reveal`, `/people`,
@@ -175,6 +175,9 @@ Codex evidence:
 - `/api/health` exposes a no-secret readiness/service posture for production
   checks, including deployment metadata so Vercel can be tied back to the
   serving branch/commit without exposing secrets.
+- AWO-77 adds `generate_order_item_reveal_credential(...)`, a named-admin
+  Supabase RPC that creates QR/PIN credential packets for paid items, stores
+  only the hashed PIN, emits custody evidence, and writes an admin audit event.
 - `npm run test:release` passed locally and in GitHub Actions after the
   stakeholder playback hardening.
 

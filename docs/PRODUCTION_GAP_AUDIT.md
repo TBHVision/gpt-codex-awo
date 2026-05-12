@@ -83,6 +83,10 @@ events.
 AWO-74 adds `/admin/reconciliation` so operators can see lifecycle drift across
 order items, payment state, custody events, and ownership records. It is
 read-only; repair and replay workflows remain future audited scopes.
+AWO-77 adds the first production QR/PIN generation boundary: a named-admin-only
+Supabase RPC generates a unique reveal code and raw PIN, stores only the hashed
+PIN, activates the reveal credential, and returns the raw PIN once for
+print/fulfillment handoff.
 AWO-76 hardens the stakeholder demo path with deterministic `/demo` checkout,
 seeded `/reveal?code=AWO-DEMO-001&demo=1` playback, recipient-facing proof
 copy, operator proof links, and demo QA that checks `/api/reveal/verify` when
@@ -143,8 +147,9 @@ Completed:
 
 Remaining:
 
-- Production card-specific QR/PIN generation is not fully automated yet.
-  Tracked by AWO-77.
+- Production card-specific QR/PIN generation now has a named-admin generation
+  foundation. Remaining work is rotation/revocation UX and print/fulfillment
+  packet operational review.
 - Final recipient copy/art direction still needs human review when real product
   cards exist.
 - Tony should review the seeded stakeholder playback path at

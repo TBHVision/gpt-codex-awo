@@ -84,6 +84,16 @@ Reveal credential lifecycle tracks QR/PIN safety and recipient access.
 | `revoked` | Credential permanently invalidated. | Refund, fraud, admin action. | none | Missing. |
 | `generation_failed` | Credential creation failed and needs operator repair. | System error. | `pending_generation`, `revoked` | Missing. |
 
+### Implemented Generation Boundary
+
+AWO-77 adds `public.generate_order_item_reveal_credential(...)` as the first
+production credential-generation path. It generates the reveal code and raw PIN,
+stores only the hashed PIN, activates the reveal credential, and returns the raw
+PIN once to the trusted fulfillment/admin caller.
+
+The raw PIN is intentionally not stored. If a credential needs to be replaced,
+that should be a separate rotate/revoke workflow with its own audit trail.
+
 ### Recommended Reveal Schema Changes
 
 - Expand `reveal_status` or add `reveal_credential_status` with `active`,
