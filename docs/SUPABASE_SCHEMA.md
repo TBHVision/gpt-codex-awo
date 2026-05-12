@@ -109,6 +109,17 @@ Review actions:
 - Write `admin_audit_events` with `artist_approved` or `artist_rejected`.
 - Keep public catalog visibility limited to artists with `status = approved`.
 
+Artist self-service guardrails are enforced by the
+`artists_enforce_status_boundary` trigger. Non-admin users can create their own
+artist profile only as `draft` or `pending_review`. Non-admin profile owners can
+edit profile fields, but approval status changes to `approved`, `rejected`, or
+`suspended` require a named admin/service-role path.
+
+The `/studio` page includes the first application path for signed-in users
+without an artist workspace: public artist name, artist story, and
+`pending_review` submission. While pending, drafts can be prepared in Supabase,
+but the artist remains hidden from public catalog views until admin approval.
+
 ## AWO-43 Lifecycle Model
 
 The production lifecycle model is documented in `docs/LIFECYCLE_MODEL.md`.

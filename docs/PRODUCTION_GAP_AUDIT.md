@@ -165,12 +165,14 @@ Completed:
 - AWO-78 now has the first production admin review path: named Supabase admins
   can approve or reject `pending_review` artist rows from `/admin/reviews`, and
   every action writes `admin_audit_events`.
+- AWO-78 now has the first signed-in artist application path from `/studio` and
+  database guardrails that keep non-admin users from self-promoting artist
+  approval status.
 
 Remaining:
 
-- Artist self-service onboarding is not production-complete. Applicants still
-  need a guided submission path, profile verification steps, and operational
-  payout/commercial review before launch.
+- Artist onboarding is not production-complete. Applicants still need profile
+  verification steps and operational payout/commercial review before launch.
 - Real artist verification and payout/commercial workflows are future scope.
 
 ## Admin And Ops Status
@@ -270,9 +272,8 @@ Evidence captured on 2026-05-11:
 2. Decide and configure observability via AWO-79: Sentry for exceptions, plus
    either Vercel Analytics/Speed Insights or PostHog for product behavior.
 3. Build the next audited admin write controls only where they unblock launch:
-   artist onboarding submission, fulfillment updates, refunds, or
-   revoke/transfer. Use AWO-78 for remaining artist onboarding and AWO-81 for
-   refunds/revoke/transfer.
+   artist verification, fulfillment updates, refunds, or revoke/transfer. Use
+   AWO-78 for remaining artist onboarding and AWO-81 for refunds/revoke/transfer.
 4. Add authenticated E2E tests for buyer and admin flows through AWO-80 once
    the account model is no longer changing daily.
 5. Convert remaining launch gaps into specific Linear issues instead of using

@@ -7,6 +7,7 @@ import {
   createStudioDraft,
   fetchArtistStudioProfile,
   fetchStudioDrafts,
+  submitArtistApplication,
   updateStudioDraftChecklist,
 } from "@/lib/artist-studio";
 import type { ArtistStudioProfile, StudioDraftRecord } from "@/lib/artist-studio";
@@ -88,6 +89,8 @@ function isReady(draft: LocalDraft | StudioDraftRecord) {
 
 export default function StudioClient() {
   const [accountMode, setAccountMode] = useState(false);
+  const [applicationBio, setApplicationBio] = useState("");
+  const [applicationName, setApplicationName] = useState("");
   const [artistProfile, setArtistProfile] = useState<ArtistStudioProfile | null>(null);
   const [category, setCategory] = useState("Originals");
   const [drafts, setDrafts] = useState<Array<LocalDraft | StudioDraftRecord>>(initialDrafts);
@@ -122,7 +125,11 @@ export default function StudioClient() {
 
           setAccountMode(true);
           setDrafts(await fetchStudioDrafts(session, profile.artistId));
-          setStatus(`Using Supabase studio storage for ${profile.artistName}.`);
+          setStatus(
+            profile.artistStatus === "pending_review"
+              ? `Artist application pending review for ${profile.artistName}. Drafts are saving to Supabase.`
+              : `Using Supabase studio storage for ${profile.artistName}.`,
+          );
         })
         .catch((loadError: unknown) => {
           setError(
@@ -192,6 +199,47 @@ export default function StudioClient() {
         saveError instanceof Error
           ? saveError.message
           : "Could not save studio draft.",
+      );
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  async function submitApplication() {
+    if (!applicationName.trim()) {
+      return;
+    }
+
+    setError("");
+    setStatus("");
+    setIsSaving(true);
+
+    try {
+      const session = readBuyerSession();
+
+      if (!session) {
+        setError("Sign in or create an account before requesting artist review.");
+        return;
+      }
+
+      const profile = await submitArtistApplication(session, {
+        bio: applicationBio,
+        publicName: applicationName,
+      });
+      if (!profile.artistId) {
+        throw new Error("Artist application did not return a workspace.");
+      }
+      setArtistProfile(profile);
+      setAccountMode(true);
+      setDrafts(await fetchStudioDrafts(session, profile.artistId));
+      setApplicationBio("");
+      setApplicationName("");
+      setStatus(`Submitted ${profile.artistName} for artist review. You can prepare drafts while review is pending.`);
+    } catch (applicationError) {
+      setError(
+        applicationError instanceof Error
+          ? applicationError.message
+          : "Could not submit artist application.",
       );
     } finally {
       setIsSaving(false);
@@ -270,6 +318,46 @@ export default function StudioClient() {
       <section className="mx-auto grid max-w-7xl gap-6 px-6 py-10 lg:grid-cols-[380px_1fr] lg:px-10">
         <aside className="h-fit border border-[#e5ded6] bg-white p-6 shadow-[0_18px_45px_rgba(45,38,32,.08)]">
           <h2 className="text-2xl font-black">Add Draft</h2>
+          {artistProfile && !artistProfile.artistId ? (
+            <div className="mt-4 border border-[#e5ded6] bg-[#fbfaf8] p-4">
+              <h3 className="text-base font-black">Request Artist Review</h3>
+              <p className="mt-2 text-sm leading-6 text-[#4b4743]">
+                Submit an artist profile for admin review. Approved artists can
+                appear publicly; pending artists can prepare drafts.
+              </p>
+              <label className="mt-4 block text-sm font-black uppercase tracking-wide text-[#373431]">
+                Public artist name
+                <input
+                  className="mt-2 h-11 w-full border border-[#dfd5ca] bg-white px-3 text-sm font-medium normal-case tracking-normal outline-none focus:border-[#b7653a]"
+                  onChange={(event) => setApplicationName(event.target.value)}
+                  placeholder="Artist or studio name"
+                  type="text"
+                  value={applicationName}
+                />
+              </label>
+              <label className="mt-4 block text-sm font-black uppercase tracking-wide text-[#373431]">
+                Artist story
+                <textarea
+                  className="mt-2 min-h-24 w-full border border-[#dfd5ca] bg-white px-3 py-3 text-sm font-medium normal-case tracking-normal outline-none focus:border-[#b7653a]"
+                  onChange={(event) => setApplicationBio(event.target.value)}
+                  placeholder="What do you make, and what should buyers know?"
+                  value={applicationBio}
+                />
+              </label>
+              <button
+                className={`mt-4 h-11 w-full px-4 text-sm font-black uppercase tracking-wide ${
+                  applicationName.trim()
+                    ? "bg-[#252525] text-white hover:bg-[#3a3632]"
+                    : "bg-[#e5ded6] text-[#8a8178]"
+                }`}
+                disabled={!applicationName.trim() || isSaving}
+                onClick={submitApplication}
+                type="button"
+              >
+                {isSaving ? "Submitting..." : "Submit For Review"}
+              </button>
+            </div>
+          ) : null}
           {status ? (
             <p className="mt-3 border border-[#cfe8d8] bg-[#f2fbf5] p-3 text-sm font-bold text-[#256b3d]">
               {status}
@@ -389,9 +477,12 @@ export default function StudioClient() {
                 draft.
               </p>
               <p className="border border-[#e5ded6] bg-[#fbfaf8] p-4">
-                Uploads, media storage, review queues, and publishing controls
-                remain future scoped so this screen stays read/write but not
-                destructive.
+                Artist applications can be submitted into `pending_review`.
+                Named admins approve or reject them from the review queue.
+              </p>
+              <p className="border border-[#e5ded6] bg-[#fbfaf8] p-4">
+                Uploads, media storage, and publishing controls remain future
+                scoped so this screen stays read/write but not destructive.
               </p>
             </div>
           </section>

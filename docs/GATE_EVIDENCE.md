@@ -206,8 +206,13 @@ Codex evidence:
 - Artist review actions require a profile with `role = admin`, update only
   `pending_review` artist rows, and write `admin_audit_events` with
   `artist_approved` or `artist_rejected`.
+- The `artists_enforce_status_boundary` trigger prevents non-admin users from
+  self-promoting artist profiles into `approved`, `rejected`, or `suspended`
+  states.
+- `/studio` now includes a signed-in user artist application path that creates
+  `pending_review` artist rows without making them public.
 
 Remaining:
 
-- Artist self-service application UX, verification checklist, and payout or
-  commercial onboarding workflow remain open under AWO-78.
+- Artist verification checklist and payout or commercial onboarding workflow
+  remain open under AWO-78.

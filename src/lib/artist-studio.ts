@@ -5,6 +5,7 @@ import type { BuyerSession } from "@/lib/buyer-auth";
 export type ArtistStudioProfile = {
   artistId: string | null;
   artistName: string | null;
+  artistStatus: string | null;
   role: "admin" | "artist" | "buyer";
 };
 
@@ -79,26 +80,25 @@ export async function fetchArtistStudioProfile(session: BuyerSession) {
     "Could not load studio profile.",
   );
 
-  if (!profile || (profile.role !== "artist" && profile.role !== "admin")) {
+  if (!profile) {
     return {
       artistId: null,
       artistName: null,
-      role: profile?.role ?? "buyer",
+      artistStatus: null,
+      role: "buyer",
     } satisfies ArtistStudioProfile;
   }
 
   const artistQuery =
-    profile.role === "artist"
-      ? `profile_id=eq.${session.user.id}`
-      : "status=eq.approved";
+    profile.role === "admin" ? "status=eq.approved" : `profile_id=eq.${session.user.id}`;
 
   const artistResponse = await fetch(
-    `${supabaseUrl}/rest/v1/artists?select=id,public_name&${artistQuery}&order=created_at.asc&limit=1`,
+    `${supabaseUrl}/rest/v1/artists?select=id,public_name,status&${artistQuery}&order=created_at.asc&limit=1`,
     {
       headers: headersFor(session),
     },
   );
-  const [artist] = await parseResponse<Array<{ id: string; public_name: string }>>(
+  const [artist] = await parseResponse<Array<{ id: string; public_name: string; status: string }>>(
     artistResponse,
     "Could not load artist workspace.",
   );
@@ -106,7 +106,47 @@ export async function fetchArtistStudioProfile(session: BuyerSession) {
   return {
     artistId: artist?.id ?? null,
     artistName: artist?.public_name ?? null,
+    artistStatus: artist?.status ?? null,
     role: profile.role,
+  } satisfies ArtistStudioProfile;
+}
+
+export async function submitArtistApplication(
+  session: BuyerSession,
+  input: {
+    bio: string;
+    publicName: string;
+  },
+) {
+  const { supabaseUrl } = getSupabasePublicConfig();
+  const publicName = input.publicName.trim();
+  const slug = `${slugify(publicName)}-${Date.now().toString(36)}`;
+
+  const response = await fetch(`${supabaseUrl}/rest/v1/artists`, {
+    body: JSON.stringify({
+      bio: input.bio.trim() || null,
+      profile_id: session.user.id,
+      public_name: publicName,
+      slug,
+      status: "pending_review",
+    }),
+    headers: headersFor(session, true),
+    method: "POST",
+  });
+
+  const [artist] = await parseResponse<
+    Array<{
+      id: string;
+      public_name: string;
+      status: string;
+    }>
+  >(response, "Could not submit artist application.");
+
+  return {
+    artistId: artist.id,
+    artistName: artist.public_name,
+    artistStatus: artist.status,
+    role: "buyer",
   } satisfies ArtistStudioProfile;
 }
 
