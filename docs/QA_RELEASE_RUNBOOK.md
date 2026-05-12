@@ -39,6 +39,9 @@ What each command proves:
 - `npm run test:demo`: launches Chrome, clicks `/demo` Start Guided Checkout,
   verifies the prefilled checkout story, cart item, and total, then checks the
   seeded honoree playback path at `/reveal?code=AWO-DEMO-001&demo=1`.
+- `npm run test:credentials`: safely verifies the remote credential-generation
+  RPC exists and rejects calls without a named admin actor. It does not generate
+  or mutate a credential.
   It verifies the Supabase-backed reveal API when environment variables are
   present, checks demo playback content, and also verifies cart quantity/remove
   controls, malformed cart-storage recovery, stale buyer-session recovery, and
