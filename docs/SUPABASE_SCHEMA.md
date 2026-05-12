@@ -280,6 +280,14 @@ The RPC requires `actor_profile_id` to belong to a `profiles.role = 'admin'`
 row. `scripts/lifecycle-exception-rpc-smoke.mjs` verifies the RPC exists and
 enforces the named-admin guard without mutating lifecycle state.
 
+Operator surfaces:
+
+- `/admin/fulfillment` exposes internal refund-state recording and credential
+  revocation for named admins.
+- `/admin/ownership` exposes ownership revocation and transfer for named admins.
+- Temporary password admin sessions remain read-only for these actions because
+  they do not set a named Supabase admin profile cookie.
+
 ## Role Model
 
 `profiles.role` is intentionally simple for V0.1:

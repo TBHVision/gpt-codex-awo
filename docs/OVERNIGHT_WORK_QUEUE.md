@@ -51,8 +51,9 @@ moving without waking Tony for every small branch decision.
   mode.
 - AWO-81: refund, revocation, and ownership transfer workflows. Protected
   named-admin RPC foundation is in place for refund item, credential revoke,
-  ownership revoke, and ownership transfer. Operator UI and live Stripe refund
-  execution remain separate gates.
+  ownership revoke, and ownership transfer. `/admin/fulfillment` and
+  `/admin/ownership` now expose the named-admin operator controls. Live Stripe
+  refund execution remains a separate explicit approval gate.
 - AWO-82: temporary admin password fallback removal.
 
 ## Stop Conditions

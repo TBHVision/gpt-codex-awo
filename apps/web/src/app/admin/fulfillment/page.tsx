@@ -9,6 +9,10 @@ import {
   type GeneratedRevealCredential,
 } from "@/lib/admin-fulfillment-actions";
 import {
+  transitionLifecycleException,
+  type LifecycleExceptionAction,
+} from "@/lib/admin-lifecycle-actions";
+import {
   type FulfillmentMetric,
   loadAdminFulfillmentSnapshot,
 } from "@/lib/admin-fulfillment";
@@ -133,6 +137,37 @@ async function submitCredentialGeneration(formData: FormData) {
   revalidatePath("/admin/launch");
 }
 
+async function submitLifecycleException(formData: FormData) {
+  "use server";
+
+  const cookieStore = await cookies();
+  const adminUserId = cookieStore.get(adminUserCookieName)?.value;
+  const itemId = String(formData.get("itemId") ?? "");
+  const action = String(formData.get("action") ?? "") as LifecycleExceptionAction;
+
+  if (!itemId || !["refund_item", "revoke_credential"].includes(action)) {
+    throw new Error("Invalid lifecycle exception action.");
+  }
+
+  await transitionLifecycleException({
+    action,
+    adminUserId,
+    itemId,
+    note:
+      action === "refund_item"
+        ? "Internal refund state recorded from /admin/fulfillment. No live Stripe refund was executed."
+        : "Reveal credential revoked from /admin/fulfillment.",
+  });
+
+  revalidatePath("/admin/fulfillment");
+  revalidatePath("/admin/ownership");
+  revalidatePath("/admin/custody");
+  revalidatePath("/admin/reconciliation");
+  revalidatePath("/admin/audit");
+  revalidatePath("/admin/ops");
+  revalidatePath("/admin/launch");
+}
+
 export default async function AdminFulfillmentPage() {
   const snapshot = await loadAdminFulfillmentSnapshot();
   const cookieStore = await cookies();
@@ -155,8 +190,8 @@ export default async function AdminFulfillmentPage() {
             <p className="mt-3 max-w-3xl text-base leading-7 text-slate-600">
               Paid orders, item state, reveal credential readiness, and
               ownership posture. Named admins can generate QR/PIN credential
-              packets; fulfillment, refunds, revocation, and transfer remain
-              separate audited workflows.
+              packets and run narrow exception workflows. Refund actions record
+              internal state only; live Stripe refunds stay disabled.
             </p>
             <p className="mt-2 text-sm font-semibold text-slate-500">
               Snapshot: {formatDate(snapshot.generatedAt)} -{" "}
@@ -333,6 +368,43 @@ export default async function AdminFulfillmentPage() {
                                 No fulfillment transition available.
                               </p>
                             )}
+                            {item.revealCredentialStatus !== "revoked" &&
+                            item.revealCredentialStatus !== "no credential" ? (
+                              <form action={submitLifecycleException}>
+                                <input name="itemId" type="hidden" value={item.id} />
+                                <input
+                                  name="action"
+                                  type="hidden"
+                                  value="revoke_credential"
+                                />
+                                <button
+                                  className="h-9 rounded-md border border-amber-300 bg-amber-50 px-3 text-xs font-semibold text-amber-950 shadow-sm hover:border-amber-400 hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-50"
+                                  disabled={!hasNamedAdmin}
+                                  type="submit"
+                                >
+                                  Revoke Credential
+                                </button>
+                              </form>
+                            ) : null}
+                            {["paid", "partially_refunded"].includes(
+                              order.paymentStatus,
+                            ) && item.itemStatus !== "refunded" ? (
+                              <form action={submitLifecycleException}>
+                                <input name="itemId" type="hidden" value={item.id} />
+                                <input
+                                  name="action"
+                                  type="hidden"
+                                  value="refund_item"
+                                />
+                                <button
+                                  className="h-9 rounded-md border border-rose-300 bg-rose-50 px-3 text-xs font-semibold text-rose-900 shadow-sm hover:border-rose-400 hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-50"
+                                  disabled={!hasNamedAdmin}
+                                  type="submit"
+                                >
+                                  Record Refund
+                                </button>
+                              </form>
+                            ) : null}
                           </div>
                         </div>
                       ))
@@ -375,9 +447,9 @@ export default async function AdminFulfillmentPage() {
               Fulfillment Rule
             </h2>
             <p className="mt-2 text-sm leading-6 text-amber-900">
-              This page does not fulfill, ship, revoke, refund, or transfer
-              ownership. It can generate a one-time QR/PIN packet for a paid
-              item when a named admin session is active.
+              This page exposes narrow named-admin transitions. Record Refund is
+              internal lifecycle state only and does not execute a live Stripe
+              refund.
             </p>
           </div>
         </aside>

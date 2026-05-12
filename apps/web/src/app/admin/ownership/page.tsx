@@ -1,11 +1,19 @@
 import Link from "next/link";
+import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 import { AdminSessionBanner } from "@/app/admin/AdminSessionBanner";
+import {
+  transitionLifecycleException,
+  type LifecycleExceptionAction,
+} from "@/lib/admin-lifecycle-actions";
 import {
   type OwnershipMetric,
   loadAdminOwnershipSnapshot,
 } from "@/lib/admin-ownership";
 
 export const dynamic = "force-dynamic";
+
+const adminUserCookieName = "awo_admin_user_id";
 
 function formatDate(value: string | null) {
   if (!value) {
@@ -38,8 +46,48 @@ function StatusPill({ value }: { value: string }) {
   );
 }
 
+async function submitOwnershipException(formData: FormData) {
+  "use server";
+
+  const cookieStore = await cookies();
+  const adminUserId = cookieStore.get(adminUserCookieName)?.value;
+  const itemId = String(formData.get("itemId") ?? "");
+  const action = String(formData.get("action") ?? "") as LifecycleExceptionAction;
+  const transferToPersonId = String(formData.get("transferToPersonId") ?? "").trim();
+  const transferToProfileId = String(formData.get("transferToProfileId") ?? "").trim();
+
+  if (!itemId || !["revoke_ownership", "transfer_ownership"].includes(action)) {
+    throw new Error("Invalid ownership exception action.");
+  }
+
+  if (action === "transfer_ownership" && !transferToPersonId && !transferToProfileId) {
+    throw new Error("Ownership transfer requires a target profile ID or person ID.");
+  }
+
+  await transitionLifecycleException({
+    action,
+    adminUserId,
+    itemId,
+    note:
+      action === "transfer_ownership"
+        ? "Ownership transfer recorded from /admin/ownership."
+        : "Ownership revoked from /admin/ownership.",
+    transferToPersonId,
+    transferToProfileId,
+  });
+
+  revalidatePath("/admin/ownership");
+  revalidatePath("/admin/custody");
+  revalidatePath("/admin/reconciliation");
+  revalidatePath("/admin/audit");
+  revalidatePath("/admin/ops");
+  revalidatePath("/admin/launch");
+}
+
 export default async function AdminOwnershipPage() {
   const snapshot = await loadAdminOwnershipSnapshot();
+  const cookieStore = await cookies();
+  const hasNamedAdmin = Boolean(cookieStore.get(adminUserCookieName)?.value);
 
   return (
     <main className="min-h-screen bg-[#f6f4ef] text-slate-950">
@@ -53,14 +101,21 @@ export default async function AdminOwnershipPage() {
               Ownership Records
             </h1>
             <p className="mt-3 max-w-3xl text-base leading-7 text-slate-600">
-              Read-only view of durable ownership records created from paid
-              orders and activated by fulfillment completion.
+              Durable ownership records created from paid orders and activated
+              by fulfillment completion. Named admins can run narrow revoke and
+              transfer exception workflows.
             </p>
             <p className="mt-2 text-sm font-semibold text-slate-500">
               Snapshot: {formatDate(snapshot.generatedAt)} -{" "}
               {snapshot.mode === "full"
                 ? "Full ownership mode"
                 : "Limited ownership mode"}
+            </p>
+            <p className="mt-2 text-sm font-semibold text-slate-500">
+              Actions:{" "}
+              {hasNamedAdmin
+                ? "Named admin exceptions enabled"
+                : "Read-only until Supabase admin login"}
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
@@ -173,6 +228,78 @@ export default async function AdminOwnershipPage() {
                       </p>
                     </div>
                   </div>
+
+                  <div className="mt-4 grid gap-3 rounded-md border border-amber-200 bg-amber-50 p-4">
+                    <div>
+                      <p className="text-sm font-semibold text-amber-950">
+                        Ownership Exception Actions
+                      </p>
+                      <p className="mt-1 text-xs leading-5 text-amber-900">
+                        These actions write audit and custody evidence. Use transfer
+                        only when you have the exact target Supabase profile ID or
+                        recipient person ID.
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <form action={submitOwnershipException}>
+                        <input name="itemId" type="hidden" value={record.orderItemId} />
+                        <input
+                          name="action"
+                          type="hidden"
+                          value="revoke_ownership"
+                        />
+                        <button
+                          className="h-9 rounded-md border border-rose-300 bg-white px-3 text-xs font-semibold text-rose-900 shadow-sm hover:border-rose-400 hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50"
+                          disabled={
+                            !hasNamedAdmin ||
+                            !record.orderItemId ||
+                            ["refunded", "revoked", "voided"].includes(record.status)
+                          }
+                          type="submit"
+                        >
+                          Revoke Ownership
+                        </button>
+                      </form>
+                    </div>
+                    <form
+                      action={submitOwnershipException}
+                      className="grid gap-2 lg:grid-cols-[1fr_1fr_auto]"
+                    >
+                      <input name="itemId" type="hidden" value={record.orderItemId} />
+                      <input
+                        name="action"
+                        type="hidden"
+                        value="transfer_ownership"
+                      />
+                      <label className="grid gap-1 text-xs font-semibold text-slate-700">
+                        Target profile ID
+                        <input
+                          className="h-10 rounded-md border border-slate-300 bg-white px-3 text-sm font-normal text-slate-950"
+                          name="transferToProfileId"
+                          placeholder="Supabase profile UUID"
+                        />
+                      </label>
+                      <label className="grid gap-1 text-xs font-semibold text-slate-700">
+                        Target person ID
+                        <input
+                          className="h-10 rounded-md border border-slate-300 bg-white px-3 text-sm font-normal text-slate-950"
+                          name="transferToPersonId"
+                          placeholder="Recipient person UUID"
+                        />
+                      </label>
+                      <button
+                        className="h-10 self-end rounded-md border border-amber-300 bg-white px-3 text-xs font-semibold text-amber-950 shadow-sm hover:border-amber-400 hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-50"
+                        disabled={
+                          !hasNamedAdmin ||
+                          !record.orderItemId ||
+                          ["refunded", "revoked", "voided"].includes(record.status)
+                        }
+                        type="submit"
+                      >
+                        Transfer
+                      </button>
+                    </form>
+                  </div>
                 </article>
               ))
             ) : (
@@ -206,8 +333,9 @@ export default async function AdminOwnershipPage() {
               Ownership Guardrail
             </h2>
             <p className="mt-2 text-sm leading-6 text-amber-900">
-              This page does not transfer, revoke, refund, or edit ownership.
-              Those are future audited workflows with separate approvals.
+              Ownership exceptions require a named Supabase admin session and
+              exact target IDs. Live-money refunds remain separate from this
+              page.
             </p>
           </div>
         </aside>

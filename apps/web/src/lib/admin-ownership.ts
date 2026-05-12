@@ -14,6 +14,7 @@ export type OwnershipRecord = {
   fulfillmentStatus: string;
   id: string;
   itemStatus: string;
+  orderItemId: string;
   metadataSummary: string;
   ownershipSummary: string;
   paymentStatus: string;
@@ -41,6 +42,7 @@ type SupabaseOwnershipRecordRow = {
   id: string;
   metadata: Record<string, unknown> | null;
   order_items?: {
+    id?: string;
     orders?: {
       checkout_reference?: string | null;
       fulfillment_status?: string;
@@ -116,7 +118,7 @@ async function fetchOwnershipRecords(input: {
   supabaseUrl: string;
 }) {
   const response = await fetch(
-    `${input.supabaseUrl}/rest/v1/ownership_records?select=id,status,ownership_summary,activated_at,metadata,created_at,updated_at,buyer_profile_id,recipient_person_id,profiles(display_name,email),people(display_name,relationship),cards(title,artists(public_name)),order_items(status,reveal_public_id,orders(checkout_reference,payment_status,fulfillment_status))&order=updated_at.desc&limit=25`,
+    `${input.supabaseUrl}/rest/v1/ownership_records?select=id,status,ownership_summary,activated_at,metadata,created_at,updated_at,buyer_profile_id,recipient_person_id,profiles(display_name,email),people(display_name,relationship),cards(title,artists(public_name)),order_items(id,status,reveal_public_id,orders(checkout_reference,payment_status,fulfillment_status))&order=updated_at.desc&limit=25`,
     {
       cache: "no-store",
       headers: headersFor(input.key),
@@ -253,6 +255,7 @@ export async function loadAdminOwnershipSnapshot(): Promise<AdminOwnershipSnapsh
         record.order_items?.orders?.fulfillment_status ?? "unknown",
       id: record.id,
       itemStatus: record.order_items?.status ?? "unknown",
+      orderItemId: record.order_items?.id ?? "",
       metadataSummary: metadataSummary(record.metadata),
       ownershipSummary:
         record.ownership_summary ?? "No ownership summary has been recorded.",
