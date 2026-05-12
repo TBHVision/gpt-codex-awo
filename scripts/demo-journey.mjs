@@ -338,6 +338,48 @@ async function verifyAccountSessionRecovery(client) {
   );
 }
 
+async function verifyStorefrontNavigation(client) {
+  const routes = [
+    { marker: "ArtWithOrigin", path: "/" },
+    { marker: "Shop", path: "/shop" },
+    { marker: "Artists", path: "/artists" },
+    { marker: "Reveal", path: "/reveal" },
+    { marker: "People", path: "/people" },
+    { marker: "Reminders", path: "/reminders" },
+    { marker: "Your Cart", path: "/cart" },
+    { marker: "Sign in to AWO", path: "/account" },
+  ];
+
+  for (const route of routes) {
+    const load = client.waitFor("Page.loadEventFired");
+    await client.send("Page.navigate", { url: new URL(route.path, baseUrl).toString() });
+    await load;
+
+    let lastText = "";
+    for (let attempt = 0; attempt < 50; attempt += 1) {
+      lastText = await evaluate(client, "document.body.innerText");
+      const normalizedText = (lastText ?? "").toLowerCase();
+      if (
+        normalizedText.includes(route.marker.toLowerCase()) &&
+        !normalizedText.includes("404") &&
+        !normalizedText.includes("not_found") &&
+        !normalizedText.includes("this page couldn't load")
+      ) {
+        console.log(`PASS ${route.path} storefront navigation -> ${new URL(route.path, baseUrl)}`);
+        break;
+      }
+
+      if (attempt === 49) {
+        throw new Error(
+          `${route.path} did not render expected navigation marker "${route.marker}". text=${(lastText ?? "").slice(0, 160)}`,
+        );
+      }
+
+      await sleep(100);
+    }
+  }
+}
+
 async function main() {
   const chrome = await findChrome();
   const userDataDir = await mkdtemp(path.join(tmpdir(), "awo-demo-journey-"));
@@ -415,6 +457,7 @@ async function main() {
 
     await verifyCartControls(client);
     await verifyAccountSessionRecovery(client);
+    await verifyStorefrontNavigation(client);
   } finally {
     if (client) {
       await client.close();

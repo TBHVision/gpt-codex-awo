@@ -146,7 +146,7 @@ export async function loadLaunchReadinessSnapshot(): Promise<LaunchReadinessSnap
         },
         {
           detail:
-            "`npm run test:demo` clicks the stakeholder checkout and seeded reveal handoff.",
+            "`npm run test:demo` clicks the stakeholder checkout, seeded reveal handoff, cart/account recovery, and core storefront navigation.",
           label: "Guided demo journey coverage",
           state: "ready",
         },
