@@ -1,5 +1,10 @@
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
+
 const baseUrl = process.env.SMOKE_BASE_URL ?? "http://127.0.0.1:3000";
 const expectedCommit = process.env.SMOKE_EXPECTED_COMMIT?.trim();
+const minimumCommit = process.env.SMOKE_MIN_COMMIT?.trim();
+const execFileAsync = promisify(execFile);
 
 const publicRoutes = [
   "/",
@@ -55,12 +60,22 @@ async function checkPublicRoute(route) {
       throw new Error("/api/health is missing service posture metadata.");
     }
 
-    if (expectedCommit) {
+    if (expectedCommit || minimumCommit) {
       const actualCommit = health.deployment.commit;
 
-      if (actualCommit !== expectedCommit) {
+      if (expectedCommit && actualCommit !== expectedCommit) {
         throw new Error(
           `/api/health is serving commit ${actualCommit ?? "unknown"}, expected ${expectedCommit}.`,
+        );
+      }
+
+      if (
+        !expectedCommit &&
+        minimumCommit &&
+        !(await isCommitAtOrAfterMinimum(actualCommit, minimumCommit))
+      ) {
+        throw new Error(
+          `/api/health is serving commit ${actualCommit ?? "unknown"}, expected ${minimumCommit} or newer.`,
         );
       }
     }
@@ -83,6 +98,23 @@ async function checkProtectedRoute(route) {
   }
 
   return `${route} -> ${response.status} ${location}`;
+}
+
+async function isCommitAtOrAfterMinimum(actual, minimum) {
+  if (!actual || !minimum) {
+    return false;
+  }
+
+  if (actual === minimum) {
+    return true;
+  }
+
+  try {
+    await execFileAsync("git", ["merge-base", "--is-ancestor", minimum, actual]);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 async function main() {

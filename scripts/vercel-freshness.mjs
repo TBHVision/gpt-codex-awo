@@ -4,8 +4,8 @@ import { promisify } from "node:util";
 const execFileAsync = promisify(execFile);
 const baseUrl =
   process.env.AWO_VERCEL_BASE_URL ?? "https://gpt-codex-awo-dashboard.vercel.app";
-const expectedCommit =
-  process.env.AWO_EXPECTED_DEPLOY_COMMIT?.trim() || (await latestAppSourceCommit());
+const exactExpectedCommit = process.env.AWO_EXPECTED_DEPLOY_COMMIT?.trim() || null;
+const expectedCommit = exactExpectedCommit || (await latestAppSourceCommit());
 
 async function latestAppSourceCommit() {
   const deploySourcePaths = [
@@ -46,19 +46,42 @@ function shortCommit(value) {
     : "unknown";
 }
 
+async function isCommitAtOrAfterExpected(actual, expected) {
+  if (!actual || !expected) {
+    return false;
+  }
+
+  if (actual === expected) {
+    return true;
+  }
+
+  if (exactExpectedCommit) {
+    return false;
+  }
+
+  try {
+    await execFileAsync("git", ["merge-base", "--is-ancestor", expected, actual]);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 const health = await fetchHealth();
 const actualCommit = health?.deployment?.commit ?? null;
 const provider = health?.deployment?.provider ?? "unknown";
 const environment = health?.deployment?.environment ?? "unknown";
 
-if (actualCommit !== expectedCommit) {
+if (!(await isCommitAtOrAfterExpected(actualCommit, expectedCommit))) {
   throw new Error(
     [
       "Vercel production is serving a stale build.",
       `expected=${shortCommit(expectedCommit)}`,
       `actual=${shortCommit(actualCommit)}`,
       `baseUrl=${baseUrl}`,
-      "Default expected commit is the latest app-source commit; set AWO_EXPECTED_DEPLOY_COMMIT to require an exact commit.",
+      exactExpectedCommit
+        ? "AWO_EXPECTED_DEPLOY_COMMIT requires an exact deployed commit match."
+        : "Default expected commit is the latest app-source commit; newer docs/scripts-only deployments are accepted when they contain that app-source commit.",
       "Check Vercel deployment status, project root/build settings, and deployment quota before trusting deployed route smoke results.",
     ].join(" "),
   );

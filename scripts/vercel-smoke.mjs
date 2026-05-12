@@ -3,7 +3,7 @@ import { execFileSync } from "node:child_process";
 process.env.SMOKE_BASE_URL ??= "https://gpt-codex-awo-dashboard.vercel.app";
 
 try {
-  process.env.SMOKE_EXPECTED_COMMIT ??= execFileSync("git", [
+  process.env.SMOKE_MIN_COMMIT ??= execFileSync("git", [
     "rev-list",
     "-1",
     "HEAD",
@@ -20,7 +20,7 @@ try {
     encoding: "utf8",
   }).trim();
 } catch {
-  console.warn("WARN could not resolve local git HEAD; skipping Vercel commit match.");
+  console.warn("WARN could not resolve local git app-source commit; skipping Vercel commit freshness check.");
 }
 
 await import("./smoke-routes.mjs");
