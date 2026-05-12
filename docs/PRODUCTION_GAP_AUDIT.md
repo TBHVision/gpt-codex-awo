@@ -50,8 +50,9 @@ Current automated evidence:
 route smoke, guided demo journey, and desktop/mobile visual QA, then writes
 `.qa/release-readiness/latest.json`.
 `test:demo` now covers the guided checkout/reveal path, cart quantity/remove
-controls, malformed cart-storage recovery, stale buyer-session recovery on
-`/account`, and core storefront route navigation.
+controls, inline checkout cart quantity/remove controls, malformed cart-storage
+recovery, stale buyer-session recovery on `/account`, and core storefront route
+navigation.
 `/admin/launch` now gives the V1.0 gate a protected launch-readiness view for
 environment posture, release evidence, required docs, and Tony review blockers.
 `/admin/reviews` now gives operators a protected read-only view of card,
@@ -99,7 +100,7 @@ checks.
 - Local route smoke tests pass.
 - Desktop/mobile visual QA passes across golden routes.
 - GitHub Actions release readiness has passed on `main`; latest confirmed run
-  from this audit pass is `25727458788` for commit `8ae402a`.
+  from this audit pass is `25749258943` for commit `62cfa07`.
 - Vercel production smoke and demo journey checks pass through
   `npm run test:vercel:smoke` and `npm run test:vercel:demo`.
 - Public Vercel environment has Supabase and Stripe test variables configured.
@@ -125,6 +126,10 @@ Completed:
   browser-local cart fallback.
 - Cart edit controls now support quantity increase/decrease, direct quantity
   entry, item removal, and full cart clearing.
+- Checkout now exposes compact item quantity and removal controls in the order
+  summary, so a buyer can fix the order without backtracking to the cart page.
+- Signed-in cart edits now use an exact save path after user edits, preventing
+  removed items from being resurrected by merge-only account sync.
 - Buyer account page now clears malformed/stale browser sessions instead of
   dropping into a generic page-load failure.
 

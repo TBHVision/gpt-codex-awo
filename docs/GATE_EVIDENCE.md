@@ -8,15 +8,15 @@ comment on Linear without re-discovering the same facts.
 
 ## Shared Release Evidence
 
-- `npm run test:release` passed at `2026-05-12T13:20:30.599Z`.
+- `npm run test:release` passed at `2026-05-12T16:52:35.000Z`.
 - Release report: `.qa/release-readiness/latest.json`.
 - Local route checks returned HTTP 200 for `/`, `/shop`, `/demo`,
   `/shop/wildflower-notes`, `/cart`, `/checkout`, `/reveal`, `/people`,
   `/reminders`, `/studio`, `/account`, `/artists`, and `/api/health`.
 - Production route checks returned HTTP 200 for the same public routes on
   `https://gpt-codex-awo-dashboard.vercel.app`.
-- GitHub Actions release-readiness passed on `main` in run `25728521994` for
-  commit `bfc0c14`.
+- GitHub Actions release-readiness passed on `main` in run `25749258943` for
+  commit `62cfa07`.
 - `npm run test:vercel:smoke` passed against
   `https://gpt-codex-awo-dashboard.vercel.app`, including `/api/health`,
   protected admin login redirects, and an exact deployed-commit match to local
@@ -42,6 +42,8 @@ Codex evidence:
   `/cart` and exposes checkout navigation.
 - Browser evidence confirmed `/checkout` exposes recipient, occasion, message,
   draft save, and test payment controls.
+- Checkout now includes inline cart quantity and removal controls, so buyers can
+  correct an order from the checkout summary without returning to `/cart`.
 - Stripe test checkout is complete through AWO-46.
 
 Still needs Tony before Done:
@@ -162,6 +164,8 @@ Codex evidence:
 - Cart and account support copy now reflects the current system state: Stripe
   is sandbox/test-mode until approval, signed-in carts sync through Supabase,
   and People/Reminders are account-aware rather than future-only.
+- The checkout summary now has item edit controls, and `npm run test:demo`
+  verifies quantity increase and removal directly on `/checkout`.
 - People and Reminders support copy now describes account-backed activity and
   planning queues without implying those tools are still purely local.
 - `/reveal?code=AWO-DEMO-001&demo=1` provides a deterministic demo honoree
@@ -261,11 +265,13 @@ Codex evidence:
   before deeper deployed checks run. This prevents stale Vercel builds from
   looking like application route failures while allowing docs/scripts-only
   commits to land without requiring a new app bundle.
+- `npm run test:demo` now includes `PASS /checkout inline cart controls`, and
+  GitHub Actions passed that release gate in run `25749258943`.
 
 Remaining:
 
-- Production cannot be redeployed with this change until the current Vercel
-  daily deployment limit clears.
+- Production freshness is currently blocked because Vercel is still serving
+  app commit `db33937` while the latest app-source commit is `62cfa07`.
 - Hosted CI will run the harness in skip mode unless Supabase service-role test
   secrets are added to GitHub Actions.
 

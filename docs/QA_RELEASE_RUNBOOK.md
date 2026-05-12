@@ -50,8 +50,9 @@ What each command proves:
   or mutate a credential.
   It verifies the Supabase-backed reveal API when environment variables are
   present, checks demo playback content, and also verifies cart quantity/remove
-  controls, malformed cart-storage recovery, stale buyer-session recovery, and
-  core storefront navigation routes.
+  controls, inline checkout cart quantity/remove controls, malformed
+  cart-storage recovery, stale buyer-session recovery, and core storefront
+  navigation routes.
 - `npm run test:release`: runs the full local gate: lint, mirror sync, build, fresh
   production server, smoke routes, guided demo journey, and desktop/mobile
   visual QA.
@@ -151,8 +152,9 @@ without those variables, that live API assertion is skipped with an explicit
 `SKIP` line while the rendered playback checks still run.
 
 Finally, it seeds a local cart item, confirms quantity can be increased,
-confirms Remove empties the cart, and confirms malformed browser cart storage
-recovers to the empty-cart state instead of crashing the page.
+confirms Remove empties the cart, repeats quantity/remove checks from the
+checkout summary, and confirms malformed browser cart storage recovers to the
+empty-cart state instead of crashing the page.
 
 It also verifies `/account` recovers from a malformed saved buyer session and
 checks the core storefront routes render expected page markers instead of 404,
