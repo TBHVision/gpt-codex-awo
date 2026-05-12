@@ -7,6 +7,7 @@ type ShopPageProps = {
   searchParams?: Promise<{
     occasion?: string;
     q?: string;
+    sort?: string;
   }>;
 };
 
@@ -26,6 +27,15 @@ const cardLooks = [
   "from-[#f8cf55] via-[#ee8d48] to-[#72a6b5]",
   "from-[#df8b61] via-[#61a493] to-[#ddc153]",
 ];
+
+const sortOptions = [
+  { label: "Newest", value: "newest" },
+  { label: "Price: Low", value: "price-asc" },
+  { label: "Price: High", value: "price-desc" },
+  { label: "A-Z", value: "title-asc" },
+] as const;
+
+type SortValue = (typeof sortOptions)[number]["value"];
 
 function formatPrice(card: PublishedCard) {
   return new Intl.NumberFormat("en-US", {
@@ -132,7 +142,41 @@ function TrustRow() {
   );
 }
 
-function CategoryTabs({ active }: { active: string }) {
+function buildShopHref(filters: {
+  occasion?: string;
+  q?: string;
+  sort?: string;
+}) {
+  const params = new URLSearchParams();
+
+  if (filters.occasion) {
+    params.set("occasion", filters.occasion);
+  }
+
+  if (filters.q) {
+    params.set("q", filters.q);
+  }
+
+  if (filters.sort && filters.sort !== "newest") {
+    params.set("sort", filters.sort);
+  }
+
+  const query = params.toString();
+  return query ? `/shop?${query}` : "/shop";
+}
+
+function CategoryTabs({
+  active,
+  query,
+  sort,
+}: {
+  active: string;
+  query: string;
+  sort: SortValue;
+}) {
+  const activeSortLabel =
+    sortOptions.find((option) => option.value === sort)?.label ?? "Newest";
+
   return (
     <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
       <div className="grid grid-cols-2 gap-x-6 gap-y-4 sm:flex sm:flex-wrap sm:gap-x-12">
@@ -146,7 +190,11 @@ function CategoryTabs({ active }: { active: string }) {
                   ? "border-[#b7653a] text-[#b7653a]"
                   : "border-transparent text-[#2f2d2b] hover:text-[#b7653a]"
               }`}
-              href={category.href}
+              href={buildShopHref({
+                occasion: category.value,
+                q: query,
+                sort,
+              })}
               key={category.label}
             >
               {category.label}
@@ -154,13 +202,30 @@ function CategoryTabs({ active }: { active: string }) {
           );
         })}
       </div>
-      <button
-        className="inline-flex items-center gap-2 self-start text-xs font-black uppercase tracking-wide text-[#2f2d2b] md:self-auto"
-        type="button"
-      >
-        Sort: Newest
-        <span className="text-[#b7653a]">v</span>
-      </button>
+      <div className="flex flex-wrap items-center gap-2 self-start md:justify-end">
+        <span className="text-xs font-black uppercase tracking-wide text-[#6e6258]">
+          Sort: {activeSortLabel}
+        </span>
+        <div className="flex flex-wrap gap-2">
+          {sortOptions.map((option) => (
+            <Link
+              className={`inline-flex h-8 items-center border px-3 text-[11px] font-black uppercase tracking-wide ${
+                option.value === sort
+                  ? "border-[#b7653a] bg-[#fff8ef] text-[#7a472e]"
+                  : "border-[#dfd5ca] bg-white text-[#6e6258] hover:border-[#b7653a] hover:text-[#a85f38]"
+              }`}
+              href={buildShopHref({
+                occasion: active,
+                q: query,
+                sort: option.value,
+              })}
+              key={option.value}
+            >
+              {option.label}
+            </Link>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
@@ -233,11 +298,11 @@ function CardTile({ card, index }: { card: PublishedCard; index: number }) {
 
 function filterCards(
   cards: PublishedCard[],
-  filters: { occasion: string; q: string },
+  filters: { occasion: string; q: string; sort: SortValue },
 ) {
   const query = filters.q.trim().toLowerCase();
 
-  return cards.filter((card) => {
+  const filteredCards = cards.filter((card) => {
     const matchesOccasion =
       !filters.occasion || card.occasion_tags.includes(filters.occasion);
     const matchesQuery =
@@ -247,6 +312,25 @@ function filterCards(
       card.artist_name.toLowerCase().includes(query);
 
     return matchesOccasion && matchesQuery;
+  });
+
+  return filteredCards.sort((left, right) => {
+    if (filters.sort === "price-asc") {
+      return left.price_cents - right.price_cents;
+    }
+
+    if (filters.sort === "price-desc") {
+      return right.price_cents - left.price_cents;
+    }
+
+    if (filters.sort === "title-asc") {
+      return left.title.localeCompare(right.title);
+    }
+
+    return (
+      new Date(right.published_at ?? 0).getTime() -
+      new Date(left.published_at ?? 0).getTime()
+    );
   });
 }
 
@@ -306,6 +390,9 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
   const filters = {
     occasion: params.occasion ?? "",
     q: params.q ?? "",
+    sort: sortOptions.some((option) => option.value === params.sort)
+      ? (params.sort as SortValue)
+      : "newest",
   };
   const cards =
     catalog.status === "ready" ? filterCards(catalog.cards, filters) : [];
@@ -324,7 +411,11 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
       </section>
 
       <section className="mx-auto max-w-7xl px-6 pb-10 lg:px-10">
-        <CategoryTabs active={filters.occasion} />
+        <CategoryTabs
+          active={filters.occasion}
+          query={filters.q}
+          sort={filters.sort}
+        />
 
         {catalog.status === "ready" && cards.length > 0 ? (
           <div className="mt-8 grid gap-x-12 gap-y-12 sm:mt-10 sm:grid-cols-2 lg:grid-cols-5">
@@ -340,6 +431,12 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
             <p className="mt-2 text-sm text-[#4b4743]">
               Try another category or return to all cards.
             </p>
+            <Link
+              className="mt-5 inline-flex h-10 items-center justify-center bg-[#252525] px-4 text-xs font-black uppercase tracking-wide text-white hover:bg-[#3a3632]"
+              href="/shop"
+            >
+              View All Cards
+            </Link>
           </div>
         ) : null}
 

@@ -580,6 +580,62 @@ async function verifyCheckoutCartControls(client) {
   console.log(`PASS /checkout inline cart controls -> ${new URL("/checkout", baseUrl)}`);
 }
 
+async function verifyShopSortControls(client) {
+  const shopLoad = client.waitFor("Page.loadEventFired");
+  await client.send("Page.navigate", { url: new URL("/shop", baseUrl).toString() });
+  await shopLoad;
+  await sleep(250);
+
+  const linkResult = await evaluate(
+    client,
+    `(() => {
+      const links = Array.from(document.querySelectorAll('a')).map((link) => ({
+        href: link.getAttribute('href'),
+        text: (link.textContent || '').trim().replace(/\\s+/g, ' '),
+      }));
+      const expected = [
+        '/shop?sort=price-asc',
+        '/shop?sort=price-desc',
+        '/shop?sort=title-asc',
+      ];
+      const missing = expected.filter((href) => !links.some((link) => link.href === href));
+      const normalizedText = document.body.innerText.toLowerCase();
+      return {
+        ok: missing.length === 0 && normalizedText.includes('sort: newest'),
+        missing,
+        text: document.body.innerText.slice(0, 500),
+      };
+    })()`,
+  );
+
+  if (!linkResult.ok) {
+    throw new Error(
+      `Shop sort controls are not deterministic. missing=${linkResult.missing.join(", ")} text=${linkResult.text}`,
+    );
+  }
+
+  const sortedLoad = client.waitFor("Page.loadEventFired");
+  await client.send("Page.navigate", {
+    url: new URL("/shop?sort=title-asc", baseUrl).toString(),
+  });
+  await sortedLoad;
+  await sleep(250);
+
+  const sortedResult = await evaluate(
+    client,
+    `(() => ({
+      ok: document.body.innerText.toLowerCase().includes('sort: a-z'),
+      text: document.body.innerText.slice(0, 500),
+    }))()`,
+  );
+
+  if (!sortedResult.ok) {
+    throw new Error(`Shop sort active state did not update. text=${sortedResult.text}`);
+  }
+
+  console.log(`PASS /shop sort controls -> ${new URL("/shop", baseUrl)}`);
+}
+
 async function verifyCartStorageRecovery(client) {
   const cartLoad = client.waitFor("Page.loadEventFired");
   await client.send("Page.navigate", { url: new URL("/cart", baseUrl).toString() });
@@ -805,6 +861,7 @@ async function main() {
     await verifyRevealApi(client);
     await unlockDemoReveal(client);
 
+    await verifyShopSortControls(client);
     await verifyCartControls(client);
     await verifyCheckoutCartControls(client);
     await verifyCartStorageRecovery(client);

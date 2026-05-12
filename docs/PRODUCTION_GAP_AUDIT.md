@@ -95,6 +95,11 @@ AWO-76 hardens the stakeholder demo path with deterministic `/demo` checkout,
 seeded `/reveal?code=AWO-DEMO-001&demo=1` playback, recipient-facing proof
 copy, operator proof links, and demo QA that checks `/api/reveal/verify` when
 Supabase public env vars are available.
+The public Artists fallback now points to the seeded HatchVision Studio profile
+instead of a non-existent placeholder slug, keeping demo navigation
+deterministic when Supabase artist rows are unavailable.
+The Shop sort control now performs real query-param sorting for newest,
+price-low, price-high, and A-Z instead of presenting an inert button.
 The homepage now functions as a stakeholder command surface rather than a
 placeholder: it presents the AWO brand, review links for shopper checkout,
 artist story, honoree reveal, investor demo, and protected operator proof pages.

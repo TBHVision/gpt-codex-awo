@@ -4,11 +4,11 @@ import { fetchPublicArtists } from "@/lib/public-artists";
 
 const fallbackArtists = [
   {
-    bio: "Verified artist profiles will appear from Supabase when approved artists exist.",
-    focus: "Artist onboarding",
-    name: "AWO Studio",
-    slug: "awo-studio",
-    websiteUrl: null,
+    bio: "Seeded demo profile showing how AWO presents a human-made origin story, published card inventory, and the proof layer behind each reveal.",
+    focus: "Verified demo artist",
+    name: "HatchVision Studio",
+    slug: "hatchvision-studio",
+    websiteUrl: "https://hatchvision.com",
   },
 ];
 
