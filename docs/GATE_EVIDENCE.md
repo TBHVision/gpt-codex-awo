@@ -322,6 +322,9 @@ Codex evidence:
   staged path to hide and reject the temporary password fallback after named
   Supabase admin login is confirmed. `/api/health` reports both enabled and
   disabled fallback posture without exposing secret values.
+- The protected admin route guard now also rejects stale temporary-password
+  sessions when `AWO_DISABLE_TEMP_ADMIN_PASSWORD=true`; named-admin-only mode
+  requires the `awo_admin_user_id` cookie created by Supabase admin login.
 - The admin login screen labels production temporary-password use as a
   pre-launch fallback risk instead of presenting it as normal launch auth.
 - The shared admin session banner now visually distinguishes named admin

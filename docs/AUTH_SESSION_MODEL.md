@@ -58,6 +58,11 @@ test named-admin-only access without immediately deleting the stored fallback
 secret. `/api/health` reports this posture under `services.adminAuth` without
 exposing either secret.
 
+When `AWO_DISABLE_TEMP_ADMIN_PASSWORD=true`, protected admin routes require the
+named-admin identity cookie (`awo_admin_user_id`) in addition to the shared
+admin session cookie. That means an older temporary-password browser session is
+forced back to `/admin/login` instead of silently surviving the policy change.
+
 These values are set in:
 
 - Local developer shell or `.env.local`
@@ -147,6 +152,7 @@ Replace:
 - `AWO_ADMIN_SESSION_TOKEN`
 - `AWO_DISABLE_TEMP_ADMIN_PASSWORD`
 - `awo_admin_session` cookie
+- `awo_admin_user_id` cookie requirement for named-admin-only routes
 - `/admin/login` password form
 - password comparison in `src/app/admin/login/page.tsx`
 - cookie check in `src/proxy.ts`

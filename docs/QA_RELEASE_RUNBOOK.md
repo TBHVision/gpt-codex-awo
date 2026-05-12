@@ -206,6 +206,11 @@ When `AWO_DISABLE_TEMP_ADMIN_PASSWORD` is not set to `true` in production, the
 login screen intentionally labels the temporary password option as a pre-launch
 risk. Do not treat that path as launch-ready admin authentication.
 
+When `AWO_DISABLE_TEMP_ADMIN_PASSWORD=true`, existing temporary-password browser
+sessions should be rejected by protected admin routes and sent back to
+`/admin/login?error=temp_disabled...`. Only Supabase-backed named admin sessions
+should continue through the admin route guard.
+
 Temporary password sessions are intentionally read-only for write-capable admin
 flows. Card review and fulfillment transitions require a Supabase-backed named
 admin login so audit events can identify the actor.
