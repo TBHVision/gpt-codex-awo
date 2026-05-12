@@ -14,6 +14,7 @@
     "test:mirror": "node scripts/check-mirrors.mjs",
     "test:visual": "node scripts/visual-qa.mjs",
     "test:credentials": "node scripts/reveal-credential-rpc-smoke.mjs",
+    "test:lifecycle": "node scripts/lifecycle-exception-rpc-smoke.mjs",
     "test:vercel:smoke": "node scripts/vercel-smoke.mjs",
     "test:vercel:demo": "node scripts/vercel-demo.mjs",
     "supabase": "supabase",

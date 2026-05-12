@@ -191,6 +191,7 @@ async function main() {
         env: { AWO_QA_BASE_URL: baseUrl },
       }),
     );
+    await record(runCommand("lifecycle", ["run", "test:lifecycle"]));
     await record(
       runCommand("visual", ["run", "test:visual"], {
         env: { AWO_QA_BASE_URL: baseUrl },

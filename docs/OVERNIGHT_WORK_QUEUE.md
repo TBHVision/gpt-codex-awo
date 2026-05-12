@@ -49,7 +49,10 @@ moving without waking Tony for every small branch decision.
   artist application submission, named-admin approval, and audit evidence.
   Hosted CI still needs Supabase test secrets before it can run beyond skip
   mode.
-- AWO-81: refund, revocation, and ownership transfer workflows.
+- AWO-81: refund, revocation, and ownership transfer workflows. Protected
+  named-admin RPC foundation is in place for refund item, credential revoke,
+  ownership revoke, and ownership transfer. Operator UI and live Stripe refund
+  execution remain separate gates.
 - AWO-82: temporary admin password fallback removal.
 
 ## Stop Conditions

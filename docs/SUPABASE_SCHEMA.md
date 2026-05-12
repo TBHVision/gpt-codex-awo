@@ -256,6 +256,30 @@ Ownership transfer, revocation, refund correction, and recipient-claim flows are
 still separate future workflows. They should use audited server-side state
 transitions rather than direct browser writes.
 
+## AWO-81 Lifecycle Exception Workflows
+
+`public.admin_transition_lifecycle_exception(...)` is the named-admin foundation
+for post-payment exception handling. It does not call Stripe or move live money.
+
+Supported actions:
+
+- `revoke_credential`: revokes an existing reveal credential, locks the legacy
+  reveal row where appropriate, emits `credential_revoked`, and writes admin
+  audit evidence.
+- `refund_item`: records an internal item refund state, revokes the reveal
+  credential when present, marks ownership `refunded`, rolls the parent order to
+  `partially_refunded` or `refunded`, emits custody evidence, and writes admin
+  audit evidence. Live Stripe refund execution remains disabled until Tony
+  explicitly approves it.
+- `revoke_ownership`: marks an existing ownership record `revoked` and emits
+  `ownership_revoked`.
+- `transfer_ownership`: moves an existing ownership record to a target profile
+  or person, marks it `transferred`, and emits `ownership_transferred`.
+
+The RPC requires `actor_profile_id` to belong to a `profiles.role = 'admin'`
+row. `scripts/lifecycle-exception-rpc-smoke.mjs` verifies the RPC exists and
+enforces the named-admin guard without mutating lifecycle state.
+
 ## Role Model
 
 `profiles.role` is intentionally simple for V0.1:

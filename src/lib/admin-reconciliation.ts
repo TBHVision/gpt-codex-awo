@@ -83,9 +83,15 @@ function hasOwnership(row: SupabaseOrderItemRow) {
   return (row.ownership_records ?? []).length > 0;
 }
 
-function hasActiveOwnership(row: SupabaseOrderItemRow) {
+function hasValidOwnership(row: SupabaseOrderItemRow) {
   return (row.ownership_records ?? []).some(
-    (record) => record.status === "active",
+    (record) => record.status === "active" || record.status === "transferred",
+  );
+}
+
+function hasInvalidRefundOwnership(row: SupabaseOrderItemRow) {
+  return (row.ownership_records ?? []).some(
+    (record) => record.status === "active" || record.status === "transferred",
   );
 }
 
@@ -131,24 +137,44 @@ function buildIssues(rows: SupabaseOrderItemRow[]) {
       );
     }
 
-    if (isFulfilled && !hasActiveOwnership(row)) {
+    if (isFulfilled && !hasValidOwnership(row)) {
       issues.push(
         baseIssue(row, {
           detail:
-            "Fulfilled/completed item does not have an active ownership record.",
+            "Fulfilled/completed item does not have an active or transferred ownership record.",
           issueType: "Ownership not active",
           severity: "blocked",
         }),
       );
     }
 
-    if (hasActiveOwnership(row) && !hasEvent(row, "ownership_recorded")) {
+    if (hasValidOwnership(row) && !hasEvent(row, "ownership_recorded")) {
       issues.push(
         baseIssue(row, {
           detail:
             "Ownership record is active but the custody trail lacks ownership_recorded.",
           issueType: "Missing ownership event",
           severity: "warning",
+        }),
+      );
+    }
+
+    if (paymentStatus === "refunded" && row.status !== "refunded") {
+      issues.push(
+        baseIssue(row, {
+          detail: "Order payment is refunded but the item is not marked refunded.",
+          issueType: "Refund state mismatch",
+          severity: "blocked",
+        }),
+      );
+    }
+
+    if (row.status === "refunded" && hasInvalidRefundOwnership(row)) {
+      issues.push(
+        baseIssue(row, {
+          detail: "Refunded item still has active or transferred ownership.",
+          issueType: "Refund ownership mismatch",
+          severity: "blocked",
         }),
       );
     }
@@ -194,7 +220,7 @@ export async function loadAdminReconciliationSnapshot(): Promise<AdminReconcilia
   const blocked = issues.filter((issue) => issue.severity === "blocked").length;
   const warning = issues.filter((issue) => issue.severity === "warning").length;
   const paidItems = rows.filter((row) => row.orders?.payment_status === "paid");
-  const activeOwnershipItems = rows.filter(hasActiveOwnership);
+  const activeOwnershipItems = rows.filter(hasValidOwnership);
 
   return {
     generatedAt: new Date().toISOString(),

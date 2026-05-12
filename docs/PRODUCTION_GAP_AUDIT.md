@@ -238,7 +238,8 @@ Remaining:
   are limited to audited card approve/reject actions for named Supabase admins.
 - Fulfillment now has narrow named-admin item transition controls, but shipping,
   refunds, credential revocation, and ownership transfer/revocation still need
-  separately audited workflows. Tracked by AWO-81.
+  operator UI. The protected named-admin lifecycle exception RPC foundation now
+  exists under AWO-81.
 - Temporary password admin sessions remain read-only for fulfillment actions.
 - Replacing the shared temporary admin password before launch is tracked by
   AWO-82.
@@ -275,7 +276,8 @@ Evidence captured on 2026-05-11:
    either Vercel Analytics/Speed Insights or PostHog for product behavior.
 3. Build the next audited admin write controls only where they unblock launch:
    artist verification, fulfillment updates, refunds, or revoke/transfer. Use
-   AWO-78 for remaining artist onboarding and AWO-81 for refunds/revoke/transfer.
+   AWO-78 for remaining artist onboarding and AWO-81 for lifecycle exception UI
+   on top of the protected RPC foundation.
 4. Promote authenticated E2E tests for buyer and admin flows from local
    service-role evidence into hosted CI by adding the required Supabase test
    secrets for AWO-80.

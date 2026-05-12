@@ -8,7 +8,7 @@ comment on Linear without re-discovering the same facts.
 
 ## Shared Release Evidence
 
-- `npm run test:release` passed at `2026-05-12T12:25:38.065Z`.
+- `npm run test:release` passed at `2026-05-12T12:49:41.564Z`.
 - Release report: `.qa/release-readiness/latest.json`.
 - Local route checks returned HTTP 200 for `/`, `/shop`, `/demo`,
   `/shop/wildflower-notes`, `/cart`, `/checkout`, `/reveal`, `/people`,
@@ -231,7 +231,7 @@ Codex evidence:
 - `npm run test:release` now includes the authenticated E2E step after smoke
   and demo tests and before visual QA.
 - Local `npm run test:release` passed with the authenticated step at
-  `2026-05-12T12:25:38.065Z`.
+  `2026-05-12T12:49:41.564Z`.
 
 Remaining:
 
@@ -239,3 +239,27 @@ Remaining:
   daily deployment limit clears.
 - Hosted CI will run the harness in skip mode unless Supabase service-role test
   secrets are added to GitHub Actions.
+
+## AWO-81 Lifecycle Exception Evidence
+
+Codex evidence:
+
+- Supabase migrations `20260512123500` and `20260512124000` are applied locally
+  and remotely.
+- `admin_transition_lifecycle_exception(...)` now defines named-admin guarded
+  transitions for `refund_item`, `revoke_credential`, `revoke_ownership`, and
+  `transfer_ownership`.
+- Refund exception handling records internal item/order/ownership/reveal state
+  only; it does not call Stripe or move live money.
+- Lifecycle exception transitions write `admin_audit_events` and emit custody
+  evidence for credential revocation, item refund, ownership transfer, and
+  ownership revocation.
+- `npm run test:lifecycle` passed against Supabase and verified the RPC exists
+  while enforcing the named-admin guard.
+
+Remaining:
+
+- Operator UI for these actions is still pending; the protected RPC foundation
+  now exists first.
+- Live Stripe refund execution remains disabled until Tony explicitly approves
+  live-money operations.
