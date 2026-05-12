@@ -31,7 +31,8 @@ What each command proves:
 - `npm run test:smoke`: key public routes respond and protected admin routes
   redirect to login when unauthenticated.
 - `npm run test:demo`: launches Chrome, clicks `/demo` Start Guided Checkout,
-  and verifies the prefilled checkout story, cart item, and total.
+  verifies the prefilled checkout story, cart item, and total, then checks that
+  Open Demo Reveal preloads the seeded reveal code and PIN.
 - `npm run test:release`: runs the full local gate: lint, build, fresh
   production server, smoke routes, guided demo journey, and desktop/mobile
   visual QA.
@@ -93,6 +94,9 @@ that `/checkout?demo=1` has:
 - `Birthday` as the occasion.
 - The guided sender message in the message notes field.
 - `$5.50` as the order total.
+
+It also opens the demo reveal link and verifies the seeded reveal code and PIN
+are prefilled for stakeholder walkthroughs.
 
 Use another target with:
 

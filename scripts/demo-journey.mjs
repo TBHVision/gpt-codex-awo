@@ -190,6 +190,38 @@ async function waitForJourneyState(client) {
   throw new Error("Guided demo checkout state did not load correctly.");
 }
 
+async function waitForRevealDemoState(client) {
+  for (let attempt = 0; attempt < 50; attempt += 1) {
+    const state = await evaluate(
+      client,
+      `(() => ({
+        url: location.href,
+        bodyText: document.body.innerText,
+        code: document.querySelector('input[placeholder="AWO-DEMO-001"]')?.value ?? '',
+        pin: document.querySelector('input[placeholder="1234"]')?.value ?? '',
+        unlockEnabled: !Array.from(document.querySelectorAll('button')).find((button) =>
+          button.textContent?.includes('Unlock Playback')
+        )?.disabled,
+      }))()`,
+    );
+
+    const bodyText = state.bodyText ?? "";
+    if (
+      state.url.includes("/reveal?code=AWO-DEMO-001&demo=1") &&
+      bodyText.includes("Demo reveal mode prefilled the code and PIN") &&
+      state.code === "AWO-DEMO-001" &&
+      state.pin === "1234" &&
+      state.unlockEnabled
+    ) {
+      return state;
+    }
+
+    await sleep(100);
+  }
+
+  throw new Error("Guided demo reveal state did not load correctly.");
+}
+
 async function main() {
   const chrome = await findChrome();
   const userDataDir = await mkdtemp(path.join(tmpdir(), "awo-demo-journey-"));
@@ -240,6 +272,30 @@ async function main() {
 
     const state = await waitForJourneyState(client);
     console.log(`PASS /demo guided checkout -> ${state.url}`);
+
+    const revealLoad = client.waitFor("Page.loadEventFired");
+    await client.send("Page.navigate", { url: new URL("/demo", baseUrl).toString() });
+    await revealLoad;
+    await sleep(250);
+
+    const revealClickResult = await evaluate(
+      client,
+      `(async () => {
+        const link = Array.from(document.querySelectorAll('a')).find((item) =>
+          item.textContent?.includes('Open Demo Reveal')
+        );
+        if (!link) return { ok: false, reason: 'Open Demo Reveal link not found' };
+        link.click();
+        return { ok: true };
+      })()`,
+    );
+
+    if (!revealClickResult.ok) {
+      throw new Error(revealClickResult.reason ?? "Unable to open demo reveal.");
+    }
+
+    const revealState = await waitForRevealDemoState(client);
+    console.log(`PASS /demo guided reveal -> ${revealState.url}`);
   } finally {
     if (client) {
       await client.close();

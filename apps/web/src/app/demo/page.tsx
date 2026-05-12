@@ -71,9 +71,9 @@ export default function DemoWalkthroughPage() {
               </a>
               <a
                 className="inline-flex h-12 items-center justify-center border border-[#b7653a] bg-white px-6 text-sm font-black uppercase tracking-wide text-[#7a472e] hover:bg-[#fff8f3]"
-                href="/reveal?code=AWO-DEMO-001"
+                href="/reveal?code=AWO-DEMO-001&demo=1"
               >
-                Jump to Reveal
+                Open Demo Reveal
               </a>
             </div>
           </div>

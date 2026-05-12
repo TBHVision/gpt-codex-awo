@@ -13,7 +13,7 @@ This registry is the GPT-Codex source of truth for feature status. A feature is 
 | Shop browse | V0.2 | Buyer | Polished real-catalog path | AWO-51; local and production smoke tests; production reads five-card `published_cards` catalog with real AWO logo |
 | Checkout/order draft | V0.2+ | Buyer | Complete | AWO-37; local and production API draft creation verified |
 | Stripe test checkout | V0.6/V0.7 | Buyer/Ops | Complete | AWO-46; Stripe test payment and webhook verified, `AWO-DRAFT-F2EC02824E` moved to paid in Supabase |
-| Stakeholder demo walkthrough | V1.0 | Demo | Working path | AWO-76; `/demo` guides the shop, checkout, reveal, and protected proof-layer review path with demo-safe credentials; guided checkout seeds Wildflower Notes and prefilled recipient context |
+| Stakeholder demo walkthrough | V1.0 | Demo | Working path | AWO-76; `/demo` guides the shop, checkout, reveal, and protected proof-layer review path with demo-safe credentials; guided checkout seeds Wildflower Notes and prefilled recipient context; demo reveal preloads seeded code/PIN |
 | Honoree PIN reveal | V0.3 | Recipient | Demo-ready playback path | AWO-41/AWO-76; `/api/reveal/verify` validates code/PIN through `verify_honoree_reveal`, then `/reveal` presents recipient playback, sender message, evidence, custody, and honest ownership posture |
 | Reveal credential lifecycle | V0.3/V0.6 | Recipient/Ops | Hardened state checks | AWO-47; blocked credential states are safe, invalid attempts lock credentials, successful reveals emit custody events |
 | My People | V0.4 | Buyer | Account-aware path | AWO-39; signed-in buyers use Supabase `people` and `occasions`, guests use local fallback |

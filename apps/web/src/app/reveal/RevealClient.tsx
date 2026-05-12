@@ -135,7 +135,16 @@ function formatValue(value: string | null | undefined, fallback: string) {
   return value && value.trim().length > 0 ? value : fallback;
 }
 
+function getInitialDemoReveal() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return new URLSearchParams(window.location.search).get("demo") === "1";
+}
+
 export default function RevealClient() {
+  const [isDemoReveal] = useState(getInitialDemoReveal);
   const [cardCode, setCardCode] = useState(() => {
     if (typeof window === "undefined") {
       return "AWO-DEMO-001";
@@ -145,7 +154,7 @@ export default function RevealClient() {
   });
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [pin, setPin] = useState("");
+  const [pin, setPin] = useState(() => (getInitialDemoReveal() ? "1234" : ""));
   const [reveal, setReveal] = useState<RevealPayload | null>(null);
 
   const canReveal = cardCode.trim().length > 0 && pin.trim().length > 0;
@@ -269,6 +278,13 @@ export default function RevealClient() {
             {error ? (
               <p className="mt-4 border border-[#f0c7c7] bg-[#fff5f5] p-3 text-sm font-bold text-[#9d1c1c]">
                 {error}
+              </p>
+            ) : null}
+
+            {isDemoReveal ? (
+              <p className="mt-4 border border-[#e5ded6] bg-[#fbfaf8] p-3 text-xs font-bold text-[#6e6258]">
+                Demo reveal mode prefilled the code and PIN for the seeded
+                stakeholder walkthrough.
               </p>
             ) : null}
 
