@@ -14,14 +14,14 @@ const journey = [
   {
     body: "Use checkout to capture recipient context and, when Stripe test mode is configured, send the buyer through sandbox payment without live charges.",
     cta: "Open checkout",
-    href: "/checkout",
+    href: "/checkout?demo=1",
     kicker: "Buyer",
     title: "Create the gift order",
   },
   {
     body: "Open the seeded reveal with code AWO-DEMO-001 and PIN 1234 to show artist story, custody, payment evidence, and pending ownership posture.",
     cta: "Open reveal",
-    href: "/reveal?code=AWO-DEMO-001",
+    href: "/reveal?code=AWO-DEMO-001&demo=1",
     kicker: "Recipient",
     title: "Unlock the playback",
   },

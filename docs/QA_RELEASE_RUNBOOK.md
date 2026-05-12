@@ -110,6 +110,14 @@ that `/checkout?demo=1` has:
 - The guided sender message in the message notes field.
 - `$5.50` as the order total.
 
+Before clicking through, it also verifies the demo journey cards point to
+deterministic demo-safe destinations:
+
+- `Open shop` -> `/shop`
+- `Open checkout` -> `/checkout?demo=1`
+- `Open reveal` -> `/reveal?code=AWO-DEMO-001&demo=1`
+- `Open reconciliation` -> `/admin/reconciliation`
+
 It also opens the demo reveal link, verifies the seeded reveal code and PIN are
 available for stakeholder walkthroughs, unlocks the demo playback, and confirms
 the recipient-facing proof story renders:

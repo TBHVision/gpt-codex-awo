@@ -272,6 +272,42 @@ async function verifyRevealApi(client) {
   console.log(`PASS /api/reveal/verify seeded demo credential -> ${new URL("/api/reveal/verify", baseUrl)}`);
 }
 
+async function verifyDemoJourneyLinks(client) {
+  const result = await evaluate(
+    client,
+    `(() => {
+      const expected = new Map([
+        ['Open shop', '/shop'],
+        ['Open checkout', '/checkout?demo=1'],
+        ['Open reveal', '/reveal?code=AWO-DEMO-001&demo=1'],
+        ['Open reconciliation', '/admin/reconciliation'],
+      ]);
+      const links = Array.from(document.querySelectorAll('a')).map((link) => ({
+        href: link.getAttribute('href'),
+        text: (link.textContent || '').trim().replace(/\\s+/g, ' '),
+      }));
+      const failures = [];
+
+      for (const [label, href] of expected.entries()) {
+        const match = links.find((link) => link.text === label);
+        if (!match) {
+          failures.push(label + ' missing');
+        } else if (match.href !== href) {
+          failures.push(label + ' expected ' + href + ' got ' + match.href);
+        }
+      }
+
+      return { failures };
+    })()`,
+  );
+
+  if (result.failures.length > 0) {
+    throw new Error(`Demo journey links are not deterministic: ${result.failures.join("; ")}`);
+  }
+
+  console.log("PASS /demo deterministic journey links");
+}
+
 async function unlockDemoReveal(client) {
   const requiredMarkers = [
     "Reveal unlocked",
@@ -640,6 +676,7 @@ async function main() {
     await client.send("Page.navigate", { url: new URL("/demo", baseUrl).toString() });
     await load;
     await sleep(250);
+    await verifyDemoJourneyLinks(client);
 
     const clickResult = await evaluate(
       client,
