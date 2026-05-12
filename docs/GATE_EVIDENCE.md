@@ -322,6 +322,8 @@ Codex evidence:
   staged path to hide and reject the temporary password fallback after named
   Supabase admin login is confirmed. `/api/health` reports both enabled and
   disabled fallback posture without exposing secret values.
+- The admin login screen labels production temporary-password use as a
+  pre-launch fallback risk instead of presenting it as normal launch auth.
 - The shared admin session banner now visually distinguishes named admin
   sessions from temporary password fallback sessions and links directly to the
   launch auth policy surface.

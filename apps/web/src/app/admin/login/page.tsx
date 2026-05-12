@@ -107,6 +107,8 @@ export default async function AdminLoginPage({
   const next = getParam(params, "next") ?? "/admin/build";
   const supabaseAdminLoginEnabled = canUseSupabaseAdminLogin();
   const canUseTemporaryPassword = temporaryPasswordEnabled();
+  const temporaryPasswordProductionRisk =
+    canUseTemporaryPassword && process.env.VERCEL_ENV === "production";
 
   const errorMessage =
     error === "1"
@@ -152,6 +154,7 @@ export default async function AdminLoginPage({
           next={next}
           supabaseAdminLoginEnabled={supabaseAdminLoginEnabled}
           temporaryPasswordEnabled={canUseTemporaryPassword}
+          temporaryPasswordProductionRisk={temporaryPasswordProductionRisk}
         />
       </section>
     </main>

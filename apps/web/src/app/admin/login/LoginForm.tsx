@@ -7,6 +7,7 @@ type LoginFormProps = {
   next: string;
   supabaseAdminLoginEnabled: boolean;
   temporaryPasswordEnabled: boolean;
+  temporaryPasswordProductionRisk: boolean;
 };
 
 function EyeIcon({ crossed }: { crossed: boolean }) {
@@ -44,6 +45,7 @@ export default function LoginForm({
   next,
   supabaseAdminLoginEnabled,
   temporaryPasswordEnabled,
+  temporaryPasswordProductionRisk,
 }: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -103,14 +105,26 @@ export default function LoginForm({
           </button>
         ) : null}
         {temporaryPasswordEnabled ? (
-          <button
-            className="h-11 w-full rounded-md border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 shadow-sm hover:border-slate-400 hover:bg-slate-50"
-            name="mode"
-            type="submit"
-            value="password"
-          >
-            Use Temporary Password
-          </button>
+          <div className="space-y-2">
+            {temporaryPasswordProductionRisk ? (
+              <p className="rounded-md border border-amber-200 bg-amber-50 p-3 text-xs font-semibold leading-5 text-amber-950">
+                Temporary password fallback is still enabled in production.
+                Prefer named Supabase admin login before launch.
+              </p>
+            ) : null}
+            <button
+              className={`h-11 w-full rounded-md border px-4 text-sm font-semibold shadow-sm ${
+                temporaryPasswordProductionRisk
+                  ? "border-amber-300 bg-amber-50 text-amber-950 hover:border-amber-400 hover:bg-amber-100"
+                  : "border-slate-300 bg-white text-slate-800 hover:border-slate-400 hover:bg-slate-50"
+              }`}
+              name="mode"
+              type="submit"
+              value="password"
+            >
+              Use Temporary Password{temporaryPasswordProductionRisk ? " (Pre-launch)" : ""}
+            </button>
+          </div>
         ) : null}
       </div>
     </form>

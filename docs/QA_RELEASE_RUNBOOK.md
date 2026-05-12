@@ -202,6 +202,10 @@ For local manual admin testing, `AWO_ADMIN_PASSWORD` and
 previously used a temporary local password of `test`; production should use a
 real secret in Vercel.
 
+When `AWO_DISABLE_TEMP_ADMIN_PASSWORD` is not set to `true` in production, the
+login screen intentionally labels the temporary password option as a pre-launch
+risk. Do not treat that path as launch-ready admin authentication.
+
 Temporary password sessions are intentionally read-only for write-capable admin
 flows. Card review and fulfillment transitions require a Supabase-backed named
 admin login so audit events can identify the actor.
