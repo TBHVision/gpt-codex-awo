@@ -1,6 +1,6 @@
 # Current Context
 
-Last updated: 2026-05-11
+Last updated: 2026-05-12
 
 ## Project
 
@@ -281,18 +281,33 @@ every small decision.
     sender message, occasion, payment evidence, private credential evidence,
     custody steps, and an honest pending ownership posture instead of
     overclaiming active ownership
+- AWO-76 overnight hardening evidence:
+  - `/reveal?code=AWO-DEMO-001&demo=1` now has deterministic demo playback,
+    a PIN show/hide control, a demo credential helper, and operator proof links
+  - `npm run test:demo` verifies guided checkout, seeded reveal playback,
+    `/api/reveal/verify` when Supabase public env is present, cart controls,
+    malformed cart recovery, stale account-session recovery, and navigation
+  - GitHub Actions release-readiness passed on `main` in run `25724739319` for
+    commit `a4a1a4c`
+- `/api/health` now exposes a no-secret production posture endpoint for service
+  readiness checks. It reports configured/missing service posture without
+  returning secret values.
 - `docs/TONY_REVIEW_BATCH.md` is the current batched list of Tony reviews,
   external checks, and later decisions.
+- `docs/OVERNIGHT_WORK_QUEUE.md` is the current autonomous execution checklist
+  for future long Codex runs.
 
 ## Next Work
 
 - Use the new Linear runway:
   - have Tony review AWO-57 through AWO-60 when convenient
   - have Tony review AWO-61 `/admin/ops` when convenient
-  - check the first GitHub Actions release-readiness run after push
+  - keep checking GitHub Actions release-readiness after launch-critical pushes
   - finish AWO-62 by deciding the observability stack or explicitly deferring it
   - use `/admin/launch` plus AWO-63 for the final V1.0 gate review
   - use AWO-64 and `/admin/reviews` to evaluate what production approval queues
     need before write-capable admin tools
+  - use `/demo`, `/reveal?code=AWO-DEMO-001&demo=1`, and AWO-76 for the next
+    stakeholder walkthrough review
   - Real card photography/art direction can replace the managed demo assets when
     Tony provides final production artwork

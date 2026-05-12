@@ -1,6 +1,6 @@
 # Gate Evidence
 
-Last updated: 2026-05-11
+Last updated: 2026-05-12
 
 Linear is the source of truth for whether a phase gate is open, in review, or
 done. This file keeps the repo-local evidence together so future Codex runs can
@@ -8,13 +8,22 @@ comment on Linear without re-discovering the same facts.
 
 ## Shared Release Evidence
 
-- `npm run test:release` passed at `2026-05-11T17:11:10.901Z`.
+- `npm run test:release` passed at `2026-05-12T09:28:02.616Z`.
 - Release report: `.qa/release-readiness/latest.json`.
-- Local route checks returned HTTP 200 for `/`, `/shop`, `/shop/wildflower-notes`,
-  `/cart`, `/checkout`, `/reveal`, `/people`, `/reminders`, `/studio`,
-  `/account`, and `/artists`.
+- Local route checks returned HTTP 200 for `/`, `/shop`, `/demo`,
+  `/shop/wildflower-notes`, `/cart`, `/checkout`, `/reveal`, `/people`,
+  `/reminders`, `/studio`, `/account`, `/artists`, and `/api/health`.
 - Production route checks returned HTTP 200 for the same public routes on
   `https://gpt-codex-awo-dashboard.vercel.app`.
+- GitHub Actions release-readiness passed on `main` in run `25724739319` for
+  commit `a4a1a4c`.
+- `npm run test:vercel:smoke` passed against
+  `https://gpt-codex-awo-dashboard.vercel.app`, including `/api/health` and
+  protected admin login redirects.
+- `npm run test:vercel:demo` passed against
+  `https://gpt-codex-awo-dashboard.vercel.app`, including guided checkout,
+  seeded reveal playback, live `/api/reveal/verify`, cart controls, account
+  stale-session recovery, and navigation.
 
 ## V0.2 Public Shop
 
@@ -136,4 +145,33 @@ Still needs Tony before Done:
 
 - Decide whether Sentry, PostHog, Vercel Web Analytics, Vercel Speed Insights,
   and hosted CI are required now or deliberately deferred.
-- Confirm the first GitHub Actions run passes after this push.
+- Confirm hosted CI should remain the accepted V0.7 baseline now that the latest
+  `main` release-readiness run is green.
+
+## V1.0 Launch-Ready Instance
+
+Codex evidence:
+
+- `/demo` provides a guided stakeholder walkthrough linking shop, checkout,
+  seeded reveal, and protected proof-layer review pages.
+- `/reveal?code=AWO-DEMO-001&demo=1` provides a deterministic demo honoree
+  playback path with the seeded code/PIN, sender message, evidence, custody
+  steps, and honest pending ownership posture.
+- `/api/reveal/verify` is exercised by `npm run test:demo` when Supabase public
+  env vars are available. CI skips only this live Supabase assertion when those
+  env vars are absent, while still checking the rendered demo playback.
+- The deployed Vercel app passed `npm run test:vercel:demo`, including the live
+  Supabase-backed reveal API assertion.
+- `/api/health` exposes a no-secret readiness/service posture for production
+  checks.
+- `npm run test:release` passed locally and in GitHub Actions after the
+  stakeholder playback hardening.
+
+Still needs Tony before Done:
+
+- Human review that the stakeholder demo is clear enough for an investor/artist
+  walkthrough.
+- Human review that the honoree playback feels gift-worthy and does not
+  overclaim ownership before fulfillment activation.
+- Decide whether observability and live-payment deferrals are acceptable for the
+  first stakeholder demo.

@@ -33,10 +33,12 @@ What each command proves:
 - `npm run test:smoke`: key public routes respond and protected admin routes
   redirect to login when unauthenticated.
 - `npm run test:demo`: launches Chrome, clicks `/demo` Start Guided Checkout,
-  verifies the prefilled checkout story, cart item, and total, then checks that
-  Open Demo Reveal preloads the seeded reveal code and PIN. It also verifies
-  cart quantity/remove controls, malformed cart-storage recovery, stale
-  buyer-session recovery, and core storefront navigation routes.
+  verifies the prefilled checkout story, cart item, and total, then checks the
+  seeded honoree playback path at `/reveal?code=AWO-DEMO-001&demo=1`.
+  It verifies the Supabase-backed reveal API when environment variables are
+  present, checks demo playback content, and also verifies cart quantity/remove
+  controls, malformed cart-storage recovery, stale buyer-session recovery, and
+  core storefront navigation routes.
 - `npm run test:release`: runs the full local gate: lint, mirror sync, build, fresh
   production server, smoke routes, guided demo journey, and desktop/mobile
   visual QA.
@@ -57,7 +59,9 @@ secrets stored in Project Settings.
 
 The smoke script checks these public routes return HTTP 200:
 
+- `/`
 - `/shop`
+- `/demo`
 - `/artists`
 - `/people`
 - `/reminders`
@@ -88,6 +92,12 @@ $env:SMOKE_BASE_URL="https://your-preview-url.vercel.app"
 npm run test:smoke
 ```
 
+For the current Vercel production deployment, use:
+
+```powershell
+npm run test:vercel:smoke
+```
+
 ## Demo Journey Coverage
 
 The demo journey script proves the stakeholder walkthrough is not just a set of
@@ -100,8 +110,23 @@ that `/checkout?demo=1` has:
 - The guided sender message in the message notes field.
 - `$5.50` as the order total.
 
-It also opens the demo reveal link and verifies the seeded reveal code and PIN
-are prefilled for stakeholder walkthroughs.
+It also opens the demo reveal link, verifies the seeded reveal code and PIN are
+available for stakeholder walkthroughs, unlocks the demo playback, and confirms
+the recipient-facing proof story renders:
+
+- Reveal unlocked.
+- Wildflower Notes.
+- Sender message.
+- Chain of custody.
+- Reveal record.
+- Evidence.
+- Demo-safe proof layer.
+- Operator proof links.
+
+When Supabase public environment variables are available, the script also calls
+`/api/reveal/verify` with `AWO-DEMO-001` and PIN `1234`. In CI environments
+without those variables, that live API assertion is skipped with an explicit
+`SKIP` line while the rendered playback checks still run.
 
 Finally, it seeds a local cart item, confirms quantity can be increased,
 confirms Remove empties the cart, and confirms malformed browser cart storage
@@ -116,6 +141,12 @@ Use another target with:
 ```powershell
 $env:AWO_QA_BASE_URL="https://your-preview-url.vercel.app"
 npm run test:demo
+```
+
+For the current Vercel production deployment, use:
+
+```powershell
+npm run test:vercel:demo
 ```
 
 ## Local Server

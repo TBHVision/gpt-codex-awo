@@ -8,6 +8,11 @@ item blocks the next code change.
 
 ## Browser Reviews
 
+- V1.0: Review `/demo` as the stakeholder walkthrough starting point. It should
+  make the shop, checkout, reveal, and proof-layer story understandable without
+  requiring a developer narration.
+- V1.0: Review `/reveal?code=AWO-DEMO-001&demo=1` as the demo honoree
+  playback path. Use code `AWO-DEMO-001` and PIN `1234` if the form is locked.
 - V0.2: Review `/shop`, card detail, `/cart`, and `/checkout` for buyer clarity.
   Cart now supports quantity editing, remove item, and clear cart. Checkout
   still tells the user when Stripe is not configured in the current environment.
@@ -27,9 +32,14 @@ item blocks the next code change.
 ## External Checks
 
 - GitHub Actions: latest confirmed `main` release-readiness run is green
-  (`25713427285`); keep confirming after launch-critical pushes.
+  (`25724739319`) on commit `a4a1a4c`; keep confirming after launch-critical
+  pushes.
 - Vercel: confirm production redeployed after the latest push and that protected
   admin routes still require login.
+- Health endpoint: review `/api/health` on the deployed URL to confirm it
+  reports configured services without exposing secret values.
+- Vercel smoke/demo: `npm run test:vercel:smoke` and
+  `npm run test:vercel:demo` are available for deployed-site verification.
 - Supabase: create or confirm at least one named admin user whose
   `profiles.role` is `admin` before relying on Supabase admin login.
 - Stripe: keep test mode only until Tony explicitly approves live charges.

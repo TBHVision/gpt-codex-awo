@@ -83,13 +83,21 @@ events.
 AWO-74 adds `/admin/reconciliation` so operators can see lifecycle drift across
 order items, payment state, custody events, and ownership records. It is
 read-only; repair and replay workflows remain future audited scopes.
+AWO-76 hardens the stakeholder demo path with deterministic `/demo` checkout,
+seeded `/reveal?code=AWO-DEMO-001&demo=1` playback, recipient-facing proof
+copy, operator proof links, and demo QA that checks `/api/reveal/verify` when
+Supabase public env vars are available.
+`/api/health` now exposes a no-secret readiness endpoint for production posture
+checks.
 
 ## Current Health
 
 - Local route smoke tests pass.
 - Desktop/mobile visual QA passes across golden routes.
 - GitHub Actions release readiness has passed on `main`; latest confirmed run
-  from this audit pass is `25713427285`.
+  from this audit pass is `25724739319` for commit `a4a1a4c`.
+- Vercel production smoke and demo journey checks pass through
+  `npm run test:vercel:smoke` and `npm run test:vercel:demo`.
 - Public Vercel environment has Supabase and Stripe test variables configured.
 - Admin routes redirect unauthenticated users to login.
 - Temporary admin password gate remains in place for `/admin/*`.
@@ -138,6 +146,8 @@ Remaining:
 - Production card-specific QR/PIN generation is not fully automated yet.
 - Final recipient copy/art direction still needs human review when real product
   cards exist.
+- Tony should review the seeded stakeholder playback path at
+  `/reveal?code=AWO-DEMO-001&demo=1` to confirm it is clear and gift-worthy.
 
 ## Artist Status
 
@@ -201,6 +211,9 @@ Completed:
   visual QA.
 - AWO-68: protected `/admin/fulfillment` fulfillment queue visibility included
   in smoke and visual QA.
+- AWO-76: stakeholder demo and seeded honoree playback are covered by
+  `npm run test:demo` and the full release gate.
+- `/api/health`: no-secret production posture endpoint included in smoke tests.
 
 Remaining:
 
