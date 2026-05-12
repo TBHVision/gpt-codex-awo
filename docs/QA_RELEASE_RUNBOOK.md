@@ -31,7 +31,9 @@ What each command proves:
 - `npm run test:mirror`: root deployment files and `apps/web` files match.
 - `npm run build`: production Next.js build succeeds.
 - `npm run test:smoke`: key public routes respond and protected admin routes
-  redirect to login when unauthenticated.
+  redirect to login when unauthenticated. It also validates the no-secret
+  `/api/health` payload shape, including deployment metadata and service
+  posture booleans.
 - `npm run test:demo`: launches Chrome, clicks `/demo` Start Guided Checkout,
   verifies the prefilled checkout story, cart item, and total, then checks the
   seeded honoree playback path at `/reveal?code=AWO-DEMO-001&demo=1`.

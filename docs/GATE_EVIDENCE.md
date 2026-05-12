@@ -8,7 +8,7 @@ comment on Linear without re-discovering the same facts.
 
 ## Shared Release Evidence
 
-- `npm run test:release` passed at `2026-05-12T10:00:48.026Z`.
+- `npm run test:release` passed at `2026-05-12T10:10:05.413Z`.
 - Release report: `.qa/release-readiness/latest.json`.
 - Local route checks returned HTTP 200 for `/`, `/shop`, `/demo`,
   `/shop/wildflower-notes`, `/cart`, `/checkout`, `/reveal`, `/people`,
@@ -170,7 +170,8 @@ Codex evidence:
 - The deployed Vercel app passed `npm run test:vercel:demo`, including the live
   Supabase-backed reveal API assertion.
 - `/api/health` exposes a no-secret readiness/service posture for production
-  checks.
+  checks, including deployment metadata so Vercel can be tied back to the
+  serving branch/commit without exposing secrets.
 - `npm run test:release` passed locally and in GitHub Actions after the
   stakeholder playback hardening.
 

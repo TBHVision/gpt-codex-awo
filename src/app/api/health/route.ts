@@ -7,12 +7,23 @@ function hasEnv(name: string) {
   return Boolean(process.env[name]?.trim());
 }
 
+function valueOrNull(name: string) {
+  return process.env[name]?.trim() || null;
+}
+
 export async function GET() {
   const snapshot = await loadLaunchReadinessSnapshot();
 
   return NextResponse.json(
     {
       app: "gpt-codex-awo",
+      deployment: {
+        branch: valueOrNull("VERCEL_GIT_COMMIT_REF"),
+        commit: valueOrNull("VERCEL_GIT_COMMIT_SHA"),
+        environment: valueOrNull("VERCEL_ENV") ?? "local",
+        provider: hasEnv("VERCEL") ? "vercel" : "local",
+        url: valueOrNull("VERCEL_URL"),
+      },
       generatedAt: new Date().toISOString(),
       ok: true,
       releaseGate: snapshot.releaseEvidence.status,

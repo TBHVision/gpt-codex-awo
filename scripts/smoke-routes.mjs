@@ -38,6 +38,22 @@ async function checkPublicRoute(route) {
     throw new Error(`${route} expected 200, received ${response.status}`);
   }
 
+  if (route === "/api/health") {
+    const health = await response.json();
+
+    if (health.app !== "gpt-codex-awo" || health.ok !== true) {
+      throw new Error("/api/health returned an unexpected payload.");
+    }
+
+    if (!health.deployment || typeof health.deployment.provider !== "string") {
+      throw new Error("/api/health is missing deployment metadata.");
+    }
+
+    if (!health.services || typeof health.services.supabaseUrl !== "boolean") {
+      throw new Error("/api/health is missing service posture metadata.");
+    }
+  }
+
   return `${route} -> ${response.status}`;
 }
 
