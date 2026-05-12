@@ -287,11 +287,10 @@ Remaining:
   AWO-82. `/admin/launch` and `/api/health` now report the temporary fallback
   posture separately so it is visible as a launch policy risk rather than a
   hidden implementation detail.
-- Observability setup for production errors, analytics, and performance is still
-  planned rather than configured. `/admin/launch` and `/api/health` now expose
-  no-secret posture checks for error tracking, analytics, performance
-  monitoring, and uptime monitoring. Provider selection/configuration is still
-  tracked by AWO-79.
+- Vercel Web Analytics and Speed Insights are wired into the app shell.
+  `/admin/launch` and `/api/health` expose no-secret posture checks for error
+  tracking, analytics, performance monitoring, and uptime monitoring. Sentry
+  and dashboard-confirmed Vercel collection are still tracked by AWO-79.
 - Authenticated end-to-end coverage now exists for buyer account loading,
   People/Reminders persistence, artist application submission, named-admin
   login, audited artist approval, artist application packet persistence, and
@@ -319,8 +318,8 @@ Evidence captured on 2026-05-11:
 
 1. Keep V1.0 focused on a demo-ready stakeholder walkthrough: shopper path,
    honoree playback, buyer account recovery, and obvious dead-end removal.
-2. Decide and configure observability via AWO-79: Sentry for exceptions, plus
-   either Vercel Analytics/Speed Insights or PostHog for product behavior.
+2. Finish observability via AWO-79: confirm Vercel Analytics/Speed Insights are
+   collecting, then decide whether Sentry is required before launch or deferred.
 3. Build the next audited admin write controls only where they unblock launch:
    artist verification, fulfillment updates, refunds, or revoke/transfer. Use
    AWO-78 for remaining artist onboarding and AWO-81 for any future live-money

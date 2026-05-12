@@ -289,6 +289,9 @@ Codex evidence:
   product analytics, performance monitoring, and uptime monitoring posture.
 - `/api/health` now returns no-secret boolean observability posture flags under
   `services.observability`.
+- Vercel Web Analytics and Speed Insights components are wired into the root
+  app shell so deployed pages can emit first-party analytics/performance
+  signals once Vercel collection is available.
 - `docs/OBSERVABILITY_PLAN.md` lists the recognized optional environment keys
   without requiring Tony to choose or configure a provider during this run.
 - Vercel production is serving commit `b381b48`, and `npm run
@@ -296,8 +299,10 @@ Codex evidence:
 
 Remaining:
 
-- Tony still needs to choose/configure Sentry, Vercel Web Analytics/Speed
-  Insights, PostHog, or explicit deferrals before AWO-79 can be called Done.
+- Tony still needs to choose/configure Sentry or explicitly defer exception
+  tracking.
+- Tony should confirm Vercel Web Analytics and Speed Insights are collecting in
+  the Vercel dashboard before AWO-79 can be called Done.
 
 ## AWO-82 Admin Fallback Posture Evidence
 

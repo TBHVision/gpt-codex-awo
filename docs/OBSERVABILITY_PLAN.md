@@ -38,6 +38,8 @@ Available today:
 
 - GitHub Actions release readiness workflow
 - Vercel deployment status
+- Vercel Web Analytics component wired in the app shell
+- Vercel Speed Insights component wired in the app shell
 - Stripe sandbox webhook delivery logs
 - Supabase order, payment, reveal, and queue state through `/admin/ops`
 - Local release readiness JSON and visual screenshots
@@ -46,8 +48,8 @@ Available today:
 Not yet configured:
 
 - application error tracking
-- product analytics
-- performance/web vital monitoring
+- deeper product analytics beyond Vercel Web Analytics
+- dashboard-confirmed Vercel analytics/performance collection
 - authenticated end-to-end tests
 
 Current app posture checks:
@@ -65,8 +67,9 @@ Current app posture checks:
 Use hosted tools rather than building custom observability first.
 
 - Errors: Sentry
-- Product analytics: PostHog or Vercel Web Analytics
-- Performance: Vercel Speed Insights
+- Product analytics: Vercel Web Analytics now, PostHog later if deeper funnels
+  are needed
+- Performance: Vercel Speed Insights now
 - Uptime: Vercel checks first, external uptime monitor later if needed
 - Release evidence: GitHub Actions running `npm run test:release`
 
@@ -100,9 +103,11 @@ their values:
 
 - Error tracking: `SENTRY_DSN` or `NEXT_PUBLIC_SENTRY_DSN`
 - Product analytics: `NEXT_PUBLIC_POSTHOG_KEY`,
-  `POSTHOG_PROJECT_API_KEY`, or `VERCEL_ANALYTICS_ID`
+  `POSTHOG_PROJECT_API_KEY`, `VERCEL_ANALYTICS_ID`, or Vercel runtime with the
+  `@vercel/analytics` component
 - Performance monitoring: `NEXT_PUBLIC_VERCEL_SPEED_INSIGHTS_ID` or
-  `VERCEL_SPEED_INSIGHTS_ID`
+  `VERCEL_SPEED_INSIGHTS_ID`, or Vercel runtime with the
+  `@vercel/speed-insights` component
 - Uptime monitor reference: `AWO_UPTIME_MONITOR_URL`
 
 ## Error Policy
@@ -125,6 +130,9 @@ V0.7 can close when:
 - `npm run test:release` passes and evidence is attached to Linear.
 - The GitHub Actions release-readiness workflow has a passing run.
 - The team chooses the observability stack or explicitly defers it.
+- Vercel Web Analytics and Speed Insights are confirmed collecting in the
+  Vercel dashboard, or Tony accepts code-level wiring as sufficient for the
+  current demo stage.
 - The production gap audit no longer lists stale blockers.
 - Tony reviews the remaining monitoring tradeoffs.
 

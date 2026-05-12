@@ -66,11 +66,26 @@ export async function GET() {
           analytics:
             hasEnv("NEXT_PUBLIC_POSTHOG_KEY") ||
             hasEnv("POSTHOG_PROJECT_API_KEY") ||
-            hasEnv("VERCEL_ANALYTICS_ID"),
+            hasEnv("VERCEL_ANALYTICS_ID") ||
+            hasEnv("VERCEL"),
+          analyticsProvider: hasEnv("VERCEL")
+            ? "vercel-web-analytics-component"
+            : hasEnv("NEXT_PUBLIC_POSTHOG_KEY") || hasEnv("POSTHOG_PROJECT_API_KEY")
+              ? "posthog"
+              : hasEnv("VERCEL_ANALYTICS_ID")
+                ? "vercel-analytics-env"
+                : null,
           errorTracking: hasEnv("SENTRY_DSN") || hasEnv("NEXT_PUBLIC_SENTRY_DSN"),
           performance:
             hasEnv("NEXT_PUBLIC_VERCEL_SPEED_INSIGHTS_ID") ||
-            hasEnv("VERCEL_SPEED_INSIGHTS_ID"),
+            hasEnv("VERCEL_SPEED_INSIGHTS_ID") ||
+            hasEnv("VERCEL"),
+          performanceProvider: hasEnv("VERCEL")
+            ? "vercel-speed-insights-component"
+            : hasEnv("NEXT_PUBLIC_VERCEL_SPEED_INSIGHTS_ID") ||
+                hasEnv("VERCEL_SPEED_INSIGHTS_ID")
+              ? "vercel-speed-insights-env"
+              : null,
           uptimeMonitor: hasEnv("AWO_UPTIME_MONITOR_URL"),
         },
         stripeTestMode:

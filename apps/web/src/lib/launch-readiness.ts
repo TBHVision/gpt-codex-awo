@@ -41,6 +41,18 @@ function observabilityState(envNames: string[]): ReadinessState {
   return envNames.some((name) => hasEnv(name)) ? "ready" : "review";
 }
 
+function vercelFirstPartyObservabilityState(envNames: string[]): ReadinessState {
+  if (envNames.some((name) => hasEnv(name))) {
+    return "ready";
+  }
+
+  if (hasEnv("VERCEL")) {
+    return "watch";
+  }
+
+  return "review";
+}
+
 function temporaryPasswordEnabled() {
   return process.env.AWO_DISABLE_TEMP_ADMIN_PASSWORD !== "true";
 }
@@ -216,9 +228,9 @@ export async function loadLaunchReadinessSnapshot(): Promise<LaunchReadinessSnap
         },
         {
           detail:
-            "Product analytics should be a deliberate privacy decision. This check recognizes PostHog or Vercel Analytics configuration when present.",
+            "Vercel Web Analytics is wired into the app shell. Confirm collection in the Vercel dashboard before treating this as production-complete; PostHog remains a later option if deeper product analytics are needed.",
           label: "Product analytics",
-          state: observabilityState([
+          state: vercelFirstPartyObservabilityState([
             "NEXT_PUBLIC_POSTHOG_KEY",
             "POSTHOG_PROJECT_API_KEY",
             "VERCEL_ANALYTICS_ID",
@@ -226,9 +238,9 @@ export async function loadLaunchReadinessSnapshot(): Promise<LaunchReadinessSnap
         },
         {
           detail:
-            "Performance monitoring should be enabled through Vercel Speed Insights or another web-vitals provider before a broader launch.",
+            "Vercel Speed Insights is wired into the app shell. Confirm collection in the Vercel dashboard before treating this as production-complete.",
           label: "Performance monitoring",
-          state: observabilityState([
+          state: vercelFirstPartyObservabilityState([
             "NEXT_PUBLIC_VERCEL_SPEED_INSIGHTS_ID",
             "VERCEL_SPEED_INSIGHTS_ID",
           ]),
