@@ -138,6 +138,8 @@ Completed:
   removed items from being resurrected by merge-only account sync.
 - Buyer account page now clears malformed/stale browser sessions instead of
   dropping into a generic page-load failure.
+- Buyer account page now gives practical next actions after sign-in: People,
+  Reminders, Cart, Shop Cards, Demo Checkout, and Demo Reveal.
 
 Remaining:
 

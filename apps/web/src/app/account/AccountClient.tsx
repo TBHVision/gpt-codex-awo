@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import StorefrontNav from "@/app/components/StorefrontNav";
 import {
   clearBuyerSession,
@@ -199,6 +200,27 @@ export default function AccountClient() {
                 Sign Out
               </button>
 
+              <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                <Link
+                  className="inline-flex min-h-11 items-center justify-center border border-[#dfd5ca] bg-[#fbfaf8] px-4 text-center text-xs font-black uppercase tracking-wide text-[#373431] hover:border-[#b7653a] hover:text-[#a85f38]"
+                  href="/people"
+                >
+                  People
+                </Link>
+                <Link
+                  className="inline-flex min-h-11 items-center justify-center border border-[#dfd5ca] bg-[#fbfaf8] px-4 text-center text-xs font-black uppercase tracking-wide text-[#373431] hover:border-[#b7653a] hover:text-[#a85f38]"
+                  href="/reminders"
+                >
+                  Reminders
+                </Link>
+                <Link
+                  className="inline-flex min-h-11 items-center justify-center border border-[#dfd5ca] bg-[#fbfaf8] px-4 text-center text-xs font-black uppercase tracking-wide text-[#373431] hover:border-[#b7653a] hover:text-[#a85f38]"
+                  href="/cart"
+                >
+                  Cart
+                </Link>
+              </div>
+
               <div className="mt-8 border-t border-[#e5ded6] pt-6">
                 <div className="flex flex-wrap items-end justify-between gap-3">
                   <div>
@@ -367,6 +389,26 @@ export default function AccountClient() {
               signed-in carts sync to Supabase when account storage is
               available.
             </p>
+          </div>
+          <div className="mt-6 grid gap-3">
+            <Link
+              className="inline-flex h-11 items-center justify-center bg-[#252525] px-4 text-sm font-black uppercase tracking-wide text-white hover:bg-[#3a3632]"
+              href="/shop"
+            >
+              Shop Cards
+            </Link>
+            <Link
+              className="inline-flex h-11 items-center justify-center border border-[#dfd5ca] px-4 text-sm font-black uppercase tracking-wide text-[#373431] hover:border-[#b7653a] hover:text-[#a85f38]"
+              href="/checkout?demo=1"
+            >
+              Try Demo Checkout
+            </Link>
+            <Link
+              className="inline-flex h-11 items-center justify-center border border-[#dfd5ca] px-4 text-sm font-black uppercase tracking-wide text-[#373431] hover:border-[#b7653a] hover:text-[#a85f38]"
+              href="/reveal?code=AWO-DEMO-001&demo=1"
+            >
+              Open Demo Reveal
+            </Link>
           </div>
         </aside>
       </section>
