@@ -18,6 +18,7 @@ const chromeCandidates = [
 
 const routes = [
   "/",
+  "/demo",
   "/shop",
   "/shop/wildflower-notes",
   "/cart",
