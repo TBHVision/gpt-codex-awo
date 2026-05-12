@@ -65,6 +65,7 @@ The smoke script checks these public routes return HTTP 200:
 - `/studio`
 - `/cart`
 - `/checkout`
+- `/api/health`
 
 It also checks these protected routes redirect to `/admin/login` without an
 admin session cookie:

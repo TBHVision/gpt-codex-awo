@@ -113,6 +113,9 @@ function createCdpClient(webSocketUrl) {
         pending.set(id, { reject, resolve });
       });
     },
+    on(method, listener) {
+      listeners.set(method, [...(listeners.get(method) ?? []), listener]);
+    },
     waitFor(method, timeoutMs = 15000) {
       return new Promise((resolve, reject) => {
         const timeout = setTimeout(() => {
@@ -208,6 +211,15 @@ async function waitForRevealDemoState(client) {
     const bodyText = state.bodyText ?? "";
     if (
       state.url.includes("/reveal?code=AWO-DEMO-001&demo=1") &&
+      bodyText.includes("Reveal unlocked") &&
+      bodyText.includes("Wildflower Notes") &&
+      bodyText.includes("Demo-safe proof layer")
+    ) {
+      return state;
+    }
+
+    if (
+      state.url.includes("/reveal?code=AWO-DEMO-001&demo=1") &&
       bodyText.includes("Demo reveal mode prefilled the code and PIN") &&
       state.code === "AWO-DEMO-001" &&
       state.pin === "1234" &&
@@ -220,6 +232,166 @@ async function waitForRevealDemoState(client) {
   }
 
   throw new Error("Guided demo reveal state did not load correctly.");
+}
+
+async function verifyRevealApi(client) {
+  const result = await evaluate(
+    client,
+    `(async () => {
+      const response = await fetch('/api/reveal/verify', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ cardCode: 'AWO-DEMO-001', pin: '1234' })
+      });
+      const payload = await response.json().catch(() => null);
+      return {
+        ok: response.ok && payload?.success === true,
+        status: response.status,
+        cardTitle: payload?.card_title ?? '',
+        message: payload?.message ?? ''
+      };
+    })()`,
+  );
+
+  if (!result.ok || result.cardTitle !== "Wildflower Notes") {
+    throw new Error(
+      `Reveal verification API did not return the seeded proof payload. status=${result.status} card=${result.cardTitle} message=${result.message}`,
+    );
+  }
+
+  console.log(`PASS /api/reveal/verify seeded demo credential -> ${new URL("/api/reveal/verify", baseUrl)}`);
+}
+
+async function unlockDemoReveal(client) {
+  const requiredMarkers = [
+    "Reveal unlocked",
+    "Wildflower Notes",
+    "Sender message",
+    "Chain of custody",
+    "Reveal record",
+    "Evidence",
+    "Demo-safe proof layer",
+    "Operator proof links",
+  ];
+  let lastText = "";
+  let missingMarkers = [];
+  let lastButtonState = "";
+  const diagnostics = [];
+  client.on("Runtime.exceptionThrown", (params) => {
+    diagnostics.push(params.exceptionDetails?.text ?? "Runtime exception");
+  });
+  client.on("Log.entryAdded", (params) => {
+    if (params.entry?.level === "error") {
+      diagnostics.push(params.entry.text);
+    }
+  });
+  await client.send("Log.enable");
+
+  lastText = await evaluate(client, "document.body.innerText");
+  missingMarkers = requiredMarkers.filter((marker) =>
+    !(lastText ?? "").toLowerCase().includes(marker.toLowerCase()),
+  );
+  if (missingMarkers.length === 0) {
+    console.log(`PASS /reveal recipient playback unlock -> ${new URL("/reveal?code=AWO-DEMO-001&demo=1", baseUrl)}`);
+    return;
+  }
+
+  const hydrationProbe = await evaluate(
+    client,
+    `(async () => {
+      const showButton = Array.from(document.querySelectorAll('button')).find((item) =>
+        item.textContent?.trim() === 'Show'
+      );
+      const pinInput = document.querySelector('input[placeholder="1234"]');
+      if (!showButton || !pinInput) return { ok: false, reason: 'PIN visibility probe controls missing' };
+      showButton.click();
+      await new Promise((resolve) => setTimeout(resolve, 150));
+      return { ok: pinInput.type === 'text', inputType: pinInput.type };
+    })()`,
+  );
+
+  if (!hydrationProbe.ok) {
+    throw new Error(
+      `Reveal playback controls did not hydrate. ${hydrationProbe.reason ?? `PIN type stayed ${hydrationProbe.inputType}`}`,
+    );
+  }
+
+  for (let attempt = 0; attempt < 80; attempt += 1) {
+    const buttonBox = await evaluate(
+      client,
+      `(() => {
+        const button = Array.from(document.querySelectorAll('button')).find((item) =>
+          item.textContent?.includes('Unlock Playback') || item.textContent?.includes('Opening...')
+        );
+        if (!button) return { ok: true, state: 'already-unlocked' };
+        if (button.disabled && button.textContent?.includes('Opening...')) {
+          return { ok: true, state: 'opening' };
+        }
+        if (button.disabled) return { ok: false, reason: 'Unlock Playback button is disabled' };
+        button.scrollIntoView({ block: 'center', inline: 'center' });
+        button.focus();
+        button.click();
+        button.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+        const rect = button.getBoundingClientRect();
+        return {
+          ok: true,
+          state: button.textContent?.trim() ?? '',
+          x: rect.left + rect.width / 2,
+          y: rect.top + rect.height / 2
+        };
+      })()`,
+    );
+
+    if (!buttonBox.ok) {
+      throw new Error(buttonBox.reason ?? "Unable to unlock demo reveal.");
+    }
+
+    lastButtonState = buttonBox.state ?? "";
+
+    if (buttonBox.state?.includes("Unlock Playback")) {
+      await client.send("Input.dispatchMouseEvent", {
+        button: "left",
+        buttons: 1,
+        clickCount: 1,
+        type: "mousePressed",
+        x: buttonBox.x,
+        y: buttonBox.y,
+      });
+      await client.send("Input.dispatchMouseEvent", {
+        button: "left",
+        buttons: 0,
+        clickCount: 1,
+        type: "mouseReleased",
+        x: buttonBox.x,
+        y: buttonBox.y,
+      });
+    }
+
+    lastText = await evaluate(client, "document.body.innerText");
+    const bodyText = lastText ?? "";
+
+    missingMarkers = requiredMarkers.filter((marker) =>
+      !bodyText.toLowerCase().includes(marker.toLowerCase()),
+    );
+    if (missingMarkers.length === 0) {
+      console.log(`PASS /reveal recipient playback unlock -> ${new URL("/reveal?code=AWO-DEMO-001&demo=1", baseUrl)}`);
+      return;
+    }
+
+    if (bodyText.includes("That code and PIN could not be verified")) {
+      throw new Error("Demo reveal credentials were rejected.");
+    }
+
+    if (bodyText.includes("Reveal validation is temporarily unavailable")) {
+      throw new Error("Demo reveal validation endpoint is unavailable.");
+    }
+
+    await sleep(100);
+  }
+
+  throw new Error(
+    `Demo reveal playback did not show the expected proof sections. button=${lastButtonState} missing=${missingMarkers.join(", ")} diagnostics=${diagnostics.slice(-3).join(" | ")} text=${(lastText ?? "").slice(0, 420)}`,
+  );
 }
 
 async function verifyCartControls(client) {
@@ -490,17 +662,25 @@ async function main() {
           item.textContent?.includes('Open Demo Reveal')
         );
         if (!link) return { ok: false, reason: 'Open Demo Reveal link not found' };
-        link.click();
-        return { ok: true };
+        return { ok: link.getAttribute('href') === '/reveal?code=AWO-DEMO-001&demo=1', href: link.getAttribute('href') };
       })()`,
     );
 
     if (!revealClickResult.ok) {
-      throw new Error(revealClickResult.reason ?? "Unable to open demo reveal.");
+      throw new Error(revealClickResult.reason ?? `Demo reveal link pointed to ${revealClickResult.href}.`);
     }
+
+    const directRevealLoad = client.waitFor("Page.loadEventFired");
+    await client.send("Page.navigate", {
+      url: new URL("/reveal?code=AWO-DEMO-001&demo=1", baseUrl).toString(),
+    });
+    await directRevealLoad;
+    await sleep(250);
 
     const revealState = await waitForRevealDemoState(client);
     console.log(`PASS /demo guided reveal -> ${revealState.url}`);
+    await verifyRevealApi(client);
+    await unlockDemoReveal(client);
 
     await verifyCartControls(client);
     await verifyCartStorageRecovery(client);

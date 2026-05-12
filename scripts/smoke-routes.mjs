@@ -12,6 +12,7 @@ const publicRoutes = [
   "/account",
   "/cart",
   "/checkout",
+  "/api/health",
 ];
 
 const protectedRoutes = [

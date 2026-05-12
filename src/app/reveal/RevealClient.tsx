@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import StorefrontNav from "@/app/components/StorefrontNav";
 
 type RevealPayload = {
@@ -19,6 +20,37 @@ type RevealPayload = {
   reveal_status: string | null;
   sender_message: string | null;
   success: boolean;
+};
+
+const demoRevealPayload: RevealPayload = {
+  artist_bio:
+    "HatchVision Studio is the seeded AWO demo artist profile. This profile stands in for a real artist origin record: human-made artwork, artist-approved story notes, and a published card that can be traced through purchase, reveal, custody, and ownership evidence.",
+  artist_name: "HatchVision Studio",
+  card_description:
+    "A hand-painted wildflower card prepared for the AWO demo flow, with artist story, paid checkout, private reveal, custody events, and ownership record evidence connected end to end.",
+  card_title: "Wildflower Notes",
+  checkout_reference: "AWO-DEMO-CHECKOUT",
+  custody_steps: [
+    { label: "Created", value: "Artist-origin record created for Wildflower Notes." },
+    { label: "Purchased", value: "Demo checkout records the buyer intent and gift context." },
+    { label: "Gifted", value: "Recipient reveal is prepared with a private code and PIN." },
+    { label: "Revealed", value: "The recipient opens the card playback and proof layer." },
+  ],
+  evidence_items: [
+    { label: "Artist story", value: "Human-made origin and artist narrative are attached." },
+    { label: "Card record", value: "Wildflower Notes remains tied to the published card SKU." },
+    { label: "Reveal code", value: "AWO-DEMO-001" },
+  ],
+  message: "Reveal unlocked.",
+  occasion_label: "Birthday",
+  ownership_summary:
+    "Demo ownership is staged for stakeholder review. Live ownership claims remain disabled until launch approval.",
+  recipient_name: "Demo Recipient",
+  reveal_public_id: "AWO-DEMO-001",
+  reveal_status: "opened",
+  sender_message:
+    "I picked this card because it felt calm, personal, and traceable back to a real human origin story.",
+  success: true,
 };
 
 function QrIcon() {
@@ -156,24 +188,32 @@ export default function RevealClient() {
   const [isLoading, setIsLoading] = useState(false);
   const [pin, setPin] = useState(() => (getInitialDemoReveal() ? "1234" : ""));
   const [reveal, setReveal] = useState<RevealPayload | null>(null);
+  const [showPin, setShowPin] = useState(false);
 
   const canReveal = cardCode.trim().length > 0 && pin.trim().length > 0;
-  const recipientName = formatValue(reveal?.recipient_name, "your recipient");
-  const cardTitle = formatValue(reveal?.card_title, "AWO card");
-  const artistName = formatValue(reveal?.artist_name, "the artist");
-  const occasionLabel = formatValue(reveal?.occasion_label, "your occasion");
+  const activeReveal = reveal ?? (isDemoReveal ? demoRevealPayload : null);
+  const recipientName = formatValue(activeReveal?.recipient_name, "your recipient");
+  const cardTitle = formatValue(activeReveal?.card_title, "AWO card");
+  const artistName = formatValue(activeReveal?.artist_name, "the artist");
+  const occasionLabel = formatValue(activeReveal?.occasion_label, "your occasion");
   const senderMessage = formatValue(
-    reveal?.sender_message,
+    activeReveal?.sender_message,
     "The sender message will appear here when it is included at checkout.",
   );
   const evidenceItems = useMemo(
-    () => (reveal?.evidence_items ?? []).filter((item) => item.label || item.value),
-    [reveal],
+    () => (activeReveal?.evidence_items ?? []).filter((item) => item.label || item.value),
+    [activeReveal],
   );
   const custodySteps = useMemo(
-    () => (reveal?.custody_steps ?? []).filter((step) => step.label || step.value),
-    [reveal],
+    () => (activeReveal?.custody_steps ?? []).filter((step) => step.label || step.value),
+    [activeReveal],
   );
+
+  function useDemoCredentials() {
+    setCardCode("AWO-DEMO-001");
+    setPin("1234");
+    setError("");
+  }
 
   async function verifyReveal() {
     if (!canReveal) {
@@ -265,14 +305,40 @@ export default function RevealClient() {
               </label>
               <label className="block text-sm font-black uppercase tracking-wide text-[#373431]">
                 PIN
-                <input
-                  className="mt-2 h-11 w-full border border-[#dfd5ca] bg-[#fbfaf8] px-3 text-sm font-medium normal-case tracking-normal outline-none focus:border-[#b7653a]"
-                  onChange={(event) => setPin(event.target.value)}
-                  placeholder="1234"
-                  type="password"
-                  value={pin}
-                />
+                <span className="mt-2 flex h-11 border border-[#dfd5ca] bg-[#fbfaf8] focus-within:border-[#b7653a]">
+                  <input
+                    className="min-w-0 flex-1 bg-transparent px-3 text-sm font-medium normal-case tracking-normal outline-none"
+                    onChange={(event) => setPin(event.target.value)}
+                    placeholder="1234"
+                    type={showPin ? "text" : "password"}
+                    value={pin}
+                  />
+                  <button
+                    aria-label={showPin ? "Hide PIN" : "Show PIN"}
+                    className="border-l border-[#dfd5ca] px-3 text-xs font-black uppercase tracking-wide text-[#6e6258] hover:text-[#252525]"
+                    onClick={() => setShowPin((current) => !current)}
+                    type="button"
+                  >
+                    {showPin ? "Hide" : "Show"}
+                  </button>
+                </span>
               </label>
+            </div>
+
+            <div className="mt-4 grid gap-2 sm:grid-cols-2">
+              <button
+                className="h-10 border border-[#dfd5ca] px-3 text-xs font-black uppercase tracking-wide text-[#6e6258] hover:border-[#b7653a] hover:text-[#252525]"
+                onClick={useDemoCredentials}
+                type="button"
+              >
+                Use demo credentials
+              </button>
+              <Link
+                className="flex h-10 items-center justify-center border border-[#dfd5ca] px-3 text-xs font-black uppercase tracking-wide text-[#6e6258] hover:border-[#b7653a] hover:text-[#252525]"
+                href="/demo"
+              >
+                Demo script
+              </Link>
             </div>
 
             {error ? (
@@ -310,7 +376,7 @@ export default function RevealClient() {
       </section>
 
       <section className="mx-auto max-w-7xl px-6 py-10 lg:px-10">
-        {reveal ? (
+        {activeReveal ? (
           <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
             <section className="space-y-6">
               <div className="border border-[#e5ded6] bg-white p-6 shadow-[0_18px_45px_rgba(45,38,32,.06)] sm:p-8">
@@ -332,6 +398,11 @@ export default function RevealClient() {
                   record below ties the gift, artwork, purchase, reveal, and
                   ownership trail together.
                 </p>
+                <p className="mt-4 border border-[#f4d3bc] bg-[#fff8ef] p-3 text-sm font-bold leading-6 text-[#6f3a1f]">
+                  Demo-safe proof layer: this walkthrough uses seeded test data
+                  to show the recipient experience before live ownership claims
+                  are enabled.
+                </p>
                 <div className="mt-6 border border-[#efe8df] bg-[#fbfaf8] p-5">
                   <p className="text-xs font-black uppercase tracking-[0.16em] text-[#b7653a]">
                     Sender message
@@ -350,7 +421,7 @@ export default function RevealClient() {
                   <p className="mt-2 text-xl font-black">{cardTitle}</p>
                   <p className="mt-2 text-sm leading-6 text-[#4b4743]">
                     {formatValue(
-                      reveal.card_description,
+                      activeReveal.card_description,
                       "Card description captured in the AWO catalog.",
                     )}
                   </p>
@@ -362,7 +433,7 @@ export default function RevealClient() {
                   <p className="mt-2 text-xl font-black">{artistName}</p>
                   <p className="mt-2 text-sm leading-6 text-[#4b4743]">
                     {formatValue(
-                      reveal.artist_bio,
+                      activeReveal.artist_bio,
                       "Artist story captured by ArtWithOrigin.",
                     )}
                   </p>
@@ -372,11 +443,11 @@ export default function RevealClient() {
                     Ownership
                   </p>
                   <p className="mt-2 text-xl font-black">
-                    {formatValue(reveal.reveal_status, "opened")}
+                    {formatValue(activeReveal.reveal_status, "opened")}
                   </p>
                   <p className="mt-2 text-sm leading-6 text-[#4b4743]">
                     {formatValue(
-                      reveal.ownership_summary,
+                      activeReveal.ownership_summary,
                       "Ownership proof is tied to the paid and fulfilled card record.",
                     )}
                   </p>
@@ -426,7 +497,7 @@ export default function RevealClient() {
                       Reveal ID
                     </dt>
                     <dd className="mt-1 break-words font-bold">
-                      {formatValue(reveal.reveal_public_id, "Not recorded")}
+                      {formatValue(activeReveal.reveal_public_id, "Not recorded")}
                     </dd>
                   </div>
                   <div>
@@ -434,7 +505,7 @@ export default function RevealClient() {
                       Checkout
                     </dt>
                     <dd className="mt-1 break-words font-bold">
-                      {formatValue(reveal.checkout_reference, "Not recorded")}
+                      {formatValue(activeReveal.checkout_reference, "Not recorded")}
                     </dd>
                   </div>
                 </dl>
@@ -458,7 +529,7 @@ export default function RevealClient() {
                         },
                         {
                           label: "Reveal code",
-                          value: formatValue(reveal.reveal_public_id, "Private reveal record"),
+                          value: formatValue(activeReveal.reveal_public_id, "Private reveal record"),
                         },
                       ]
                   ).map((item) => (
@@ -471,6 +542,27 @@ export default function RevealClient() {
                         {item.value}
                       </p>
                     </article>
+                  ))}
+                </div>
+              </div>
+
+              <div className="border border-[#e5ded6] bg-white p-5 shadow-[0_18px_45px_rgba(45,38,32,.06)]">
+                <p className="text-xs font-black uppercase tracking-[0.16em] text-[#b7653a]">
+                  Operator proof links
+                </p>
+                <div className="mt-4 grid gap-2">
+                  {[
+                    { href: "/admin/reconciliation", label: "Lifecycle reconciliation" },
+                    { href: "/admin/custody", label: "Custody events" },
+                    { href: "/admin/ownership", label: "Ownership records" },
+                  ].map((link) => (
+                    <Link
+                      className="border border-[#efe8df] bg-[#fbfaf8] px-4 py-3 text-sm font-black text-[#373431] hover:border-[#b7653a]"
+                      href={link.href}
+                      key={link.href}
+                    >
+                      {link.label}
+                    </Link>
                   ))}
                 </div>
               </div>
