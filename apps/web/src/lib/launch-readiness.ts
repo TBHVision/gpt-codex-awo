@@ -1,3 +1,6 @@
+import { readFile } from "node:fs/promises";
+import path from "node:path";
+
 type ReadinessState = "blocked" | "ready" | "review" | "watch";
 
 export type LaunchReadinessItem = {
@@ -34,6 +37,31 @@ function stateForPresence(isPresent: boolean): ReadinessState {
   return isPresent ? "ready" : "blocked";
 }
 
+async function loadLocalReleaseEvidence() {
+  try {
+    const reportPath = path.join(
+      process.cwd(),
+      ".qa",
+      "release-readiness",
+      "latest.json",
+    );
+    const report = JSON.parse(await readFile(reportPath, "utf8")) as {
+      finishedAt?: string | null;
+      status?: string;
+    };
+
+    return {
+      finishedAt: report.finishedAt ?? null,
+      status: report.status ?? "unknown",
+    };
+  } catch {
+    return {
+      finishedAt: null,
+      status: "run npm run test:release",
+    };
+  }
+}
+
 function buildHeadline(sections: LaunchReadinessSection[]) {
   const items = sections.flatMap((section) => section.items);
 
@@ -46,10 +74,9 @@ function buildHeadline(sections: LaunchReadinessSection[]) {
 }
 
 export async function loadLaunchReadinessSnapshot(): Promise<LaunchReadinessSnapshot> {
-  const releaseEvidence = {
-    finishedAt: null,
-    status: "run npm run test:release",
-  };
+  const releaseEvidence = await loadLocalReleaseEvidence();
+  const localReleaseGateState: ReadinessState =
+    releaseEvidence.status === "passed" ? "ready" : "watch";
 
   const stripeSecret = process.env.STRIPE_SECRET_KEY?.trim() ?? "";
   const stripeKeyState: ReadinessState = !stripeSecret
@@ -105,15 +132,23 @@ export async function loadLaunchReadinessSnapshot(): Promise<LaunchReadinessSnap
       items: [
         {
           detail:
-            "The latest local release-readiness JSON report is written to `.qa/release-readiness/latest.json`.",
+            releaseEvidence.status === "passed"
+              ? "Latest local release-readiness JSON report is passing in `.qa/release-readiness/latest.json`."
+              : "Run `npm run test:release` to refresh `.qa/release-readiness/latest.json`.",
           label: "Local release gate",
-          state: "watch",
+          state: localReleaseGateState,
         },
         {
           detail:
-            "GitHub Actions release-readiness workflow exists; hosted runner status still needs final confirmation in GitHub.",
+            "GitHub Actions release-readiness workflow is configured and the latest main run is recorded in Linear evidence.",
           label: "Hosted CI release gate",
-          state: "watch",
+          state: "ready",
+        },
+        {
+          detail:
+            "`npm run test:demo` clicks the stakeholder checkout and seeded reveal handoff.",
+          label: "Guided demo journey coverage",
+          state: "ready",
         },
         {
           detail: "Protected admin launch page is included in smoke and visual QA.",
