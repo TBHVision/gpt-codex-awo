@@ -144,6 +144,7 @@ Completed:
 Remaining:
 
 - Production card-specific QR/PIN generation is not fully automated yet.
+  Tracked by AWO-77.
 - Final recipient copy/art direction still needs human review when real product
   cards exist.
 - Tony should review the seeded stakeholder playback path at
@@ -160,6 +161,7 @@ Completed:
 Remaining:
 
 - Full approval workflow and artist onboarding UX are not production-complete.
+  Tracked by AWO-78.
 - Real artist verification and payout/commercial workflows are future scope.
 
 ## Admin And Ops Status
@@ -192,6 +194,7 @@ Completed:
 Remaining:
 
 - Fulfillment automation and ownership transfer workflows.
+  Refund/revocation/transfer exception handling is tracked by AWO-81.
 - Production reporting/analytics beyond the current read-only ops snapshot.
 
 ## QA And Release Status
@@ -223,13 +226,15 @@ Remaining:
   are limited to audited card approve/reject actions for named Supabase admins.
 - Fulfillment now has narrow named-admin item transition controls, but shipping,
   refunds, credential revocation, and ownership transfer/revocation still need
-  separately audited workflows.
+  separately audited workflows. Tracked by AWO-81.
 - Temporary password admin sessions remain read-only for fulfillment actions.
+- Replacing the shared temporary admin password before launch is tracked by
+  AWO-82.
 - Observability setup for production errors, analytics, and performance is still
-  planned rather than configured.
+  planned rather than configured. Tracked by AWO-79.
 - Browser-based authenticated end-to-end tests are still parked until account
-  flows stabilize further. The current demo journey intentionally avoids
-  creating real Supabase users.
+  flows stabilize further. Tracked by AWO-80. The current demo journey
+  intentionally avoids creating real Supabase users.
 - Production smoke/visual checks should be run after every Vercel deploy when
   nearing launch.
 
@@ -252,11 +257,12 @@ Evidence captured on 2026-05-11:
 
 1. Keep V1.0 focused on a demo-ready stakeholder walkthrough: shopper path,
    honoree playback, buyer account recovery, and obvious dead-end removal.
-2. Decide and configure observability: Sentry for exceptions, plus either
-   Vercel Analytics/Speed Insights or PostHog for product behavior.
+2. Decide and configure observability via AWO-79: Sentry for exceptions, plus
+   either Vercel Analytics/Speed Insights or PostHog for product behavior.
 3. Build the next audited admin write controls only where they unblock launch:
    card/artist approval, fulfillment updates, refunds, or revoke/transfer.
-4. Add authenticated E2E tests for buyer and admin flows once the account model
-   is no longer changing daily.
+   Use AWO-78 for artist approval and AWO-81 for refunds/revoke/transfer.
+4. Add authenticated E2E tests for buyer and admin flows through AWO-80 once
+   the account model is no longer changing daily.
 5. Convert remaining launch gaps into specific Linear issues instead of using
    broad phase percentages as a proxy for readiness.

@@ -34,6 +34,17 @@ moving without waking Tony for every small branch decision.
 - Review `/admin/launch`.
 - Review `/api/health` on Vercel after redeploy.
 - Review Linear AWO-76 and AWO-63 evidence comments.
+- Review the newly split production-gap issues: AWO-77, AWO-78, AWO-79,
+  AWO-80, AWO-81, and AWO-82.
+
+## Newly Split Production Gaps
+
+- AWO-77: production QR/PIN credential generation.
+- AWO-78: artist onboarding and approval workflow.
+- AWO-79: production observability stack.
+- AWO-80: authenticated buyer/admin E2E tests.
+- AWO-81: refund, revocation, and ownership transfer workflows.
+- AWO-82: temporary admin password fallback removal.
 
 ## Stop Conditions
 

@@ -186,3 +186,8 @@ Still needs Tony before Done:
   overclaim ownership before fulfillment activation.
 - Decide whether observability and live-payment deferrals are acceptable for the
   first stakeholder demo.
+- Follow-up launch gaps are now explicit Linear issues: AWO-77 for production
+  QR/PIN generation, AWO-78 for artist onboarding/approval, AWO-79 for
+  observability setup, AWO-80 for authenticated E2E, AWO-81 for
+  refund/revocation/transfer workflows, and AWO-82 for removing the temporary
+  admin password fallback.
