@@ -165,6 +165,8 @@ export async function loadLaunchReadinessSnapshot(): Promise<LaunchReadinessSnap
           detail:
             releaseEvidence.status === "passed"
               ? "Latest local release-readiness JSON report is passing in `.qa/release-readiness/latest.json`."
+              : releaseEvidence.status === "passed_with_skips"
+                ? "Latest local release-readiness JSON report completed, but at least one launch-critical check was skipped because required runtime configuration was unavailable."
               : "Run `npm run test:release` to refresh `.qa/release-readiness/latest.json`.",
           label: "Local release gate",
           state: localReleaseGateState,

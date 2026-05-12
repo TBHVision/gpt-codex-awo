@@ -63,6 +63,24 @@ jobs:
           process.exit(1);
           NODE
 
+      - name: Summarize release skips
+        if: steps.release.outcome == 'success'
+        run: |
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const reportPath = '.qa/release-readiness/latest.json';
+          if (fs.existsSync(reportPath)) {
+            const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+            const skipped = (report.steps || []).filter((step) => step.status === 'skipped');
+            for (const step of skipped) {
+              const safe = `${step.name} skipped. ${String(step.outputTail || '').slice(-700)}`
+                .replace(/\r?\n/g, ' ')
+                .replace(/%/g, '%25');
+              console.log(`::warning title=Release readiness skipped check::${safe}`);
+            }
+          }
+          NODE
+
       - name: Upload QA evidence
         if: always()
         uses: actions/upload-artifact@v6

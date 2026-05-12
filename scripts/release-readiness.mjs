@@ -64,12 +64,13 @@ function runCommand(name, args, options = {}) {
       process.stderr.write(text);
     });
     child.on("close", (code) => {
+      const hasSkipMarker = /^SKIP\s/m.test(output);
       resolve({
         command: `${npmCommand} ${args.join(" ")}`,
         durationMs: nowMs() - started,
         name,
         outputTail: output.slice(-4000),
-        status: code === 0 ? "passed" : "failed",
+        status: code === 0 ? (hasSkipMarker ? "skipped" : "passed") : "failed",
       });
     });
   });
@@ -161,6 +162,10 @@ async function record(stepPromise) {
   await writeReport();
 
   if (step.status !== "passed") {
+    if (step.status === "skipped") {
+      return;
+    }
+
     throw new Error(`${step.name} failed`);
   }
 }
@@ -198,7 +203,9 @@ async function main() {
       }),
     );
 
-    report.status = "passed";
+    report.status = report.steps.some((step) => step.status === "skipped")
+      ? "passed_with_skips"
+      : "passed";
   } catch (error) {
     report.status = "failed";
     report.error =

@@ -18,6 +18,11 @@ function temporaryPasswordEnabled() {
 export async function GET() {
   const snapshot = await loadLaunchReadinessSnapshot();
   const temporaryFallbackEnabled = hasEnv("AWO_ADMIN_PASSWORD") && temporaryPasswordEnabled();
+  const launchReady =
+    snapshot.headline.blocked === 0 &&
+    snapshot.headline.review === 0 &&
+    snapshot.headline.watch === 0 &&
+    snapshot.releaseEvidence.status === "passed";
 
   return NextResponse.json(
     {
@@ -30,6 +35,13 @@ export async function GET() {
         url: valueOrNull("VERCEL_URL"),
       },
       generatedAt: new Date().toISOString(),
+      launchReadiness: {
+        blockedCount: snapshot.headline.blocked,
+        launchReady,
+        releaseGate: snapshot.releaseEvidence.status,
+        reviewCount: snapshot.headline.review,
+        watchCount: snapshot.headline.watch,
+      },
       ok: true,
       releaseGate: snapshot.releaseEvidence.status,
       readiness: snapshot.headline,

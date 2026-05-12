@@ -49,6 +49,10 @@ Current automated evidence:
 `test:release` now runs lint, mirror sync, build, a fresh production server,
 route smoke, guided demo journey, and desktop/mobile visual QA, then writes
 `.qa/release-readiness/latest.json`.
+The release report now records configuration-dependent checks as `skipped`
+when their scripts emit `SKIP`, and the overall status becomes
+`passed_with_skips` instead of a clean `passed` so launch readiness cannot
+overstate evidence when secrets are missing.
 `test:demo` now covers the guided checkout/reveal path, cart quantity/remove
 controls, inline checkout cart quantity/remove controls, malformed cart-storage
 recovery, stale buyer-session recovery on `/account`, and core storefront route
@@ -105,6 +109,9 @@ placeholder: it presents the AWO brand, review links for shopper checkout,
 artist story, honoree reveal, investor demo, and protected operator proof pages.
 `/api/health` now exposes a no-secret readiness endpoint for production posture
 checks.
+It reports endpoint availability separately from launch readiness through
+`launchReadiness.launchReady`, blocked/review/watch counts, and release-gate
+status.
 
 ## Current Health
 
@@ -260,6 +267,9 @@ Remaining:
 
 - CI-hosted release gate is confirmed working on `main`; continue checking it
   after every push that changes launch-critical flows.
+- CI and local release reports distinguish clean pass from pass-with-skips.
+  Treat `passed_with_skips` as evidence that the app built and smoke paths ran,
+  not as final launch acceptance.
 - Broader write-capable approval tools are still deferred. Current admin writes
   are limited to audited card approve/reject actions for named Supabase admins.
 - Fulfillment now has narrow named-admin item transition controls, internal
