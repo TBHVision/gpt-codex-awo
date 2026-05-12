@@ -30,6 +30,7 @@ const journey = [
     cta: "Open reconciliation",
     href: "/admin/reconciliation",
     kicker: "Operator",
+    protected: true,
     title: "Verify the proof layer",
   },
 ];
@@ -131,6 +132,11 @@ export default function DemoWalkthroughPage() {
               </div>
               <h2 className="mt-5 text-xl font-black">{step.title}</h2>
               <p className="mt-3 text-sm leading-6 text-[#4b4743]">{step.body}</p>
+              {step.protected ? (
+                <p className="mt-4 border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-black uppercase tracking-wide text-amber-950">
+                  Admin login required
+                </p>
+              ) : null}
               <a
                 className="mt-5 inline-flex h-10 items-center justify-center border border-[#dfd5ca] px-4 text-xs font-black uppercase tracking-wide text-[#373431] hover:border-[#b7653a] hover:text-[#a85f38]"
                 href={step.href}
@@ -168,16 +174,22 @@ export default function DemoWalkthroughPage() {
               ))}
             </div>
           </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            {proofLinks.map((link) => (
-              <a
-                className="inline-flex min-h-12 items-center justify-center border border-[#dfd5ca] bg-[#fbfaf8] px-4 text-center text-sm font-black text-[#373431] hover:border-[#b7653a] hover:text-[#a85f38]"
-                href={link.href}
-                key={link.href}
-              >
-                {link.label}
-              </a>
-            ))}
+          <div>
+            <p className="border border-amber-200 bg-amber-50 p-3 text-xs font-bold leading-5 text-amber-950">
+              Proof-layer links are protected. In a live walkthrough, sign in as
+              admin first or expect these links to redirect to Admin Access.
+            </p>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              {proofLinks.map((link) => (
+                <a
+                  className="inline-flex min-h-12 items-center justify-center border border-[#dfd5ca] bg-[#fbfaf8] px-4 text-center text-sm font-black text-[#373431] hover:border-[#b7653a] hover:text-[#a85f38]"
+                  href={link.href}
+                  key={link.href}
+                >
+                  {link.label}
+                </a>
+              ))}
+            </div>
           </div>
         </div>
       </section>
