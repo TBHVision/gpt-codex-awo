@@ -128,8 +128,8 @@ export default function CartClient() {
             Your Cart
           </h1>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-[#4b4743]">
-            Review selected cards before saving a real draft order. Payments
-            stay disabled until the checkout lifecycle is approved.
+            Review selected cards before checkout. Stripe stays in sandbox test
+            mode until live charges are explicitly approved.
           </p>
           {syncStatus ? (
             <p className="mt-4 inline-flex border border-[#e5ded6] bg-white px-3 py-2 text-xs font-bold text-[#6e6258]">
@@ -228,7 +228,7 @@ export default function CartClient() {
             </div>
             <div className="flex items-center justify-between text-sm font-bold text-[#4b4743]">
               <span>Payment Status</span>
-              <span>Disabled</span>
+              <span>Stripe test mode</span>
             </div>
           </div>
           <div className="mt-5 flex items-center justify-between">

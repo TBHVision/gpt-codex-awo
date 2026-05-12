@@ -352,12 +352,13 @@ export default function AccountClient() {
               admin password gate.
             </p>
             <p className="border border-[#e5ded6] bg-[#fbfaf8] p-4">
-              Buyer order history now reads through RLS. People and Reminders
-              move to the same account-owned pattern next.
+              Buyer order history reads through RLS. People, reminders, and
+              signed-in carts use the same account-owned pattern.
             </p>
             <p className="border border-[#e5ded6] bg-[#fbfaf8] p-4">
-              Anonymous shopping still works. The cart stays browser-local until
-              the next persistence step.
+              Anonymous shopping still works. Guest carts stay browser-local;
+              signed-in carts sync to Supabase when account storage is
+              available.
             </p>
           </div>
         </aside>

@@ -8,7 +8,7 @@ comment on Linear without re-discovering the same facts.
 
 ## Shared Release Evidence
 
-- `npm run test:release` passed at `2026-05-12T09:40:52.080Z`.
+- `npm run test:release` passed at `2026-05-12T09:53:02.493Z`.
 - Release report: `.qa/release-readiness/latest.json`.
 - Local route checks returned HTTP 200 for `/`, `/shop`, `/demo`,
   `/shop/wildflower-notes`, `/cart`, `/checkout`, `/reveal`, `/people`,
@@ -156,6 +156,9 @@ Codex evidence:
   seeded reveal, and protected proof-layer review pages.
 - Demo journey cards now point to deterministic destinations: checkout opens
   `/checkout?demo=1`, and reveal opens `/reveal?code=AWO-DEMO-001&demo=1`.
+- Cart and account support copy now reflects the current system state: Stripe
+  is sandbox/test-mode until approval, signed-in carts sync through Supabase,
+  and People/Reminders are account-aware rather than future-only.
 - `/reveal?code=AWO-DEMO-001&demo=1` provides a deterministic demo honoree
   playback path with the seeded code/PIN, sender message, evidence, custody
   steps, and honest pending ownership posture.
