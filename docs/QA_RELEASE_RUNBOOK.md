@@ -38,6 +38,10 @@ What each command proves:
   Vercel and verifies `/api/health` is serving the latest deploy-affecting app
   source commit. Set `SMOKE_EXPECTED_COMMIT` to override this for a specific
   deploy.
+- `npm run test:vercel:fresh`: checks production `/api/health` against the
+  current git commit before deeper deployed tests run. Use this first when
+  Vercel says a deployment is ready but the public app behaves like an older
+  build.
 - `npm run test:demo`: launches Chrome, clicks `/demo` Start Guided Checkout,
   verifies the prefilled checkout story, cart item, and total, then checks the
   seeded honoree playback path at `/reveal?code=AWO-DEMO-001&demo=1`.
@@ -104,6 +108,7 @@ npm run test:smoke
 For the current Vercel production deployment, use:
 
 ```powershell
+npm run test:vercel:fresh
 npm run test:vercel:smoke
 ```
 

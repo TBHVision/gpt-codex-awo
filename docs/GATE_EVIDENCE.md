@@ -256,6 +256,10 @@ Codex evidence:
   expiration requires a local `STRIPE_SECRET_KEY`.
 - `npm run test:vercel:all` passed after adding the bundled deployed-site
   verification command.
+- `npm run test:vercel:all` now starts with `npm run test:vercel:fresh`, which
+  compares `/api/health` deployment metadata to the current git commit before
+  deeper deployed checks run. This prevents stale Vercel builds from looking
+  like application route failures.
 
 Remaining:
 
