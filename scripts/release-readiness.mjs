@@ -175,6 +175,11 @@ async function main() {
       }),
     );
     await record(
+      runCommand("demo", ["run", "test:demo"], {
+        env: { AWO_QA_BASE_URL: baseUrl },
+      }),
+    );
+    await record(
       runCommand("visual", ["run", "test:visual"], {
         env: { AWO_QA_BASE_URL: baseUrl },
       }),

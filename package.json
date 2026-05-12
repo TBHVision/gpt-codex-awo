@@ -9,6 +9,7 @@
     "lint": "eslint",
     "test:release": "node scripts/release-readiness.mjs",
     "test:smoke": "node scripts/smoke-routes.mjs",
+    "test:demo": "node scripts/demo-journey.mjs",
     "test:visual": "node scripts/visual-qa.mjs",
     "supabase": "supabase",
     "db:link": "supabase link",

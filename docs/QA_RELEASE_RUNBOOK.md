@@ -20,6 +20,7 @@ Run these from the repo root:
 npm run lint
 npm run build
 npm run test:smoke
+npm run test:demo
 npm run test:release
 ```
 
@@ -29,8 +30,11 @@ What each command proves:
 - `npm run build`: production Next.js build succeeds.
 - `npm run test:smoke`: key public routes respond and protected admin routes
   redirect to login when unauthenticated.
+- `npm run test:demo`: launches Chrome, clicks `/demo` Start Guided Checkout,
+  and verifies the prefilled checkout story, cart item, and total.
 - `npm run test:release`: runs the full local gate: lint, build, fresh
-  production server, smoke routes, and desktop/mobile visual QA.
+  production server, smoke routes, guided demo journey, and desktop/mobile
+  visual QA.
 
 For local release testing of authenticated admin screenshots, set temporary
 process-only admin values before running the release gate:
@@ -76,6 +80,25 @@ Use another target with:
 ```powershell
 $env:SMOKE_BASE_URL="https://your-preview-url.vercel.app"
 npm run test:smoke
+```
+
+## Demo Journey Coverage
+
+The demo journey script proves the stakeholder walkthrough is not just a set of
+static pages. It opens `/demo`, clicks `Start Guided Checkout`, and verifies
+that `/checkout?demo=1` has:
+
+- `Wildflower Notes` in the cart summary.
+- `Demo Recipient` as the recipient.
+- `Birthday` as the occasion.
+- The guided sender message in the message notes field.
+- `$5.50` as the order total.
+
+Use another target with:
+
+```powershell
+$env:AWO_QA_BASE_URL="https://your-preview-url.vercel.app"
+npm run test:demo
 ```
 
 ## Local Server

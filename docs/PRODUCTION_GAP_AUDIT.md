@@ -41,11 +41,13 @@ Current automated evidence:
 - `npm.cmd run lint`
 - `npm.cmd run build`
 - `npm.cmd run test:smoke`
+- `npm.cmd run test:demo`
 - `npm.cmd run test:visual`
 - `npm.cmd run test:release`
 
-`test:release` now runs lint, build, a fresh production server, route smoke, and
-desktop/mobile visual QA, then writes `.qa/release-readiness/latest.json`.
+`test:release` now runs lint, build, a fresh production server, route smoke,
+guided demo journey, and desktop/mobile visual QA, then writes
+`.qa/release-readiness/latest.json`.
 `/admin/launch` now gives the V1.0 gate a protected launch-readiness view for
 environment posture, release evidence, required docs, and Tony review blockers.
 `/admin/reviews` now gives operators a protected read-only view of card,
