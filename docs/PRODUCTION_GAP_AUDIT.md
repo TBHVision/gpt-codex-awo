@@ -270,6 +270,9 @@ Remaining:
 - CI and local release reports distinguish clean pass from pass-with-skips.
   Treat `passed_with_skips` as evidence that the app built and smoke paths ran,
   not as final launch acceptance.
+- `/admin/launch` no longer treats hosted CI as automatically ready. It marks
+  the hosted CI gate as `watch` because the deployed app cannot fetch live
+  GitHub Actions status and must rely on GitHub/Linear evidence.
 - Broader write-capable approval tools are still deferred. Current admin writes
   are limited to audited card approve/reject actions for named Supabase admins.
 - Fulfillment now has narrow named-admin item transition controls, internal

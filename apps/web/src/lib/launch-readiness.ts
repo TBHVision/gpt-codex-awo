@@ -173,9 +173,9 @@ export async function loadLaunchReadinessSnapshot(): Promise<LaunchReadinessSnap
         },
         {
           detail:
-            "GitHub Actions release-readiness workflow is configured and the latest main run is recorded in Linear evidence.",
+            "GitHub Actions release-readiness workflow is configured, but the deployed app does not fetch live CI status. Confirm the latest main run in GitHub or Linear before treating hosted evidence as launch-ready.",
           label: "Hosted CI release gate",
-          state: "ready",
+          state: "watch",
         },
         {
           detail:
