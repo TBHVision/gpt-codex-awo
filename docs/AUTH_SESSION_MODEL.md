@@ -46,13 +46,17 @@ Server-only:
 
 - `AWO_ADMIN_PASSWORD`
 - `AWO_ADMIN_SESSION_TOKEN`
+- `AWO_DISABLE_TEMP_ADMIN_PASSWORD`
 
 `AWO_ADMIN_SESSION_TOKEN` should be a separate random value. If it is missing, the app currently falls back to `AWO_ADMIN_PASSWORD`, but production should define both.
 
 To remove the temporary password fallback safely later, keep
-`AWO_ADMIN_SESSION_TOKEN` configured and remove `AWO_ADMIN_PASSWORD` after a
-real Supabase admin login is confirmed. `/api/health` reports this posture under
-`services.adminAuth` without exposing either secret.
+`AWO_ADMIN_SESSION_TOKEN` configured, confirm a real Supabase admin login, then
+set `AWO_DISABLE_TEMP_ADMIN_PASSWORD=true` or remove `AWO_ADMIN_PASSWORD`.
+The explicit disable flag is safer for a staged launch because it lets the team
+test named-admin-only access without immediately deleting the stored fallback
+secret. `/api/health` reports this posture under `services.adminAuth` without
+exposing either secret.
 
 These values are set in:
 
@@ -141,6 +145,7 @@ Replace:
 
 - `AWO_ADMIN_PASSWORD`
 - `AWO_ADMIN_SESSION_TOKEN`
+- `AWO_DISABLE_TEMP_ADMIN_PASSWORD`
 - `awo_admin_session` cookie
 - `/admin/login` password form
 - password comparison in `src/app/admin/login/page.tsx`

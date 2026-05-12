@@ -6,12 +6,44 @@ type LoginFormProps = {
   action: (formData: FormData) => void;
   next: string;
   supabaseAdminLoginEnabled: boolean;
+  temporaryPasswordEnabled: boolean;
 };
+
+function EyeIcon({ crossed }: { crossed: boolean }) {
+  return (
+    <svg aria-hidden="true" className="size-5" viewBox="0 0 24 24">
+      <path
+        d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.8"
+      />
+      <path
+        d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+      />
+      {crossed ? (
+        <path
+          d="M4 20 20 4"
+          fill="none"
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeWidth="1.8"
+        />
+      ) : null}
+    </svg>
+  );
+}
 
 export default function LoginForm({
   action,
   next,
   supabaseAdminLoginEnabled,
+  temporaryPasswordEnabled,
 }: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -56,15 +88,7 @@ export default function LoginForm({
           onClick={() => setShowPassword((value) => !value)}
           type="button"
         >
-          {showPassword ? (
-            <span aria-hidden="true" className="text-lg leading-none">
-              ◉
-            </span>
-          ) : (
-            <span aria-hidden="true" className="text-lg leading-none">
-              ◌
-            </span>
-          )}
+          <EyeIcon crossed={showPassword} />
         </button>
       </div>
       <div className="space-y-3">
@@ -78,14 +102,16 @@ export default function LoginForm({
             Sign in as Admin
           </button>
         ) : null}
-        <button
-          className="h-11 w-full rounded-md border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 shadow-sm hover:border-slate-400 hover:bg-slate-50"
-          name="mode"
-          type="submit"
-          value="password"
-        >
-          Use Temporary Password
-        </button>
+        {temporaryPasswordEnabled ? (
+          <button
+            className="h-11 w-full rounded-md border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 shadow-sm hover:border-slate-400 hover:bg-slate-50"
+            name="mode"
+            type="submit"
+            value="password"
+          >
+            Use Temporary Password
+          </button>
+        ) : null}
       </div>
     </form>
   );

@@ -11,8 +11,13 @@ function valueOrNull(name: string) {
   return process.env[name]?.trim() || null;
 }
 
+function temporaryPasswordEnabled() {
+  return process.env.AWO_DISABLE_TEMP_ADMIN_PASSWORD !== "true";
+}
+
 export async function GET() {
   const snapshot = await loadLaunchReadinessSnapshot();
+  const temporaryFallbackEnabled = hasEnv("AWO_ADMIN_PASSWORD") && temporaryPasswordEnabled();
 
   return NextResponse.json(
     {
@@ -38,9 +43,11 @@ export async function GET() {
             hasEnv("SUPABASE_SERVICE_ROLE_KEY") &&
             hasEnv("AWO_ADMIN_SESSION_TOKEN"),
           sessionTokenConfigured: hasEnv("AWO_ADMIN_SESSION_TOKEN"),
-          temporaryPasswordFallback: hasEnv("AWO_ADMIN_PASSWORD"),
+          temporaryPasswordDisabled:
+            hasEnv("AWO_ADMIN_PASSWORD") && !temporaryPasswordEnabled(),
+          temporaryPasswordFallback: temporaryFallbackEnabled,
           temporaryPasswordProductionRisk:
-            hasEnv("AWO_ADMIN_PASSWORD") &&
+            temporaryFallbackEnabled &&
             (valueOrNull("VERCEL_ENV") ?? "local") === "production",
         },
         observability: {

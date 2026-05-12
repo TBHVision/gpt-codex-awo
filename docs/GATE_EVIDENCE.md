@@ -301,6 +301,10 @@ Codex evidence:
   `AWO_ADMIN_PASSWORD`.
 - Vercel production health now reports `temporaryPasswordProductionRisk = true`,
   which is correct while the fallback remains intentionally enabled.
+- The admin login now supports `AWO_DISABLE_TEMP_ADMIN_PASSWORD=true` as a
+  staged path to hide and reject the temporary password fallback after named
+  Supabase admin login is confirmed. `/api/health` reports both enabled and
+  disabled fallback posture without exposing secret values.
 
 Remaining:
 

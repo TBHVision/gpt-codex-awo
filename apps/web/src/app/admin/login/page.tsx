@@ -22,11 +22,16 @@ function getParam(
   return Array.isArray(value) ? value[0] : value;
 }
 
+function temporaryPasswordEnabled() {
+  return process.env.AWO_DISABLE_TEMP_ADMIN_PASSWORD !== "true";
+}
+
 async function login(formData: FormData) {
   "use server";
 
   const adminPassword = process.env.AWO_ADMIN_PASSWORD;
   const sessionToken = process.env.AWO_ADMIN_SESSION_TOKEN ?? adminPassword;
+  const canUseTemporaryPassword = temporaryPasswordEnabled();
   const mode = String(formData.get("mode") ?? "password");
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
@@ -66,6 +71,10 @@ async function login(formData: FormData) {
 
     redirect(safeNext);
   } else {
+    if (!canUseTemporaryPassword) {
+      redirect(`/admin/login?error=temp_disabled&next=${encodeURIComponent(safeNext)}`);
+    }
+
     if (!adminPassword) {
       redirect("/admin/login?setup=1");
     }
@@ -97,6 +106,7 @@ export default async function AdminLoginPage({
   const error = getParam(params, "error");
   const next = getParam(params, "next") ?? "/admin/build";
   const supabaseAdminLoginEnabled = canUseSupabaseAdminLogin();
+  const canUseTemporaryPassword = temporaryPasswordEnabled();
 
   const errorMessage =
     error === "1"
@@ -107,6 +117,8 @@ export default async function AdminLoginPage({
           ? "That Supabase user is not marked as an AWO admin."
           : error === "missing_config"
             ? "Supabase admin login is not configured yet."
+            : error === "temp_disabled"
+              ? "Temporary password login is disabled for this environment."
             : null;
 
   return (
@@ -139,6 +151,7 @@ export default async function AdminLoginPage({
           action={login}
           next={next}
           supabaseAdminLoginEnabled={supabaseAdminLoginEnabled}
+          temporaryPasswordEnabled={canUseTemporaryPassword}
         />
       </section>
     </main>

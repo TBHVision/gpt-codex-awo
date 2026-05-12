@@ -41,6 +41,10 @@ function observabilityState(envNames: string[]): ReadinessState {
   return envNames.some((name) => hasEnv(name)) ? "ready" : "review";
 }
 
+function temporaryPasswordEnabled() {
+  return process.env.AWO_DISABLE_TEMP_ADMIN_PASSWORD !== "true";
+}
+
 async function loadLocalReleaseEvidence() {
   try {
     const reportPath = path.join(
@@ -94,6 +98,8 @@ export async function loadLaunchReadinessSnapshot(): Promise<LaunchReadinessSnap
     hasEnv("SUPABASE_SERVICE_ROLE_KEY") &&
     hasEnv("AWO_ADMIN_SESSION_TOKEN");
   const temporaryAdminFallbackConfigured = hasEnv("AWO_ADMIN_PASSWORD");
+  const temporaryAdminFallbackEnabled =
+    temporaryAdminFallbackConfigured && temporaryPasswordEnabled();
 
   const sections: LaunchReadinessSection[] = [
     {
@@ -136,13 +142,15 @@ export async function loadLaunchReadinessSnapshot(): Promise<LaunchReadinessSnap
               : "blocked",
         },
         {
-          detail: temporaryAdminFallbackConfigured
+          detail: temporaryAdminFallbackEnabled
             ? "The shared temporary password fallback is still enabled. This is acceptable for controlled pre-launch work but should be removed or restricted before launch."
+            : temporaryAdminFallbackConfigured
+              ? "The temporary password value exists but is disabled by AWO_DISABLE_TEMP_ADMIN_PASSWORD. Named Supabase admin login must remain available before this is used in production."
             : namedAdminLoginConfigured
               ? "Temporary password fallback is disabled; named Supabase admin login has the required app/session configuration."
               : "Named Supabase admin login needs Supabase env vars and AWO_ADMIN_SESSION_TOKEN before the fallback can be removed safely.",
           label: "Temporary admin fallback policy",
-          state: temporaryAdminFallbackConfigured
+          state: temporaryAdminFallbackEnabled
             ? "review"
             : namedAdminLoginConfigured
               ? "ready"
