@@ -8,7 +8,7 @@ comment on Linear without re-discovering the same facts.
 
 ## Shared Release Evidence
 
-- `npm run test:release` passed at `2026-05-12T13:05:44.022Z`.
+- `npm run test:release` passed at `2026-05-12T13:20:30.599Z`.
 - Release report: `.qa/release-readiness/latest.json`.
 - Local route checks returned HTTP 200 for `/`, `/shop`, `/demo`,
   `/shop/wildflower-notes`, `/cart`, `/checkout`, `/reveal`, `/people`,
@@ -231,7 +231,7 @@ Codex evidence:
 - `npm run test:release` now includes the authenticated E2E step after smoke
   and demo tests and before visual QA.
 - Local `npm run test:release` passed with the authenticated step at
-  `2026-05-12T13:05:44.022Z`.
+  `2026-05-12T13:20:30.599Z`.
 
 Remaining:
 
@@ -260,8 +260,11 @@ Codex evidence:
   refund state recording and credential revocation.
 - `/admin/ownership` now exposes named-admin ownership revocation and transfer
   actions on top of the protected RPC.
+- Authenticated E2E now verifies a named admin can inspect `/admin/fulfillment`
+  and `/admin/ownership` operator pages after login without clicking exception
+  actions.
 - Local `npm run test:release` passed after the operator UI wiring at
-  `2026-05-12T13:05:44.022Z`.
+  `2026-05-12T13:20:30.599Z`.
 
 Remaining:
 

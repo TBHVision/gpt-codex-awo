@@ -442,6 +442,14 @@ async function runAdminFlow(client, adminSession) {
   await approvePendingArtist(client);
   await verifyArtistApproved();
   console.log("PASS named admin login approves pending artist");
+
+  await navigate(client, "/admin/fulfillment");
+  await waitForText(client, "Fulfillment Queue", "/admin/fulfillment named admin");
+  await waitForText(client, "Actions:", "/admin/fulfillment named admin actions posture");
+  await navigate(client, "/admin/ownership");
+  await waitForText(client, "Ownership Records", "/admin/ownership named admin");
+  await waitForText(client, "Actions:", "/admin/ownership named admin actions posture");
+  console.log("PASS named admin can inspect lifecycle operator pages");
 }
 
 async function approvePendingArtist(client) {
