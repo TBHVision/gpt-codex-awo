@@ -11,23 +11,17 @@ https://linear.app/hatchvision/project/gpt-codex-awo-build-7e22f4e31cd8
 - Linear owns phase status, execution issues, parking lot items, dependencies, and gate decisions.
 - Repo markdown files support implementation memory and should point back to Linear when status matters.
 - The web page should not duplicate editable issue or phase tracking.
+- The Next.js app lives at the repository root only. The old `apps/web` mirror
+  has been retired to avoid duplicate edits and drift.
 
 ## Version Rollup
 
-| Version | Name | Status | Codex Tests | Human Tests | Gate |
-| --- | --- | --- | --- | --- | --- |
-| V0.0 | Foundation + Build Dashboard | Complete | 5/5 | 3/3 | Approved |
-| V0.1 | Security + Data/Auth | In Progress | 3/9 | 0/5 | Open |
-| V0.2 | Public Shop | Planned | 0/10 | 0/5 | Locked |
-| V0.3 | Honoree Reveal | Planned | 0/8 | 0/5 | Locked |
-| V0.4 | My People + Buyer Tools | Planned | 0/12 | 0/6 | Locked |
-| V0.5 | Artist Studio | Planned | 0/9 | 0/5 | Locked |
-| V0.6 | Admin + Ops | Planned | 0/14 | 0/7 | Locked |
-| V0.7 | QA + Observability | Planned | 0/16 | 0/4 | Locked |
-| V1.0 | Launch-Ready Instance | Planned | 0/20 | 0/10 | Locked |
+Do not edit phase percentages here. Linear milestones and gate issues are the
+live version rollup. Use this file only to explain how the custom dashboard was
+retired and where future agents should look.
 
 ## Current Phase
 
-Linear is the live phase source of truth. Current active work is AWO-36: production gap audit after the first full shell pass.
-
-The V0.1 Supabase/Vercel public catalog blocker is closed. The next build runway is tracked in AWO-37 through AWO-44.
+Linear is the live phase source of truth. Current active launch work is tracked
+under AWO-63, the V1.0 launch-ready gate, with remaining external/Tony decisions
+kept open as related issues such as AWO-79, AWO-82, and AWO-83.

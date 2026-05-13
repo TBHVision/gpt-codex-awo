@@ -29,7 +29,7 @@ npm run test:release
 What each command proves:
 
 - `npm run lint`: TypeScript/React/Next lint rules are clean.
-- `npm run test:mirror`: root deployment files and `apps/web` files match.
+- `npm run test:mirror`: verifies the retired `apps/web` mirror has not returned.
 - `npm run build`: production Next.js build succeeds.
 - `npm run test:smoke`: key public routes respond and protected admin routes
   redirect to login when unauthenticated. It also validates the no-secret
@@ -57,7 +57,7 @@ What each command proves:
   controls, inline checkout cart quantity/remove controls, malformed
   cart-storage recovery, stale buyer-session recovery, and core storefront
   navigation routes.
-- `npm run test:release`: runs the full local gate: lint, mirror sync, build, fresh
+- `npm run test:release`: runs the full local gate: lint, single-root app check, build, fresh
   production server, smoke routes, guided demo journey, and desktop/mobile
   visual QA.
 

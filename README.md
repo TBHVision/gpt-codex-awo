@@ -10,7 +10,7 @@ This is the HatchVision-owned GPT-Codex implementation of AWO. It is intentional
 
 V0.0 Foundation + Build Dashboard
 
-- Web app: `apps/web`
+- Web app: repository root
 - Vercel-compatible app root: repository root
 - Local build dashboard: `http://127.0.0.1:3000/admin/build`
 - Stable review target: Vercel preview deployment after GitHub import
@@ -19,10 +19,10 @@ V0.0 Foundation + Build Dashboard
 
 ## Operating Rule
 
-The local docs and build dashboard are the source of truth. Chat memory is helpful, but project state lives in versioned files.
+Linear is the source of truth for project status. Repo docs support implementation memory, and chat memory is helpful, but status decisions should point back to Linear.
 
 ## Deployment Direction
 
-Localhost is for Codex development only. Tony review should happen on Vercel deployments so the dashboard stays reachable without a local Node server.
+Localhost is for Codex development. Tony review can happen locally through the Codex browser or on Vercel deployments when external services such as Stripe webhooks need the hosted URL.
 
-The Next app is also mirrored at the repository root so Vercel can deploy it with default settings. `apps/web` remains as the monorepo app folder until the repo structure is finalized.
+The Next.js app now lives only at the repository root. The old `apps/web` mirror was a temporary Vercel workaround and has been retired so future edits happen once.

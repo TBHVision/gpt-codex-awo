@@ -46,7 +46,7 @@ Current automated evidence:
 - `npm.cmd run test:visual`
 - `npm.cmd run test:release`
 
-`test:release` now runs lint, mirror sync, build, a fresh production server,
+`test:release` now runs lint, the single-root app check, build, a fresh production server,
 route smoke, guided demo journey, and desktop/mobile visual QA, then writes
 `.qa/release-readiness/latest.json`.
 The release report now records configuration-dependent checks as `skipped`
@@ -127,7 +127,7 @@ status.
 - Admin login also supports Supabase Auth email/password for users whose
   `profiles.role` is `admin`, while keeping the temporary password fallback.
 - Linear is the project source of truth.
-- Root app and `apps/web` mirror are kept in sync for Vercel deployment safety.
+- The old `apps/web` mirror is retired; the repository root is the single Next.js app.
 
 ## Buyer Status
 

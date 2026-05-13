@@ -31,11 +31,10 @@ every small decision.
 
 ## What Exists
 
-- Next.js app in `apps/web`
-- Next.js app mirrored at repository root for Vercel default deployment
+- Next.js app at the repository root
 - Protected project home route at `/admin/build`
 - Distinct visual treatment for state labels vs action buttons
-- Dashboard data in `apps/web/src/data/build-dashboard.ts`
+- Dashboard data in `src/data/build-dashboard.ts`
 - Project docs in `docs/`
 - Agent lane folders in `agents/`
 - Linear project: `GPT-Codex AWO Build`
@@ -46,18 +45,21 @@ every small decision.
 
 - `npm.cmd run lint`: passing
 - `npm.cmd run build`: passing
-- HTTP smoke test for `/admin/build`: passing with status 200
-- V0.1 admin auth browser flow: `/admin/build` redirects to login, configured password unlocks dashboard, logout returns to login.
-- V0.0 Codex Tests are 5/5 based on lint, build, route generation, dashboard content, and docs present.
+- HTTP smoke and release readiness checks are passing against a fresh local
+  production server.
+- Admin auth browser flow: protected `/admin/*` routes redirect to login,
+  configured admin access unlocks protected pages, and logout returns to login.
+- The old editable V0.0 dashboard flow is retired. Linear now owns phase and
+  issue status.
 - Tony completed V0.0 human tests in the web dashboard.
-- In-app browser automation is working against the local production server at `http://127.0.0.1:3000/admin/build`.
+- In-app browser automation works best against a fresh local production server,
+  not a stale long-running dev server.
 - Localhost should be run with `npm.cmd run build` then `npm.cmd run start -- --hostname 0.0.0.0 --port 3000` for reliable button testing.
-- If Vercel shows `404: NOT_FOUND`, verify the Vercel root directory is `apps/web`.
-- If Vercel says `cd apps/web: No such file or directory`, remove `cd apps/web` from install/build commands because Root Directory is already `apps/web`.
-- Current Vercel recommendation is default repo-root deployment. The Next app is mirrored at the root to eliminate Vercel Root Directory confusion.
+- Current Vercel recommendation is default repo-root deployment. The old
+  `apps/web` mirror has been retired so there is a single app source.
 - Public Vercel dashboard has noindex protections: robots.txt disallows all, metadata robots noindex/nofollow, and X-Robots-Tag headers.
-- V0.1 must add an app-level password/auth gate for the dashboard.
-- `/` redirects to `/admin/build` so Vercel preview thumbnails and root visits land on the dashboard.
+- `/` is the public AWO storefront/stakeholder landing surface; `/admin/build`
+  remains a protected lightweight Linear launch point.
 - Dashboard review state is browser-local. Localhost and Vercel may differ until changes are pushed/deployed and local browser state is reset or versioned.
 - Decorative gas tank/current gate metric cards were removed because they were not tied to real usage data and duplicated the phase table.
 - V0.1 admin password gate protects `/admin/*` except `/admin/login` and `/admin/logout`.
@@ -137,15 +139,13 @@ every small decision.
   - desktop navigation stays centered and visible
   - visual QA now also verifies the mobile menu opens and exposes section links
 - AWO-50 adds managed demo card artwork assets:
-  - static artwork lives under `public/cards/` and is mirrored to
-    `apps/web/public/cards/`
+  - static artwork lives under `public/cards/`
   - Supabase demo catalog rows now point at `/cards/birthday-light.svg`,
     `/cards/keep-going.svg`, and `/cards/with-you.svg`
   - `cover_media_url` remains optional, so the shop and card detail fallback art
     still protects missing-image cases
 - AWO-51 adds the storefront polish pass:
-  - the real AWO logo lives at `/awo-logo.png` and is mirrored to both public
-    roots
+  - the real AWO logo lives at `/awo-logo.png`
   - the demo catalog is aligned to the five-card pre-visualization:
     Wildflower Notes, Coastal Morning, With All My Heart, Morning Song, and
     Misty Pines

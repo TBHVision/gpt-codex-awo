@@ -9,8 +9,6 @@ const expectedCommit = exactExpectedCommit || (await latestAppSourceCommit());
 
 async function latestAppSourceCommit() {
   const deploySourcePaths = [
-    "apps/web/public",
-    "apps/web/src",
     "next.config.ts",
     "postcss.config.mjs",
     "public",

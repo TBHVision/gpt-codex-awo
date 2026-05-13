@@ -8,7 +8,7 @@ Use Vercel as the Tony review surface so dashboard and feature gates are not dep
 
 Deploy from the repository root with default Next.js settings.
 
-The dashboard app is mirrored at the repository root specifically to make Vercel deployment boring and avoid Root Directory confusion.
+The Next.js app lives at the repository root specifically to make Vercel deployment boring and avoid Root Directory confusion.
 
 ## Vercel Settings
 
@@ -28,4 +28,4 @@ Use:
 
 ## Note
 
-`apps/web` still contains the same app for the intended monorepo structure. For now, the root mirror is the production deployment path because it eliminates Vercel configuration ambiguity.
+The old `apps/web` mirror has been retired. Use the repository root for local development, CI, and Vercel production deployment.
