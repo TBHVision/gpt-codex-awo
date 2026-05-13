@@ -4,10 +4,13 @@ import {
   canUseSupabaseAdminLogin,
   verifySupabaseAdminLogin,
 } from "@/lib/admin-auth";
+import {
+  adminCookieName,
+  adminUserCookieName,
+  signAdminUserCookie,
+  temporaryPasswordEnabled,
+} from "@/lib/admin-session";
 import LoginForm from "./LoginForm";
-
-const adminCookieName = "awo_admin_session";
-const adminUserCookieName = "awo_admin_user_id";
 
 type LoginPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
@@ -20,10 +23,6 @@ function getParam(
   const value = params[key];
 
   return Array.isArray(value) ? value[0] : value;
-}
-
-function temporaryPasswordEnabled() {
-  return process.env.AWO_DISABLE_TEMP_ADMIN_PASSWORD !== "true";
 }
 
 async function login(formData: FormData) {
@@ -61,7 +60,7 @@ async function login(formData: FormData) {
       secure: process.env.NODE_ENV === "production",
     });
 
-    cookieStore.set(adminUserCookieName, result.userId, {
+    cookieStore.set(adminUserCookieName, await signAdminUserCookie(result.userId, sessionToken), {
       httpOnly: true,
       maxAge: 60 * 60 * 8,
       path: "/admin",

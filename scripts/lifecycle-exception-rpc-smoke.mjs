@@ -27,6 +27,7 @@ function loadLocalEnv() {
 loadLocalEnv();
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const runId = `lifecycle-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 const password = `AWO-lifecycle-${runId}!`;
@@ -56,6 +57,21 @@ function serviceHeaders(extra = {}) {
   };
 }
 
+function anonHeaders(extra = {}) {
+  return {
+    apikey: anonKey,
+    "Content-Type": "application/json",
+    ...extra,
+  };
+}
+
+function userHeaders(accessToken, extra = {}) {
+  return {
+    ...anonHeaders(extra),
+    Authorization: `Bearer ${accessToken}`,
+  };
+}
+
 async function readJson(response, fallback) {
   const payload = await response.json().catch(() => null);
 
@@ -64,6 +80,25 @@ async function readJson(response, fallback) {
   }
 
   return payload;
+}
+
+async function signInUser(email) {
+  if (!anonKey) {
+    throw new Error(
+      "NEXT_PUBLIC_SUPABASE_ANON_KEY is required for authenticated RPC spoof regression checks.",
+    );
+  }
+
+  const response = await fetch(`${supabaseUrl}/auth/v1/token?grant_type=password`, {
+    body: JSON.stringify({
+      email,
+      password,
+    }),
+    headers: anonHeaders(),
+    method: "POST",
+  });
+
+  return readJson(response, `Unable to sign in ${email}`);
 }
 
 async function createUser(email, role) {
@@ -153,7 +188,50 @@ async function deleteUser(userId) {
   }
 }
 
-async function callLifecycleRpc(input) {
+async function callFulfillmentRpc(input, headers = serviceHeaders()) {
+  const response = await fetch(
+    `${supabaseUrl}/rest/v1/rpc/admin_transition_fulfillment_item`,
+    {
+      body: JSON.stringify({
+        p_actor_profile_id: input.actorProfileId,
+        p_next_status: input.nextStatus,
+        p_note: input.note ?? "Lifecycle exception smoke spoof test.",
+        p_order_item_id: input.orderItemId,
+      }),
+      headers,
+      method: "POST",
+    },
+  );
+
+  return {
+    ok: response.ok,
+    payload: await response.json().catch(() => null),
+    status: response.status,
+  };
+}
+
+async function callCredentialRpc(input, headers = serviceHeaders()) {
+  const response = await fetch(
+    `${supabaseUrl}/rest/v1/rpc/generate_order_item_reveal_credential`,
+    {
+      body: JSON.stringify({
+        p_actor_profile_id: input.actorProfileId,
+        p_note: input.note ?? "Lifecycle exception smoke spoof test.",
+        p_order_item_id: input.orderItemId,
+      }),
+      headers,
+      method: "POST",
+    },
+  );
+
+  return {
+    ok: response.ok,
+    payload: await response.json().catch(() => null),
+    status: response.status,
+  };
+}
+
+async function callLifecycleRpc(input, headers = serviceHeaders()) {
   const response = await fetch(
     `${supabaseUrl}/rest/v1/rpc/admin_transition_lifecycle_exception`,
     {
@@ -165,7 +243,7 @@ async function callLifecycleRpc(input) {
         p_transfer_to_person_id: input.transferToPersonId ?? null,
         p_transfer_to_profile_id: input.transferToProfileId ?? null,
       }),
-      headers: serviceHeaders(),
+      headers,
       method: "POST",
     },
   );
@@ -175,6 +253,60 @@ async function callLifecycleRpc(input) {
     payload: await response.json().catch(() => null),
     status: response.status,
   };
+}
+
+async function assertAuthenticatedRpcExecuteBlocked({ adminUser, buyerUser, fixture }) {
+  const session = await signInUser(buyerUser.email);
+  const headers = userHeaders(session.access_token);
+  const attempts = [
+    {
+      label: "fulfillment transition",
+      result: await callFulfillmentRpc(
+        {
+          actorProfileId: adminUser.id,
+          nextStatus: "credential_pending",
+          orderItemId: fixture.item.id,
+        },
+        headers,
+      ),
+    },
+    {
+      label: "credential generation",
+      result: await callCredentialRpc(
+        {
+          actorProfileId: adminUser.id,
+          orderItemId: fixture.item.id,
+        },
+        headers,
+      ),
+    },
+    {
+      label: "lifecycle exception",
+      result: await callLifecycleRpc(
+        {
+          action: "revoke_credential",
+          actorProfileId: adminUser.id,
+          note: "Authenticated direct RPC spoof test; should be blocked.",
+          orderItemId: fixture.item.id,
+        },
+        headers,
+      ),
+    },
+  ];
+
+  for (const attempt of attempts) {
+    if (attempt.result.ok) {
+      throw new Error(
+        `Authenticated buyer direct ${attempt.label} RPC unexpectedly succeeded.`,
+      );
+    }
+
+    if (![401, 403, 404].includes(attempt.result.status)) {
+      throw new Error(
+        `Authenticated buyer direct ${attempt.label} RPC returned unexpected status ${attempt.result.status}: ${JSON.stringify(attempt.result.payload)}`,
+      );
+    }
+  }
 }
 
 async function assertNamedAdminGuard() {
@@ -556,6 +688,17 @@ async function main() {
       ...catalog,
       buyerUser,
       suffix: "transfer-owner",
+    });
+    const spoofFixture = await createLifecycleFixture({
+      ...catalog,
+      buyerUser,
+      suffix: "spoof",
+    });
+
+    await assertAuthenticatedRpcExecuteBlocked({
+      adminUser,
+      buyerUser,
+      fixture: spoofFixture,
     });
 
     await assertRefundWorkflow(refundFixture, adminUser);

@@ -1,12 +1,11 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-
-const adminCookieName = "awo_admin_session";
-const adminUserCookieName = "awo_admin_user_id";
-
-function temporaryPasswordEnabled() {
-  return process.env.AWO_DISABLE_TEMP_ADMIN_PASSWORD !== "true";
-}
+import {
+  adminCookieName,
+  adminUserCookieName,
+  temporaryPasswordEnabled,
+  verifyAdminUserCookie,
+} from "@/lib/admin-session";
 
 function withNoIndex(response: NextResponse) {
   response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
@@ -14,7 +13,7 @@ function withNoIndex(response: NextResponse) {
   return response;
 }
 
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
   const isAdminRoute = pathname.startsWith("/admin");
   const isPublicAdminRoute =
@@ -31,11 +30,14 @@ export function proxy(request: NextRequest) {
     );
     const sessionCookie = request.cookies.get(adminCookieName)?.value;
     const adminUserCookie = request.cookies.get(adminUserCookieName)?.value;
+    const verifiedAdminUserId = namedAdminRequired
+      ? await verifyAdminUserCookie(adminUserCookie, sessionToken)
+      : null;
 
     if (
       !sessionToken ||
       sessionCookie !== sessionToken ||
-      (namedAdminRequired && !adminUserCookie)
+      (namedAdminRequired && !verifiedAdminUserId)
     ) {
       const loginUrl = request.nextUrl.clone();
 

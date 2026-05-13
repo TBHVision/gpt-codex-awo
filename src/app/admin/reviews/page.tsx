@@ -5,13 +5,15 @@ import { AdminSessionBanner } from "@/app/admin/AdminSessionBanner";
 import { reviewArtist, type ArtistReviewAction } from "@/lib/admin-artist-review";
 import { reviewCard, type CardReviewAction } from "@/lib/admin-card-review";
 import {
+  adminUserCookieName,
+  verifyAdminUserCookie,
+} from "@/lib/admin-session";
+import {
   type ReviewMetric,
   loadAdminReviewQueues,
 } from "@/lib/admin-review-queues";
 
 export const dynamic = "force-dynamic";
-
-const adminUserCookieName = "awo_admin_user_id";
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("en-US", {
@@ -69,7 +71,9 @@ async function submitCardReview(formData: FormData) {
   "use server";
 
   const cookieStore = await cookies();
-  const adminUserId = cookieStore.get(adminUserCookieName)?.value;
+  const adminUserId = await verifyAdminUserCookie(
+    cookieStore.get(adminUserCookieName)?.value,
+  );
   const action = String(formData.get("action") ?? "") as CardReviewAction;
   const cardId = String(formData.get("cardId") ?? "");
 
@@ -77,7 +81,7 @@ async function submitCardReview(formData: FormData) {
     throw new Error("Invalid card review action.");
   }
 
-  await reviewCard({ action, adminUserId, cardId });
+  await reviewCard({ action, adminUserId: adminUserId ?? undefined, cardId });
   revalidatePath("/admin/reviews");
   revalidatePath("/admin/ops");
 }
@@ -86,7 +90,9 @@ async function submitArtistReview(formData: FormData) {
   "use server";
 
   const cookieStore = await cookies();
-  const adminUserId = cookieStore.get(adminUserCookieName)?.value;
+  const adminUserId = await verifyAdminUserCookie(
+    cookieStore.get(adminUserCookieName)?.value,
+  );
   const action = String(formData.get("action") ?? "") as ArtistReviewAction;
   const artistId = String(formData.get("artistId") ?? "");
 
@@ -94,7 +100,7 @@ async function submitArtistReview(formData: FormData) {
     throw new Error("Invalid artist review action.");
   }
 
-  await reviewArtist({ action, adminUserId, artistId });
+  await reviewArtist({ action, adminUserId: adminUserId ?? undefined, artistId });
   revalidatePath("/admin/reviews");
   revalidatePath("/admin/ops");
   revalidatePath("/artists");
@@ -104,7 +110,9 @@ async function submitArtistReview(formData: FormData) {
 export default async function AdminReviewsPage() {
   const snapshot = await loadAdminReviewQueues();
   const cookieStore = await cookies();
-  const hasNamedAdmin = Boolean(cookieStore.get(adminUserCookieName)?.value);
+  const hasNamedAdmin = Boolean(
+    await verifyAdminUserCookie(cookieStore.get(adminUserCookieName)?.value),
+  );
 
   return (
     <main className="min-h-screen bg-[#f6f4ef] text-slate-950">

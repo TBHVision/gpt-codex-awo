@@ -13,13 +13,16 @@ import {
   type LifecycleExceptionAction,
 } from "@/lib/admin-lifecycle-actions";
 import {
+  adminUserCookieName,
+  verifyAdminUserCookie,
+} from "@/lib/admin-session";
+import {
   type FulfillmentMetric,
   loadAdminFulfillmentSnapshot,
 } from "@/lib/admin-fulfillment";
 
 export const dynamic = "force-dynamic";
 
-const adminUserCookieName = "awo_admin_user_id";
 const recentCredentialCookieName = "awo_recent_reveal_credential";
 
 function formatDate(value: string) {
@@ -81,7 +84,9 @@ async function submitFulfillmentTransition(formData: FormData) {
   "use server";
 
   const cookieStore = await cookies();
-  const adminUserId = cookieStore.get(adminUserCookieName)?.value;
+  const adminUserId = await verifyAdminUserCookie(
+    cookieStore.get(adminUserCookieName)?.value,
+  );
   const itemId = String(formData.get("itemId") ?? "");
   const nextStatus = String(
     formData.get("nextStatus") ?? "",
@@ -96,7 +101,11 @@ async function submitFulfillmentTransition(formData: FormData) {
     throw new Error("Invalid fulfillment transition.");
   }
 
-  await transitionFulfillmentItem({ adminUserId, itemId, nextStatus });
+  await transitionFulfillmentItem({
+    adminUserId: adminUserId ?? undefined,
+    itemId,
+    nextStatus,
+  });
   revalidatePath("/admin/fulfillment");
   revalidatePath("/admin/ownership");
   revalidatePath("/admin/audit");
@@ -108,14 +117,19 @@ async function submitCredentialGeneration(formData: FormData) {
   "use server";
 
   const cookieStore = await cookies();
-  const adminUserId = cookieStore.get(adminUserCookieName)?.value;
+  const adminUserId = await verifyAdminUserCookie(
+    cookieStore.get(adminUserCookieName)?.value,
+  );
   const itemId = String(formData.get("itemId") ?? "");
 
   if (!itemId) {
     throw new Error("Invalid credential generation request.");
   }
 
-  const credential = await generateRevealCredential({ adminUserId, itemId });
+  const credential = await generateRevealCredential({
+    adminUserId: adminUserId ?? undefined,
+    itemId,
+  });
 
   if (!credential) {
     throw new Error("Reveal credential generation did not return a credential.");
@@ -141,7 +155,9 @@ async function submitLifecycleException(formData: FormData) {
   "use server";
 
   const cookieStore = await cookies();
-  const adminUserId = cookieStore.get(adminUserCookieName)?.value;
+  const adminUserId = await verifyAdminUserCookie(
+    cookieStore.get(adminUserCookieName)?.value,
+  );
   const itemId = String(formData.get("itemId") ?? "");
   const action = String(formData.get("action") ?? "") as LifecycleExceptionAction;
 
@@ -151,7 +167,7 @@ async function submitLifecycleException(formData: FormData) {
 
   await transitionLifecycleException({
     action,
-    adminUserId,
+    adminUserId: adminUserId ?? undefined,
     itemId,
     note:
       action === "refund_item"
@@ -171,7 +187,9 @@ async function submitLifecycleException(formData: FormData) {
 export default async function AdminFulfillmentPage() {
   const snapshot = await loadAdminFulfillmentSnapshot();
   const cookieStore = await cookies();
-  const hasNamedAdmin = Boolean(cookieStore.get(adminUserCookieName)?.value);
+  const hasNamedAdmin = Boolean(
+    await verifyAdminUserCookie(cookieStore.get(adminUserCookieName)?.value),
+  );
   const recentCredential = parseRecentCredential(
     cookieStore.get(recentCredentialCookieName)?.value,
   );

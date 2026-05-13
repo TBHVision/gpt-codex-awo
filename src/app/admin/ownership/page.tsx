@@ -7,13 +7,15 @@ import {
   type LifecycleExceptionAction,
 } from "@/lib/admin-lifecycle-actions";
 import {
+  adminUserCookieName,
+  verifyAdminUserCookie,
+} from "@/lib/admin-session";
+import {
   type OwnershipMetric,
   loadAdminOwnershipSnapshot,
 } from "@/lib/admin-ownership";
 
 export const dynamic = "force-dynamic";
-
-const adminUserCookieName = "awo_admin_user_id";
 
 function formatDate(value: string | null) {
   if (!value) {
@@ -50,7 +52,9 @@ async function submitOwnershipException(formData: FormData) {
   "use server";
 
   const cookieStore = await cookies();
-  const adminUserId = cookieStore.get(adminUserCookieName)?.value;
+  const adminUserId = await verifyAdminUserCookie(
+    cookieStore.get(adminUserCookieName)?.value,
+  );
   const itemId = String(formData.get("itemId") ?? "");
   const action = String(formData.get("action") ?? "") as LifecycleExceptionAction;
   const transferToPersonId = String(formData.get("transferToPersonId") ?? "").trim();
@@ -66,7 +70,7 @@ async function submitOwnershipException(formData: FormData) {
 
   await transitionLifecycleException({
     action,
-    adminUserId,
+    adminUserId: adminUserId ?? undefined,
     itemId,
     note:
       action === "transfer_ownership"
@@ -87,7 +91,9 @@ async function submitOwnershipException(formData: FormData) {
 export default async function AdminOwnershipPage() {
   const snapshot = await loadAdminOwnershipSnapshot();
   const cookieStore = await cookies();
-  const hasNamedAdmin = Boolean(cookieStore.get(adminUserCookieName)?.value);
+  const hasNamedAdmin = Boolean(
+    await verifyAdminUserCookie(cookieStore.get(adminUserCookieName)?.value),
+  );
 
   return (
     <main className="min-h-screen bg-[#f6f4ef] text-slate-950">

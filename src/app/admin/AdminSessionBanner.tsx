@@ -1,11 +1,15 @@
 import { cookies } from "next/headers";
 import Link from "next/link";
-
-const adminUserCookieName = "awo_admin_user_id";
+import {
+  adminUserCookieName,
+  verifyAdminUserCookie,
+} from "@/lib/admin-session";
 
 export async function AdminSessionBanner() {
   const cookieStore = await cookies();
-  const adminUserId = cookieStore.get(adminUserCookieName)?.value;
+  const adminUserId = await verifyAdminUserCookie(
+    cookieStore.get(adminUserCookieName)?.value,
+  );
   const isNamedAdmin = Boolean(adminUserId);
   const label = isNamedAdmin ? "Named admin session" : "Temporary password session";
   const detail = isNamedAdmin
