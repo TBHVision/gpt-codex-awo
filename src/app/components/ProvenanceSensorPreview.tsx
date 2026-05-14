@@ -1,8 +1,10 @@
+import Image from "next/image";
 import type { ReactNode } from "react";
 
 type ProvenanceSensorPreviewProps = {
   cardTitle: string;
   coverMediaUrl: string | null;
+  proofMediaUrl?: string | null;
 };
 
 const sensorDetails = [
@@ -121,7 +123,73 @@ function ThermalFrame() {
 export default function ProvenanceSensorPreview({
   cardTitle,
   coverMediaUrl,
+  proofMediaUrl,
 }: ProvenanceSensorPreviewProps) {
+  if (proofMediaUrl) {
+    return (
+      <section className="border-y border-[#e5ded6] bg-[#fffdfa] px-6 py-10 lg:px-10">
+        <div className="mx-auto max-w-7xl">
+          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-[#b7653a]">
+                Origin proof preview
+              </p>
+              <h2 className="mt-2 text-3xl font-black tracking-tight text-[#252525]">
+                Three synced lenses, six seconds.
+              </h2>
+            </div>
+            <p className="max-w-xl text-sm leading-6 text-[#4b4743]">
+              A preview frame from the visual camera, time-of-flight depth, and
+              thermal layers. The production pass will replace this frame with
+              the full synchronized six-second video sequence.
+            </p>
+          </div>
+
+          <div className="mt-7 border border-[#e5ded6] bg-white p-3 shadow-[0_18px_45px_rgba(45,38,32,.08)]">
+            <div className="awo-proof-media-frame">
+              <Image
+                alt={`${cardTitle} synchronized provenance proof preview`}
+                className="object-cover"
+                fill
+                sizes="(min-width: 1024px) 1280px, 100vw"
+                src={proofMediaUrl}
+              />
+              <span className="awo-proof-media-scan" aria-hidden="true" />
+            </div>
+          </div>
+
+          <div className="mt-6 grid gap-3 lg:grid-cols-3">
+            {sensorDetails.map((item) => (
+              <div
+                className="border border-[#e5ded6] bg-white px-4 py-3"
+                key={item.label}
+              >
+                <p className="text-xs font-black uppercase tracking-wide text-[#2f2d2b]">
+                  {item.meta}
+                </p>
+                <p className="mt-2 text-sm leading-6 text-[#5a514a]">
+                  {item.body}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-6 flex items-center gap-3">
+            <span className="text-xs font-black uppercase tracking-wide text-[#8a8178]">
+              Preview loop
+            </span>
+            <div className="awo-proof-timeline" aria-hidden="true">
+              <span />
+            </div>
+            <span className="text-xs font-black uppercase tracking-wide text-[#8a8178]">
+              6s
+            </span>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="border-y border-[#e5ded6] bg-[#fffdfa] px-6 py-10 lg:px-10">
       <div className="mx-auto max-w-7xl">

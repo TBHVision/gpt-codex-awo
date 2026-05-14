@@ -204,6 +204,28 @@ body {
   animation: awo-proof-timeline-motion 6s linear infinite;
 }
 
+.awo-proof-media-frame {
+  position: relative;
+  aspect-ratio: 1792 / 880;
+  overflow: hidden;
+  background: #f8f2ea;
+}
+
+.awo-proof-media-scan {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  width: 18%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(255 255 255 / 0.28),
+    transparent
+  );
+  mix-blend-mode: screen;
+  animation: awo-proof-media-scan-motion 6s linear infinite;
+}
+
 @keyframes awo-proof-hand-motion {
   0% {
     opacity: 0;
@@ -287,10 +309,20 @@ body {
   }
 }
 
+@keyframes awo-proof-media-scan-motion {
+  from {
+    transform: translateX(-120%);
+  }
+  to {
+    transform: translateX(680%);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .awo-proof-hand,
   .awo-proof-brush,
   .awo-proof-depth-shadow,
+  .awo-proof-media-scan,
   .awo-proof-timeline span {
     animation-play-state: paused;
   }

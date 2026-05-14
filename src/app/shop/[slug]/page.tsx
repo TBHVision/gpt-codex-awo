@@ -260,6 +260,11 @@ export default async function CardDetailPage({ params }: CardDetailPageProps) {
       <ProvenanceSensorPreview
         cardTitle={card.title}
         coverMediaUrl={card.cover_media_url}
+        proofMediaUrl={
+          card.slug === "coastal-morning"
+            ? "/provenance/coastal-morning-proof-frame.png"
+            : null
+        }
       />
     </main>
   );
