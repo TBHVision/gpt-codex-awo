@@ -5,6 +5,7 @@ type ProvenanceSensorPreviewProps = {
   cardTitle: string;
   coverMediaUrl: string | null;
   proofMediaUrl?: string | null;
+  proofVideoUrl?: string | null;
 };
 
 const sensorDetails = [
@@ -124,11 +125,12 @@ export default function ProvenanceSensorPreview({
   cardTitle,
   coverMediaUrl,
   proofMediaUrl,
+  proofVideoUrl,
 }: ProvenanceSensorPreviewProps) {
-  if (proofMediaUrl) {
+  if (proofMediaUrl || proofVideoUrl) {
     return (
       <section className="border-y border-[#e5ded6] bg-[#fffdfa] px-6 py-10 lg:px-10">
-        <div className="mx-auto max-w-7xl">
+        <div className="mx-auto max-w-6xl">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.18em] text-[#b7653a]">
@@ -140,21 +142,37 @@ export default function ProvenanceSensorPreview({
             </div>
             <p className="max-w-xl text-sm leading-6 text-[#4b4743]">
               A preview frame from the visual camera, time-of-flight depth, and
-              thermal layers. The production pass will replace this frame with
-              the full synchronized six-second video sequence.
+              thermal layers, formatted as a six-second shopper preview. A later
+              production pass can replace this asset with true frame-by-frame
+              capture.
             </p>
           </div>
 
-          <div className="mt-7 border border-[#e5ded6] bg-white p-3 shadow-[0_18px_45px_rgba(45,38,32,.08)]">
+          <div className="mx-auto mt-7 max-w-4xl border border-[#e5ded6] bg-white p-3 shadow-[0_18px_45px_rgba(45,38,32,.08)]">
             <div className="awo-proof-media-frame">
-              <Image
-                alt={`${cardTitle} synchronized provenance proof preview`}
-                className="object-cover"
-                fill
-                sizes="(min-width: 1024px) 1280px, 100vw"
-                src={proofMediaUrl}
-              />
-              <span className="awo-proof-media-scan" aria-hidden="true" />
+              {proofVideoUrl ? (
+                <video
+                  aria-label={`${cardTitle} synchronized provenance proof preview`}
+                  autoPlay
+                  className="h-full w-full object-contain"
+                  loop
+                  muted
+                  playsInline
+                  poster={proofMediaUrl ?? undefined}
+                  src={proofVideoUrl}
+                />
+              ) : (
+                <>
+                  <Image
+                    alt={`${cardTitle} synchronized provenance proof preview`}
+                    className="object-contain"
+                    fill
+                    sizes="(min-width: 1024px) 896px, 100vw"
+                    src={proofMediaUrl as string}
+                  />
+                  <span className="awo-proof-media-scan" aria-hidden="true" />
+                </>
+              )}
             </div>
           </div>
 

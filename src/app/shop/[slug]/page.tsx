@@ -265,6 +265,11 @@ export default async function CardDetailPage({ params }: CardDetailPageProps) {
             ? "/provenance/coastal-morning-proof-frame.png"
             : null
         }
+        proofVideoUrl={
+          card.slug === "coastal-morning"
+            ? "/provenance/coastal-morning-proof-preview.mp4"
+            : null
+        }
       />
     </main>
   );
