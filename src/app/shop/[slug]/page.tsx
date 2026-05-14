@@ -5,6 +5,7 @@ import {
   type PublishedCard,
 } from "@/lib/public-catalog";
 import StorefrontNav from "@/app/components/StorefrontNav";
+import ProvenanceSensorPreview from "@/app/components/ProvenanceSensorPreview";
 import AddToCartButton from "./AddToCartButton";
 
 type CardDetailPageProps = {
@@ -255,6 +256,11 @@ export default async function CardDetailPage({ params }: CardDetailPageProps) {
           </div>
         </aside>
       </section>
+
+      <ProvenanceSensorPreview
+        cardTitle={card.title}
+        coverMediaUrl={card.cover_media_url}
+      />
     </main>
   );
 }
